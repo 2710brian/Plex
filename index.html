@@ -1,17 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="da">
 <head>
+    <meta charset="UTF-8">
     <title>Plex CRM Dashboard</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f2f5; text-align: center; padding: 50px; }
-        .box { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: inline-block; }
-        h1 { color: #333; }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="box">
-        <h1>Mit Plex & IPTV System 🚀</h1>
-        <p>Forbindelsen mellem GitHub og Railway virker!</p>
+<body class="bg-gray-100 font-sans">
+    
+    <!-- Top Menu -->
+    <div class="bg-white p-4 shadow flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+            <span class="mr-2">📺</span> Dit CRM System
+        </h1>
+        <button class="bg-red-500 text-white px-5 py-2 rounded shadow hover:bg-red-600 font-bold transition">
+            + Add Client
+        </button>
     </div>
+
+    <!-- Hovedindhold: Kundetabel -->
+    <div class="p-8">
+        <div class="bg-white rounded-lg shadow overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 text-gray-500 text-sm border-b">
+                        <th class="p-4 font-semibold">Navn</th>
+                        <th class="p-4 font-semibold">Email</th>
+                        <th class="p-4 font-semibold">Kategori</th>
+                        <th class="p-4 font-semibold">Status</th>
+                        <th class="p-4 font-semibold">Plex ID</th>
+                        <th class="p-4 font-semibold">Plan</th>
+                        <th class="p-4 font-semibold">Næste Betaling</th>
+                        <th class="p-4 font-semibold text-center">Handling</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm text-gray-700">
+                    
+                    <!-- Kunde 1 (Fra din CSV) -->
+                    <tr class="border-b hover:bg-gray-50 transition">
+                        <td class="p-4 font-bold flex items-center">
+                            <div class="h-8 w-8 rounded-full bg-gray-200 mr-3 flex items-center justify-center text-gray-500">M</div>
+                            Mr Mads Aggerholm
+                        </td>
+                        <td class="p-4">shin@shinhypnose.dk</td>
+                        <td class="p-4">Full Packet</td>
+                        <td class="p-4">
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">● Active</span>
+                        </td>
+                        <td class="p-4">sh2183</td>
+                        <td class="p-4">Yearly</td>
+                        <td class="p-4 font-semibold">18-01-2027</td>
+                        <td class="p-4 text-center">
+                            <button class="border px-3 py-1 rounded hover:bg-gray-200">⋮</button>
+                        </td>
+                    </tr>
+
+                    <!-- Kunde 2 (Fra din CSV) -->
+                    <tr class="border-b hover:bg-gray-50 transition">
+                        <td class="p-4 font-bold flex items-center">
+                            <div class="h-8 w-8 rounded-full bg-gray-200 mr-3 flex items-center justify-center text-gray-500">C</div>
+                            Mrs Camilla
+                        </td>
+                        <td class="p-4">Cadasal20@gmail.com</td>
+                        <td class="p-4">Plex</td>
+                        <td class="p-4">
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">● Active</span>
+                        </td>
+                        <td class="p-4">cada877</td>
+                        <td class="p-4">Yearly</td>
+                        <td class="p-4 font-semibold text-orange-500">21-12-2026</td>
+                        <td class="p-4 text-center">
+                            <button class="border px-3 py-1 rounded hover:bg-gray-200">⋮</button>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </body>
 </html>

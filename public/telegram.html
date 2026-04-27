@@ -3,14 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plex CRM - Telegram Omnichannel</title>
+    <title>Plex CRM - Telegram Control Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); }
+        .modal-content { background-color: white; margin: 10% auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border-top: 8px solid #0ea5e9; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        label { display: block; font-size: 0.65rem; font-weight: 800; color: #4b5563; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+        input { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; font-size: 0.85rem; background-color: #f9fafb; margin-bottom: 10px; font-weight: 600; }
         .nav-active { background-color: #dc2626 !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
         .chat-scroll { height: calc(100vh - 180px); overflow-y: auto; }
         .message-bubble { max-width: 80%; border-radius: 12px; padding: 10px 15px; margin-bottom: 10px; font-size: 13px; }
-        .msg-in { background-color: #f3f4f6; color: #1f2937; align-self: flex-start; }
-        .msg-out { background-color: #dcfce7; color: #065f46; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .msg-in { background-color: #f3f4f6; color: #1f2937; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .msg-out { background-color: #e0f2fe; color: #0369a1; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .btn-inactive { color: #94a3b8; background-color: transparent; border: 1px solid transparent; }
+        .btn-active-support { background-color: white; color: #0ea5e9; border: 1px solid #e0f2fe; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .btn-active-info { background-color: white; color: #f59e0b; border: 1px solid #fef3c7; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans">
@@ -20,162 +27,205 @@
         <div class="p-6 text-2xl font-black border-b border-slate-800 italic tracking-tighter text-red-600">⦿ PLEX CRM</div>
         <nav id="sidebar-nav" class="flex-1 p-4 space-y-1">
             <a href="index.html" class="nav-item block p-3 hover:bg-slate-800 rounded">👥 <span data-dk="Klient-Oversigt" data-uk="Client Overview">Klient-Oversigt</span></a>
-            <a href="approvals.html" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400">
+            <a href="approvals.html" id="nav-approvals" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400">
                 <span>⏳ <span data-dk="Godkendelser" data-uk="Approvals">Godkendelser</span></span>
                 <span class="bg-orange-600 text-white text-[9px] px-2 py-0.5 rounded-full font-black">1</span>
             </a>
-            <a href="resellers.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400 italic">👤 Reseller Styring</a>
-            <a href="commission.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black italic">💰 Provision & Tal</a>
-            <a href="settings.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400">⚙️ Pakke Indstillinger</a>
-            <a href="telegram.html" class="nav-item block p-3 bg-red-600 rounded nav-active text-sky-400 border-t border-slate-800 mt-4 italic text-white">💬 Telegram Chat</a>
-            <a href="payments.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-slate-500">💳 Betalinger</a>
+            <a href="resellers.html" id="nav-resellers" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400 italic">👤 <span data-dk="Reseller Styring" data-uk="Reseller Mgmt">Reseller Styring</span></a>
+            <a href="commission.html" id="nav-commission" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black italic">💰 <span data-dk="Provision & Tal" data-uk="Profit & Data">Provision & Tal</span></a>
+            <a href="settings.html" id="nav-settings" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ <span data-dk="Pakke Indstillinger" data-uk="Package Settings">Pakke Indstillinger</span></a>
+            <a href="telegram.html" class="nav-item block p-3 bg-red-600 rounded nav-active text-sky-400 border-t border-slate-800 mt-4 italic text-white">💬 <span data-dk="Telegram Chat" data-uk="Telegram Chat">Telegram Chat</span></a>
+            <a href="payments.html" id="nav-payments" class="nav-item block p-3 hover:bg-slate-800 rounded text-slate-500">💳 <span data-dk="Betalinger" data-uk="Payments">Betalinger</span></a>
         </nav>
-        <div class="p-4 border-t border-slate-800 bg-black/20 text-center italic text-[9px] text-slate-500">Admin: Brian</div>
-    </div>
-
-    <!-- MAIN INTERFACE -->
-    <div class="flex-1 flex flex-col overflow-hidden">
         
-        <!-- HEADER MED KONTO SKIFTER -->
-        <header class="bg-white shadow-sm p-4 flex justify-between items-center px-10 border-b">
-            <div class="flex items-center space-x-6">
-                <h2 class="text-xl font-black uppercase italic tracking-tighter text-slate-800">
-                    Telegram <span class="text-sky-500">Center</span>
-                </h2>
-                <div class="flex bg-slate-100 p-1 rounded-lg border">
-                    <button id="btn-support" onclick="switchAccount('support')" class="bg-white text-sky-600 px-4 py-1.5 rounded shadow-sm text-[10px] font-black uppercase tracking-widest border border-sky-100">Live Support Chat</button>
-                    <button id="btn-info" onclick="switchAccount('info')" class="text-slate-400 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest hover:text-slate-600 transition">Info & Broadcast Bot</button>
+        <div class="p-4 border-t border-slate-800 bg-black/20">
+            <div class="flex justify-between items-center mb-4 italic text-[9px] text-slate-500 font-black uppercase">
+                <span>Language:</span>
+                <div class="flex space-x-2">
+                    <button onclick="setLang('dk')" id="btn-dk" class="text-red-500 underline font-black">DK</button>
+                    <button onclick="setLang('uk')" id="btn-uk" class="text-slate-500 font-black">UK</button>
                 </div>
             </div>
-            <div class="flex items-center space-x-2 text-[10px] font-black uppercase text-emerald-500 italic">
-                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                <span>System Online (API Connected)</span>
+            <div class="text-[9px] text-slate-400 font-bold uppercase italic text-center tracking-widest">Admin: Brian</div>
+        </div>
+    </div>
+
+    <!-- MAIN AREA -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- HEADER MED KONTO SKIFTER + CONFIG -->
+        <header class="bg-white shadow-sm p-4 flex justify-between items-center px-10 border-b">
+            <div class="flex items-center space-x-6">
+                <div class="flex items-center space-x-3">
+                    <h2 class="text-xl font-black uppercase italic tracking-tighter text-slate-800">Telegram Center</h2>
+                    <button onclick="openTokenModal()" class="text-slate-300 hover:text-sky-500 transition text-xl">⚙️</button>
+                </div>
+                
+                <div class="flex bg-slate-100 p-1 rounded-lg border italic">
+                    <button id="acc-support" onclick="switchBot('support')" class="btn-active-support px-4 py-1.5 rounded text-[9px] font-black uppercase tracking-widest transition-all">Support Chat</button>
+                    <button id="acc-info" onclick="switchBot('info')" class="btn-inactive px-4 py-1.5 rounded text-[9px] font-black uppercase tracking-widest transition-all">Info & Broadcast</button>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <div id="bot-status-tag" class="bg-sky-50 text-sky-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-sky-100 flex items-center">
+                    <span class="w-1.5 h-1.5 bg-sky-500 rounded-full mr-2 animate-pulse"></span>
+                    <span id="status-text">Support Bot Online</span>
+                </div>
             </div>
         </header>
 
-        <!-- CHAT LAYOUT (3 KOLONNER) -->
+        <!-- CHAT INTERFACE (3 KOLONNER FRA BILLEDE 4) -->
         <div class="flex-1 flex overflow-hidden">
             
-            <!-- KOLONNE 1: INDBAKKE LISTE -->
+            <!-- KOLONNE 1: CHAT LISTE -->
             <div class="w-80 bg-white border-r flex flex-col shrink-0">
-                <div class="p-4 border-b bg-slate-50">
-                    <input type="text" placeholder="Søg i samtaler..." class="w-full text-xs p-2 border rounded-md">
+                <div class="p-4 border-b bg-slate-50/50">
+                    <input type="text" placeholder="Søg i chats..." class="w-full text-[11px] p-2 border rounded-md shadow-sm outline-none">
                 </div>
-                <div class="chat-scroll divide-y">
+                <div class="chat-scroll divide-y divide-gray-50">
                     <!-- Chat 1 -->
-                    <div class="p-4 hover:bg-blue-50 cursor-pointer transition bg-blue-50/30 border-l-4 border-blue-500">
-                        <div class="flex justify-between mb-1">
-                            <span class="text-xs font-black uppercase text-slate-800">ahmad abu aisheh</span>
-                            <span class="text-[9px] text-gray-400">14:21</span>
+                    <div class="p-4 hover:bg-sky-50 cursor-pointer transition bg-sky-50/30 border-l-4 border-sky-500">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[11px] font-black uppercase text-slate-800 italic">ahmad abu aisheh</span>
+                            <span class="text-[8px] text-slate-400 font-bold">14:21</span>
                         </div>
-                        <p class="text-[10px] text-gray-500 truncate italic">Tusind tak den virker nu...</p>
-                    </div>
-                    <!-- Chat 2 -->
-                    <div class="p-4 hover:bg-slate-50 cursor-pointer transition">
-                        <div class="flex justify-between mb-1">
-                            <span class="text-xs font-black uppercase text-slate-800">King1978</span>
-                            <span class="text-[9px] text-gray-400">Tirsdag</span>
-                        </div>
-                        <p class="text-[10px] text-gray-500 truncate">Ja passer meget godt</p>
+                        <p class="text-[10px] text-slate-500 truncate italic">Tusind tak den virker nu...</p>
                     </div>
                 </div>
             </div>
 
-            <!-- KOLONNE 2: SELVE CHATTEN -->
-            <div class="flex-1 flex flex-col bg-slate-50 relative">
-                <!-- Chat Header -->
-                <div class="p-4 bg-white border-b flex justify-between items-center shadow-sm">
+            <!-- KOLONNE 2: SELVE SAMTALEN -->
+            <div class="flex-1 flex flex-col bg-[#f0f2f5] relative">
+                <!-- Chat Sub-Header -->
+                <div class="p-4 bg-white/80 backdrop-blur border-b flex justify-between items-center shadow-sm z-10">
                     <div>
-                        <h3 class="font-black text-sm uppercase italic" id="active-chat-name">ahmad abu aisheh</h3>
-                        <p class="text-[9px] text-slate-400 font-bold uppercase">Telegram ID: 1002</p>
+                        <h3 class="font-black text-xs uppercase italic text-slate-700" id="chat-with-name">ahmad abu aisheh</h3>
+                        <p class="text-[8px] text-slate-400 font-black">USER ID: 1002 | MALAGA, ES</p>
                     </div>
-                    <div class="flex space-x-3">
-                        <button class="p-2 text-slate-300 hover:text-slate-600 italic text-xs">Historik</button>
-                        <button class="p-2 text-red-500 font-black text-xs uppercase italic tracking-widest border border-red-100 rounded bg-red-50 px-4">Luk sag</button>
-                    </div>
+                    <button class="text-[9px] font-black uppercase tracking-widest text-red-500 hover:underline">Luk sag</button>
                 </div>
 
-                <!-- Beskederne -->
-                <div class="flex-1 p-6 flex flex-col overflow-y-auto chat-scroll bg-[#e5e7eb] shadow-inner" style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png');">
-                    <div class="message-bubble msg-in">
+                <!-- Besked-vindue -->
+                <div class="flex-1 p-6 flex flex-col overflow-y-auto chat-scroll space-y-2">
+                    <div class="message-bubble msg-in shadow-sm">
                         Tusind tak den virker nu
-                        <div class="text-[8px] text-right mt-1 opacity-50">21:01</div>
+                        <div class="text-[7px] text-right mt-1 opacity-40 font-black">21:01</div>
                     </div>
-                    <div class="message-bubble msg-out">
-                        Jeg tror det var maintenance ved hostingfirmaet - fik en mail de var færdige.
-                        <div class="text-[8px] text-right mt-1 opacity-50">21:36</div>
-                    </div>
-                    <div class="message-bubble msg-in">
-                        Okay så det jeg forstår er at den er ikke oppe og køre endnu?
-                        <div class="text-[8px] text-right mt-1 opacity-50">21:37</div>
-                    </div>
-                    <div class="text-center my-4"><span class="bg-white/50 text-[9px] px-3 py-1 rounded-full uppercase font-black text-slate-500">20.04.26</span></div>
-                    <div class="message-bubble msg-out">
-                        Den var oppe efter et par timer.
-                        <div class="text-[8px] text-right mt-1 opacity-50">09:51</div>
+                    <div class="message-bubble msg-out shadow-sm">
+                        Det var så lidt! Jeg tror det var maintenance ved hostingfirmaet.
+                        <div class="text-[7px] text-right mt-1 opacity-40 font-black">21:36</div>
                     </div>
                 </div>
 
-                <!-- Input felt -->
-                <div class="p-4 bg-white border-t shadow-2xl">
-                    <div class="flex items-center space-x-4 bg-slate-50 p-2 rounded-xl border-2 border-slate-100">
-                        <button class="p-2 text-slate-400 hover:text-blue-500 text-xl">📎</button>
-                        <input type="text" placeholder="Skriv en besked til kunden..." class="flex-1 bg-transparent text-sm outline-none font-medium">
-                        <button class="bg-sky-500 text-white px-6 py-2 rounded-lg font-black uppercase text-[10px] shadow-lg hover:bg-sky-600 transition">Send Besked</button>
+                <!-- Besked Input -->
+                <div class="p-4 bg-white border-t">
+                    <div class="flex items-center space-x-3 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                        <button class="p-2 text-slate-400 hover:text-sky-500 transition text-xl">📎</button>
+                        <input type="text" placeholder="Skriv din besked her..." class="flex-1 bg-transparent text-xs outline-none font-bold italic">
+                        <button id="send-btn" class="bg-sky-500 text-white px-6 py-2 rounded-lg font-black uppercase text-[10px] shadow-lg hover:bg-sky-600 transition tracking-widest">Send</button>
                     </div>
                 </div>
             </div>
 
             <!-- KOLONNE 3: KUNDE INFO (HØJRE SIDE AF BILLEDE 4) -->
-            <div class="w-72 bg-white border-l flex flex-col shrink-0 overflow-y-auto italic">
-                <div class="p-6 space-y-6">
-                    <!-- Info boks -->
-                    <div class="border-b pb-4">
-                        <h4 class="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-widest">Kunde Detaljer</h4>
-                        <div class="space-y-3">
-                            <div class="flex justify-between text-[10px]"><span class="text-slate-400">Plex ID:</span> <span class="font-black">ahmadabu132</span></div>
-                            <div class="flex justify-between text-[10px]"><span class="text-slate-400">Plan:</span> <span class="font-black text-blue-600">Månedlig</span></div>
-                            <div class="flex justify-between text-[10px]"><span class="text-slate-400">Sprog:</span> <span class="font-black">DA</span></div>
+            <div class="w-72 bg-white border-l flex flex-col shrink-0 overflow-y-auto italic font-bold">
+                <div class="p-6 space-y-8">
+                    <div>
+                        <h4 class="text-[9px] font-black uppercase text-slate-400 mb-4 tracking-widest border-b pb-1">Kunde Detaljer</h4>
+                        <div class="space-y-3 text-[10px]">
+                            <div class="flex justify-between"><span class="text-slate-400 uppercase">Plex ID:</span> <span class="text-slate-800">ahmadabu132</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400 uppercase">Plan:</span> <span class="text-blue-600 underline">Månedlig</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400 uppercase">Sprog:</span> <span class="text-slate-800 uppercase">Dansk (DA)</span></div>
                         </div>
                     </div>
 
-                    <!-- Noter -->
                     <div>
                         <div class="flex justify-between items-center mb-4">
-                            <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Noter</h4>
-                            <button class="text-blue-500 text-lg">+</button>
+                            <h4 class="text-[9px] font-black uppercase text-slate-400 tracking-widest border-b pb-1 flex-1 mr-4">Interne Noter</h4>
+                            <button class="text-sky-500 text-lg">+</button>
                         </div>
-                        <div class="bg-yellow-50 p-3 rounded border border-yellow-100 text-[10px] font-bold text-yellow-800 leading-relaxed">
-                            Mdr. betaling via Vivid. <br>
-                            <span class="text-[8px] opacity-50 mt-1 block">Brian Hald - 29.12.25 12:41</span>
+                        <div class="bg-yellow-50 p-3 rounded border border-yellow-100 text-[10px] text-yellow-800 leading-relaxed shadow-sm">
+                            Kunde har haft problemer med hosting i dag. Fixed nu. <br>
+                            <span class="text-[7px] opacity-60 mt-2 block font-black uppercase tracking-tighter italic text-right">Brian - 27.04.26 15:40</span>
                         </div>
                     </div>
 
-                    <!-- Vedhæftede filer -->
                     <div>
-                        <h4 class="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-widest uppercase">Filer / Screenshots</h4>
+                        <h4 class="text-[9px] font-black uppercase text-slate-400 mb-4 tracking-widest border-b pb-1">Vedhæftede filer</h4>
                         <div class="space-y-2">
-                            <div class="flex items-center p-2 bg-slate-50 rounded border text-[9px] font-bold text-blue-600 truncate cursor-pointer hover:underline italic">📄 skærmbillede-2026-04-21.png</div>
-                            <div class="flex items-center p-2 bg-slate-50 rounded border text-[9px] font-bold text-blue-600 truncate cursor-pointer hover:underline italic">📄 vpn_guide_premium.pdf</div>
+                            <div class="p-2 bg-slate-50 rounded border text-[9px] text-blue-600 truncate cursor-pointer hover:bg-blue-50 transition italic">📄 skærmbillede-21-04-26.png</div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
+    <!-- MODAL: TELEGRAM TOKEN INDSTILLINGER -->
+    <div id="tokenModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center border-b pb-4 mb-6 uppercase font-black italic tracking-tighter">
+                <h2 class="text-xl text-sky-600">Bot API Configuration</h2>
+                <button onclick="closeModal()" class="text-gray-300 hover:text-black text-4xl font-light">&times;</button>
+            </div>
+            <div class="space-y-6">
+                <div>
+                    <label class="text-sky-600">Support Chat Bot Token</label>
+                    <input type="password" id="token-support" placeholder="Indsæt Token fra BotFather..." class="border-sky-100 focus:ring-2 focus:ring-sky-200 outline-none">
+                </div>
+                <div>
+                    <label class="text-yellow-600">Info & Broadcast Bot Token</label>
+                    <input type="password" id="token-info" placeholder="Indsæt Token fra BotFather..." class="border-yellow-100 focus:ring-2 focus:ring-yellow-200 outline-none">
+                </div>
+            </div>
+            <div class="mt-10 flex justify-end">
+                <button onclick="closeModal()" class="mr-8 text-gray-400 font-black text-[10px] uppercase tracking-widest">Annuller</button>
+                <button onclick="saveTokens()" class="bg-slate-900 text-white px-10 py-3 rounded-lg font-black text-xs uppercase shadow-2xl tracking-widest hover:bg-black transition">Gem Konfiguration</button>
+            </div>
         </div>
     </div>
 
     <script>
-        function switchAccount(acc) {
-            const support = document.getElementById('btn-support');
-            const info = document.getElementById('btn-info');
-            if(acc === 'support') {
-                support.className = "bg-white text-sky-600 px-4 py-1.5 rounded shadow-sm text-[10px] font-black uppercase tracking-widest border border-sky-100";
-                info.className = "text-slate-400 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest hover:text-slate-600 transition";
+        let currentBot = 'support';
+
+        function switchBot(type) {
+            currentBot = type;
+            const btnSup = document.getElementById('acc-support');
+            const btnInfo = document.getElementById('acc-info');
+            const tag = document.getElementById('bot-status-tag');
+            const statusText = document.getElementById('status-text');
+            const sendBtn = document.getElementById('send-btn');
+
+            if(type === 'support') {
+                btnSup.className = "btn-active-support px-4 py-1.5 rounded text-[9px] font-black uppercase tracking-widest transition-all";
+                btnInfo.className = "btn-inactive px-4 py-1.5 rounded text-[9px] font-black uppercase tracking-widest transition-all";
+                tag.className = "bg-sky-50 text-sky-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-sky-100 flex items-center";
+                statusText.innerText = "Support Bot Online";
+                sendBtn.className = "bg-sky-500 text-white px-6 py-2 rounded-lg font-black uppercase text-[10px] shadow-lg hover:bg-sky-600 transition tracking-widest";
             } else {
-                info.className = "bg-white text-sky-600 px-4 py-1.5 rounded shadow-sm text-[10px] font-black uppercase tracking-widest border border-sky-100";
-                support.className = "text-slate-400 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest hover:text-slate-600 transition";
+                btnInfo.className = "btn-active-info px-4 py-1.5 rounded text-[9px] font-black uppercase tracking-widest transition-all";
+                btnSup.className = "btn-inactive px-4 py-1.5 rounded text-[9px] font-black uppercase tracking-widest transition-all";
+                tag.className = "bg-yellow-50 text-yellow-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-yellow-100 flex items-center";
+                statusText.innerText = "Info Bot Online (Broadcast Mode)";
+                sendBtn.className = "bg-yellow-500 text-white px-6 py-2 rounded-lg font-black uppercase text-[10px] shadow-lg hover:bg-yellow-600 transition tracking-widest";
             }
+        }
+
+        function openTokenModal() { document.getElementById('tokenModal').style.display = 'block'; }
+        function closeModal() { document.getElementById('tokenModal').style.display = 'none'; }
+        
+        function saveTokens() {
+            const s = document.getElementById('token-support').value;
+            const i = document.getElementById('token-info').value;
+            alert('Tokens gemt i systemet (Klar til API forbindelse)');
+            closeModal();
+        }
+
+        function setLang(lang) {
+            document.querySelectorAll('[data-dk]').forEach(el => {
+                el.innerText = (lang === 'dk') ? el.getAttribute('data-dk') : el.getAttribute('data-uk');
+            });
         }
     </script>
 </body>

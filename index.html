@@ -2,159 +2,178 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <title>Plex & IPTV CRM</title>
+    <title>Plex & IPTV CRM - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: white; margin: 1% auto; padding: 30px; border-radius: 8px; width: 90%; max-width: 1100px; max-height: 95vh; overflow-y: auto; }
+        .modal-content { background-color: white; margin: 1% auto; padding: 30px; border-radius: 8px; width: 90%; max-width: 1150px; max-height: 95vh; overflow-y: auto; }
         label { display: block; font-size: 0.75rem; font-weight: 600; color: #374151; margin-bottom: 4px; text-transform: uppercase; }
         input, select, textarea { width: 100%; border: 1px solid #d1d5db; border-radius: 4px; padding: 8px; font-size: 0.875rem; background-color: #f9fafb; }
         .section-title { border-bottom: 2px solid #f3f4f6; margin-bottom: 15px; padding-bottom: 5px; color: #1f2937; font-weight: bold; }
     </style>
 </head>
-<body class="bg-gray-100 flex h-screen overflow-hidden">
+<body class="bg-gray-100 flex h-screen overflow-hidden text-slate-800">
 
     <!-- Sidebar -->
     <div class="w-64 bg-slate-900 text-white flex flex-col">
         <div class="p-6 text-xl font-bold border-b border-slate-800 flex items-center">
-            <span class="mr-2 text-red-500">⬤</span> Plex Admin
+            <span class="mr-2 text-red-500 text-2xl">⦿</span> PLEX CRM
         </div>
-        <nav class="flex-1 p-4 space-y-2 text-sm">
-            <a href="#" class="block p-3 bg-red-600 rounded font-semibold">👥 Dashboard / Klienter</a>
-            <a href="#" class="block p-3 hover:bg-slate-800 rounded">💬 Telegram Chat</a>
-            <a href="#" class="block p-3 hover:bg-slate-800 rounded">💳 Vivid Betalinger</a>
-            <a href="#" class="block p-3 hover:bg-slate-800 rounded">📦 Pakker & Priser</a>
+        <nav class="flex-1 p-4 space-y-1 text-sm">
+            <a href="#" onclick="showPage('clients')" class="block p-3 bg-red-600 rounded font-bold transition">👥 Klient-oversigt</a>
+            <a href="#" onclick="showPage('commission')" class="block p-3 hover:bg-slate-800 rounded transition border-l-4 border-transparent hover:border-yellow-500 text-yellow-400">💰 Provisioner & Indtjening</a>
+            <a href="#" class="block p-3 hover:bg-slate-800 rounded transition">💬 Telegram Chat</a>
+            <a href="#" class="block p-3 hover:bg-slate-800 rounded transition">💳 Vivid Payments</a>
+            <div class="pt-4 pb-2 text-[10px] uppercase font-bold text-slate-500 tracking-widest px-3">System</div>
+            <a href="#" class="block p-3 hover:bg-slate-800 rounded transition">⚙️ Pakke Indstillinger</a>
         </nav>
     </div>
 
-    <!-- Main -->
+    <!-- Main Content -->
     <div class="flex-1 flex flex-col overflow-hidden">
-        <header class="bg-white shadow-sm p-4 flex justify-between items-center px-8 border-b">
-            <h2 class="text-xl font-bold text-slate-700 uppercase tracking-tighter">Kunde-Oversigt</h2>
-            <button onclick="openModal()" class="bg-red-600 text-white px-8 py-2.5 rounded shadow-lg font-bold hover:bg-red-700 transition uppercase tracking-wider text-sm">
-                + Add Client
-            </button>
-        </header>
+        
+        <!-- SIDE 1: KLIENT OVERSIGT -->
+        <div id="page-clients" class="flex flex-col h-full">
+            <header class="bg-white shadow-sm p-4 flex justify-between items-center px-8 border-b">
+                <h2 class="text-xl font-black uppercase tracking-tighter">Klienter</h2>
+                <button onclick="openModal()" class="bg-red-600 text-white px-8 py-2.5 rounded shadow-lg font-bold hover:bg-red-700 transition uppercase text-xs tracking-widest">
+                    + Opret ny kunde
+                </button>
+            </header>
 
-        <main class="flex-1 overflow-auto p-8">
-            <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-                <table class="w-full text-left">
-                    <thead class="bg-gray-50 border-b text-gray-400 text-xs font-bold uppercase tracking-widest">
-                        <tr>
-                            <th class="p-4">Kunde / Info</th>
-                            <th class="p-4">Pakke / Type</th>
-                            <th class="p-4">Betaling</th>
-                            <th class="p-4">Agent & Reseller</th>
-                            <th class="p-4">Handling</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100 text-sm">
-                        <!-- Eksempel på en Reseller-kunde -->
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="p-4">
-                                <div class="font-bold text-slate-800">Martin Nielsen</div>
-                                <div class="text-[10px] text-gray-400">OPRETTET: 26-01-2026</div>
-                            </td>
-                            <td class="p-4 font-semibold text-slate-600 italic">Full Packet (Pakke 4)</td>
-                            <td class="p-4 font-mono text-blue-600 font-bold">05-01-2027</td>
-                            <td class="p-4">
-                                <div class="flex items-center space-x-2">
-                                    <span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded text-[10px] font-bold">BH</span>
-                                    <span class="text-xs font-bold text-blue-600">👤 Reseller: MarktingPusher</span>
-                                </div>
-                            </td>
-                            <td class="p-4"><button class="text-gray-300">⚙️</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </main>
+            <main class="flex-1 overflow-auto p-8">
+                <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 border-b text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                            <tr>
+                                <th class="p-4 w-12 text-center">#</th>
+                                <th class="p-4">Kunde / Info</th>
+                                <th class="p-4">Pakke Navn</th>
+                                <th class="p-4 text-center">Pakke Nr.</th>
+                                <th class="p-4">Betaling</th>
+                                <th class="p-4">Reseller / Agent</th>
+                                <th class="p-4">Aktion</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 text-sm">
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="p-4 text-center font-mono text-gray-300">01</td>
+                                <td class="p-4">
+                                    <div class="font-bold text-slate-900 uppercase text-xs">Mads Aggerholm</div>
+                                    <div class="text-[10px] text-gray-400">27-01-2026</div>
+                                </td>
+                                <td class="p-4 font-semibold text-slate-600">Plex & IPTV Combo (Årlig)</td>
+                                <td class="p-4 text-center"><span class="bg-slate-100 px-3 py-1 rounded-full font-black text-slate-800">5</span></td>
+                                <td class="p-4 font-mono text-blue-600 font-bold">18-01-2027</td>
+                                <td class="p-4">
+                                    <div class="text-[10px] font-black text-slate-400">AGENT: <span class="text-slate-800">KU</span></div>
+                                    <div class="text-[10px] font-black text-blue-500">RESELLER: <span class="uppercase">MarketingPusher</span></div>
+                                </td>
+                                <td class="p-4"><button class="text-gray-300 hover:text-black transition">⚙️</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+
+        <!-- SIDE 2: PROVISIONER (Skjult som standard) -->
+        <div id="page-commission" class="hidden flex flex-col h-full bg-slate-50">
+            <header class="bg-white shadow-sm p-4 px-8 border-b">
+                <h2 class="text-xl font-black uppercase tracking-tighter">Provisioner & Server-status</h2>
+            </header>
+            <main class="p-8 space-y-6">
+                <!-- Statusbar -->
+                <div class="grid grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl border shadow-sm">
+                        <label class="text-slate-400">Server Udgift (Måned)</label>
+                        <div class="text-3xl font-black text-red-600">€ 287,00</div>
+                        <div class="w-full bg-gray-100 h-2 rounded-full mt-4">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 65%"></div>
+                        </div>
+                        <p class="text-[10px] mt-2 font-bold text-gray-400 italic">65% dækket af denne måneds indtægter</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border shadow-sm">
+                        <label class="text-slate-400">Reseller Provision (Total)</label>
+                        <div class="text-3xl font-black text-blue-600">€ 0,00</div>
+                        <p class="text-[10px] mt-2 font-bold text-red-500 uppercase">Låst: Serverudgift ikke dækket endnu</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border shadow-sm">
+                        <label class="text-slate-400">Netto Overskud (Dig)</label>
+                        <div class="text-3xl font-black text-slate-800">€ 0,00</div>
+                    </div>
+                </div>
+
+                <div class="bg-yellow-50 border border-yellow-100 p-4 rounded-lg text-xs text-yellow-800 font-medium">
+                    ℹ️ <strong>System-logik:</strong> Årlige betalinger (Pakke 1, 5, 6) bliver automatisk delt op i 12 rater i denne oversigt for at sikre korrekt udbetaling af provision måned for måned.
+                </div>
+            </main>
+        </div>
+
     </div>
 
-    <!-- POPUP (Modal) -->
+    <!-- POPUP (Kundeoprettelse) -->
     <div id="addClientModal" class="modal">
         <div class="modal-content">
             <div class="flex justify-between items-center border-b pb-4 mb-6">
                 <div>
-                    <h2 class="text-2xl font-black text-slate-800">ADD CLIENT</h2>
-                    <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Oprettelse af ny kunde</p>
+                    <h2 class="text-2xl font-black text-slate-800 uppercase italic">Add Client</h2>
+                    <p class="text-[10px] text-gray-400 uppercase font-black tracking-[0.3em]">System-oprettelse v.3.0</p>
                 </div>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-black text-3xl font-light">&times;</button>
+                <button onclick="closeModal()" class="text-gray-300 hover:text-black text-3xl font-light">&times;</button>
             </div>
             
             <div class="space-y-8">
-                <!-- 1. Account Details -->
-                <div>
-                    <h3 class="section-title">Account Details</h3>
-                    <div class="grid grid-cols-4 gap-4">
-                        <div><label>Oprettelses Dato</label><input type="date" id="createdAt"></div>
-                        <div class="col-span-2"><label>Client Name *</label><input type="text" placeholder="Fulde navn"></div>
-                        <div><label>Email</label><input type="email" placeholder="mail@example.com"></div>
-                        
-                        <!-- Reseller logik her -->
-                        <div>
-                            <label>Er det en Reseller?</label>
-                            <select id="isReseller" onchange="toggleResellerField()" class="font-bold">
-                                <option value="no">Nej (Direkte kunde)</option>
-                                <option value="yes">Ja (Via Reseller)</option>
-                            </select>
-                        </div>
-                        <div id="resellerNameBox" class="col-span-2" style="display:none;">
-                            <label class="text-blue-600">Reseller Navn / Firma</label>
-                            <input type="text" placeholder="Hvem er reselleren?" class="border-blue-300 bg-blue-50">
-                        </div>
-                        <div><label>Agent</label><select><option>BH (Brian)</option><option>KU (Kurt)</option></select></div>
-                    </div>
+                <!-- Info -->
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="col-span-2"><label>Navn *</label><input type="text"></div>
+                    <div><label>Oprettelses Dato</label><input type="date" id="createdAt"></div>
+                    <div><label>Agent</label><select><option>BH</option><option>KU</option></select></div>
                 </div>
 
-                <!-- 2. Pakke & Pris -->
+                <!-- Pakke-sektion -->
                 <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
-                    <h3 class="section-title">Abonnement & Pris</h3>
-                    <div class="grid grid-cols-3 gap-6">
-                        <div>
+                    <h3 class="section-title border-slate-300">Pakke & Pris-kalkulation</h3>
+                    <div class="grid grid-cols-4 gap-6">
+                        <div class="col-span-2">
                             <label>Vælg Pakke</label>
-                            <select id="packageSelect" onchange="calculatePrice()" class="bg-white font-bold text-red-600 border-red-100">
-                                <option value="0">Vælg løsning...</option>
-                                <option value="50">1: Plex Årsabonnement (50 kr/md)</option>
-                                <option value="75">2: Plex Månedlig (75 kr/md)</option>
-                                <option value="150">3: IPTV (150 kr/md)</option>
-                                <option value="210">4: Combo Månedlig (210 kr/md)</option>
-                                <option value="175">5: Combo Årlig (175 kr/md)</option>
-                                <option value="189">6: Combo + Boks Årlig (189 kr/md)</option>
+                            <select id="packageSelect" onchange="calculatePrice()" class="bg-white font-bold text-red-600 border-red-200 h-12">
+                                <option value="0">Vælg...</option>
+                                <option value="50">#1: Plex Årsabonnement (50 kr/md)</option>
+                                <option value="75">#2: Plex Månedlig (75 kr/md)</option>
+                                <option value="150">#3: IPTV (150 kr/md)</option>
+                                <option value="210">#4: Combo Månedlig (210 kr/md)</option>
+                                <option value="175">#5: Combo Årlig (175 kr/md)</option>
+                                <option value="189">#6: Combo + Boks Årlig (189 kr/md)</option>
                             </select>
                         </div>
                         <div>
                             <label>Salgspris (DKK)</label>
-                            <input type="text" id="salePriceDKK" class="font-black text-xl text-slate-800 bg-white" readonly value="0,00 kr.">
+                            <input type="text" id="salePriceDKK" class="font-black text-xl text-slate-800 bg-white h-12" readonly value="0,00 kr.">
                         </div>
-                        <div class="bg-white p-3 rounded border border-blue-100 flex flex-col justify-center">
-                            <label class="text-blue-500">Pris i Euro (€)</label>
+                        <div class="bg-white p-2 rounded border border-blue-100">
+                            <label class="text-blue-500">Valuta (€)</label>
                             <div id="salePriceEUR" class="text-2xl font-black text-blue-600">€ 0,00</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 3. Teknisk Info -->
-                <div>
-                    <h3 class="section-title">Teknisk Info</h3>
-                    <div class="grid grid-cols-4 gap-4">
-                        <div><label>Plex ID</label><input type="text"></div>
-                        <div class="col-span-2"><label>Mac / Device ID (IPTV)</label><input type="text" placeholder="00:00:00:00:00:00"></div>
-                        <div><label>Næste Betaling</label><input type="date" class="font-bold text-red-600"></div>
-                    </div>
+                <!-- Reseller -->
+                <div class="grid grid-cols-4 gap-4">
+                    <div><label>Har Reseller?</label><select id="isReseller" onchange="toggleReseller()"><option value="no">Nej</option><option value="yes">Ja</option></select></div>
+                    <div id="resBox" class="col-span-2 hidden"><label>Reseller Navn</label><input type="text" class="bg-blue-50 border-blue-200"></div>
                 </div>
             </div>
 
             <div class="mt-10 pt-6 border-t flex justify-end">
-                <button onclick="closeModal()" class="mr-6 text-gray-400 font-bold uppercase text-xs tracking-widest hover:text-black">Cancel</button>
-                <button class="bg-slate-900 text-white px-12 py-4 rounded-md font-black shadow-2xl hover:bg-black transition uppercase tracking-widest text-sm">Save Client</button>
+                <button onclick="closeModal()" class="mr-6 text-gray-400 font-bold uppercase text-[10px] tracking-widest hover:text-black">Annuller</button>
+                <button class="bg-slate-900 text-white px-12 py-4 rounded font-black shadow-2xl hover:bg-black transition uppercase tracking-widest text-xs">Save & Calculate</button>
             </div>
         </div>
     </div>
 
     <script>
         window.onload = function() { document.getElementById('createdAt').valueAsDate = new Date(); };
-
         function openModal() { document.getElementById('addClientModal').style.display = "block"; }
         function closeModal() { document.getElementById('addClientModal').style.display = "none"; }
         
@@ -165,12 +184,16 @@
             document.getElementById('salePriceEUR').innerText = "€ " + eur.toLocaleString('da-DK', { minimumFractionDigits: 2 });
         }
 
-        function toggleResellerField() {
-            var select = document.getElementById('isReseller').value;
-            var field = document.getElementById('resellerNameBox');
-            field.style.display = (select === "yes") ? "block" : "none";
+        function toggleReseller() {
+            var s = document.getElementById('isReseller').value;
+            document.getElementById('resBox').style.display = (s === 'yes') ? 'block' : 'none';
+        }
+
+        function showPage(page) {
+            document.getElementById('page-clients').classList.add('hidden');
+            document.getElementById('page-commission').classList.add('hidden');
+            document.getElementById('page-' + page).classList.remove('hidden');
         }
     </script>
-
 </body>
 </html>

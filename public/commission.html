@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plex CRM - Financial Overview</title>
+    <title>Plex CRM - Økonomi & Fordeling</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .nav-active { background-color: #dc2626 !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
-        .progress-bar { transition: width 1s ease-in-out; }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); }
+        .modal-content { background-color: white; margin: 5% auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border-top: 8px solid #eab308; }
+        label { display: block; font-size: 0.65rem; font-weight: 800; color: #4b5563; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+        input { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; font-size: 0.85rem; background-color: #f9fafb; margin-bottom: 10px; font-weight: 600; }
+        .nav-active { background-color: #dc2626 !important; }
     </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans">
@@ -16,143 +19,138 @@
     <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl font-bold uppercase text-[10px] tracking-wider">
         <div class="p-6 text-2xl font-black border-b border-slate-800 italic text-red-600 tracking-tighter">⦿ PLEX CRM</div>
         <nav id="sidebar-nav" class="flex-1 p-4 space-y-1">
-            <a href="index.html" class="nav-item block p-3 hover:bg-slate-800 rounded">👥 <span data-dk="Klient-Oversigt" data-uk="Client Overview">Klient-Oversigt</span></a>
-            <a href="approvals.html" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400">
-                <span>⏳ <span data-dk="Godkendelser" data-uk="Approvals">Godkendelser</span></span>
-                <span class="bg-orange-600 text-white text-[9px] px-2 py-0.5 rounded-full font-black">1</span>
-            </a>
-            <a href="resellers.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400 italic">👤 <span data-dk="Reseller Styring" data-uk="Reseller Mgmt">Reseller Styring</span></a>
-            <a href="commission.html" class="nav-item block p-3 bg-red-600 rounded nav-active text-yellow-400 font-black italic underline">💰 <span data-dk="Provision & Tal" data-uk="Profit & Data">Provision & Tal</span></a>
-            <a href="settings.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ <span data-dk="Pakke Indstillinger" data-uk="Package Settings">Pakke Indstillinger</span></a>
-            <a href="telegram.html" class="nav-item block p-3 hover:bg-slate-800 rounded border-t border-slate-800 mt-4 text-sky-400 italic">💬 <span data-dk="Telegram Chat" data-uk="Telegram Chat">Telegram Chat</span></a>
-            <a href="payments.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-slate-500">💳 <span data-dk="Betalinger" data-uk="Payments">Betalinger</span></a>
+            <a href="index.html" class="block p-3 hover:bg-slate-800 rounded">👥 <span data-dk="Klient-Oversigt" data-uk="Client Overview">Klient-Oversigt</span></a>
+            <a href="approvals.html" class="block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400"><span>⏳ <span data-dk="Godkendelser" data-uk="Approvals">Godkendelser</span></span><span class="bg-orange-600 text-white text-[9px] px-2 py-0.5 rounded-full">1</span></a>
+            <a href="resellers.html" class="block p-3 hover:bg-slate-800 rounded text-blue-400 italic">👤 <span data-dk="Reseller Styring" data-uk="Reseller Mgmt">Reseller Styring</span></a>
+            <a href="commission.html" class="block p-3 bg-red-600 rounded nav-active text-yellow-400 font-black italic underline">💰 <span data-dk="Provision & Tal" data-uk="Profit & Data">Provision & Tal</span></a>
+            <a href="settings.html" class="block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ <span data-dk="Pakke Indstillinger" data-uk="Package Settings">Pakke Indstillinger</span></a>
+            <a href="telegram.html" class="block p-3 hover:bg-slate-800 rounded border-t border-slate-800 mt-4 text-sky-400">💬 Telegram Chat</a>
         </nav>
-        <div class="p-4 border-t border-slate-800 bg-black/20">
-            <div class="flex justify-between items-center mb-4 italic">
-                <span class="text-[9px] text-slate-500 font-black uppercase tracking-widest">Language:</span>
-                <div class="flex space-x-2">
-                    <button onclick="setLang('dk')" id="btn-dk" class="text-red-500 underline font-black text-[11px]">DK</button>
-                    <button onclick="setLang('uk')" id="btn-uk" class="text-slate-500 font-black text-[11px]">UK</button>
-                </div>
-            </div>
-            <div class="text-[9px] text-slate-400 font-bold uppercase italic text-center tracking-widest">Admin: Brian</div>
-        </div>
+        <div class="p-4 border-t border-slate-800 bg-black/20 italic text-[9px] text-center text-slate-500 uppercase">Admin: Brian</div>
     </div>
 
     <!-- MAIN AREA -->
     <div class="flex-1 flex flex-col overflow-hidden">
         <header class="bg-white shadow-sm p-5 flex justify-between items-center px-10 border-b">
             <h2 class="text-2xl font-black uppercase italic tracking-tighter text-yellow-600">
-                <span data-dk="Finansielt Overblik" data-uk="Financial Overview">Finansielt Overblik</span>
+                <span data-dk="Finansiel Fordeling" data-uk="Financial Distribution">Finansiel Fordeling</span>
             </h2>
-            <div class="bg-slate-900 text-white px-6 py-2 rounded-lg font-mono text-sm border-b-4 border-red-600 shadow-xl">
-                APRIL 2026
-            </div>
+            <button onclick="openConfigModal()" class="bg-slate-100 text-slate-400 p-2 rounded-full hover:bg-slate-200 transition">⚙️</button>
         </header>
 
-        <main class="flex-1 overflow-auto p-10 space-y-10">
+        <main class="flex-1 overflow-auto p-8 space-y-8">
             
-            <!-- SECTION 1: SERVER DÆKNING -->
+            <!-- SECTION 1: PLEX SERVER POOL (SHARED) -->
             <div class="grid grid-cols-3 gap-8">
                 <div class="col-span-2 bg-white p-8 rounded-2xl shadow-xl border-t-8 border-red-600">
                     <div class="flex justify-between items-start mb-6">
                         <div>
-                            <h3 class="font-black uppercase text-sm italic tracking-widest text-slate-400" data-dk="Plex Server Status" data-uk="Plex Server Status">Plex Server Status</h3>
-                            <p class="text-[10px] text-slate-300 font-bold uppercase" data-dk="Kostpris: € 287,00 pr. måned" data-uk="Cost: € 287.00 per month">Kostpris: € 287,00 pr. måned</p>
+                            <h3 class="font-black uppercase text-sm italic tracking-widest text-slate-400">Plex Server Pool (Fælles)</h3>
+                            <p class="text-[10px] text-slate-300 font-bold uppercase">Mål: <span id="target-euro">€ 287,00</span> / <span id="target-clients">30</span> Klienter</p>
                         </div>
                         <div class="text-right">
-                            <span class="text-4xl font-black italic text-slate-800 font-mono tracking-tighter">€ 185,50</span>
-                            <p class="text-[9px] font-black text-red-500 uppercase tracking-widest" data-dk="Indsamlet i denne måned" data-uk="Collected this month">Indsamlet i denne måned</p>
+                            <span class="text-4xl font-black italic text-slate-800 font-mono tracking-tighter">€ 215,00</span>
+                            <p class="text-[9px] font-black text-red-500 uppercase" data-dk="Indsamlet denne måned" data-uk="Collected this month">Indsamlet denne måned</p>
                         </div>
                     </div>
-                    
-                    <!-- Progress Bar -->
                     <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden shadow-inner">
-                        <div class="progress-bar bg-gradient-to-r from-red-500 to-orange-400 h-full" style="width: 64.6%"></div>
+                        <div class="bg-gradient-to-r from-red-500 to-orange-400 h-full" style="width: 75%"></div>
                     </div>
-                    
-                    <div class="flex justify-between mt-4">
-                        <span class="text-[10px] font-black uppercase text-red-600 italic">0%</span>
-                        <span class="text-[10px] font-black uppercase text-slate-400 italic" data-dk="Mangler € 101,50 for break-even" data-uk="Missing € 101.50 for break-even">Mangler € 101,50 for break-even</span>
-                        <span class="text-[10px] font-black uppercase text-emerald-500 italic">100%</span>
-                    </div>
+                    <p class="text-[10px] mt-3 font-bold text-slate-400 uppercase italic">Andel af Plex udgift dækket: 75%</p>
                 </div>
 
                 <div class="bg-slate-900 p-8 rounded-2xl shadow-2xl border-b-8 border-yellow-500 flex flex-col justify-center text-center">
-                    <h3 class="text-yellow-500 font-black uppercase text-xs tracking-[0.2em] mb-4 italic" data-dk="Netto Overskud (Dig)" data-uk="Net Profit (You)">Netto Overskud (Dig)</h3>
-                    <div class="text-5xl font-black text-white italic tracking-tighter font-mono">€ 412,25</div>
-                    <p class="text-[9px] text-slate-500 mt-4 uppercase font-bold" data-dk="Efter alle provisioner & server" data-uk="After all commissions & server">Efter alle provisioner & server</p>
+                    <h3 class="text-yellow-500 font-black uppercase text-xs tracking-widest mb-2 italic">Dit Netto Overskud</h3>
+                    <div class="text-5xl font-black text-white italic tracking-tighter font-mono">€ 542,00</div>
                 </div>
             </div>
 
-            <!-- SECTION 2: PROVISIONER PR. AGENT -->
+            <!-- SECTION 2: IPTV & AGENT FORDELING -->
             <div class="bg-white rounded-xl shadow-2xl border overflow-hidden">
-                <div class="p-6 bg-slate-50 border-b flex justify-between items-center">
-                    <h3 class="font-black uppercase text-xs italic tracking-widest text-slate-600" data-dk="Udestående Provisioner" data-uk="Outstanding Commissions">Udestående Provisioner</h3>
-                    <button class="bg-emerald-600 text-white px-6 py-2 rounded text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-emerald-700 transition" data-dk="Nulstil / Udbetal måned" data-uk="Reset / Pay Out Month">Nulstil / Udbetal måned</button>
+                <div class="p-6 bg-slate-50 border-b flex justify-between items-center font-black uppercase text-[10px] tracking-widest">
+                    <span data-dk="Udestående Provisioner (Vægtet)" data-uk="Outstanding Commissions (Weighted)">Udestående Provisioner (Vægtet)</span>
+                    <button class="bg-emerald-600 text-white px-6 py-2 rounded shadow hover:bg-emerald-700 transition" data-dk="Udbetal & Nulstil Måned" data-uk="Payout & Reset Month">Udbetal & Nulstil Måned</button>
                 </div>
                 <table class="w-full text-left">
                     <thead class="bg-white text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] border-b">
                         <tr>
-                            <th class="p-5">Agent / Partner</th>
-                            <th class="p-5">Type</th>
-                            <th class="p-5" data-dk="Plex Provision (Låst)" data-uk="Plex Comm (Locked)">Plex Provision (Låst)</th>
-                            <th class="p-5 text-blue-600" data-dk="IPTV Provision (Klar)" data-uk="IPTV Comm (Ready)">IPTV Provision (Klar)</th>
-                            <th class="p-5" data-dk="Total til udbetaling" data-uk="Total to Payout">Total til udbetaling</th>
+                            <th class="p-5">Partner</th>
+                            <th class="p-5 text-center">Plex Klienter</th>
+                            <th class="p-5 text-center">Andel af Pulje</th>
+                            <th class="p-5 text-blue-600">IPTV Profit (Straks)</th>
+                            <th class="p-5 text-emerald-600">Total Provision</th>
                         </tr>
                     </thead>
                     <tbody class="text-[12px] font-bold divide-y divide-gray-50 uppercase italic tracking-tight">
-                        <tr class="hover:bg-gray-50">
-                            <td class="p-5 font-black text-slate-800">Kurt (KU)</td>
-                            <td class="p-5 text-[10px] text-slate-400 italic font-normal">Agent</td>
-                            <td class="p-5 text-red-400 font-mono italic">€ 45,00</td>
-                            <td class="p-5 text-blue-700 font-mono">€ 120,00</td>
-                            <td class="p-5 text-emerald-600 font-black text-sm underline">€ 165,00</td>
+                        <tr>
+                            <td class="p-5">Kurt (KU)</td>
+                            <td class="p-5 text-center text-red-500">12</td>
+                            <td class="p-5 text-center">40%</td>
+                            <td class="p-5 text-blue-700 font-mono">€ 85,00</td>
+                            <td class="p-5 text-emerald-600 font-black text-sm underline">€ 145,50</td>
                         </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="p-5 font-black text-slate-800">MarketingPusher</td>
-                            <td class="p-5 text-[10px] text-slate-400 italic font-normal">Reseller</td>
-                            <td class="p-5 text-red-400 font-mono italic">€ 10,00</td>
-                            <td class="p-5 text-blue-700 font-mono">€ 85,50</td>
-                            <td class="p-5 text-emerald-600 font-black text-sm underline">€ 95,50</td>
+                        <tr>
+                            <td class="p-5">MarketingPusher</td>
+                            <td class="p-5 text-center text-red-500">18</td>
+                            <td class="p-5 text-center">60%</td>
+                            <td class="p-5 text-blue-700 font-mono">€ 40,00</td>
+                            <td class="p-5 text-emerald-600 font-black text-sm underline">€ 195,00</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <!-- SECTION 3: 1/12 RESERVE (LÅSTE PENGE) -->
-            <div class="bg-blue-900 p-8 rounded-2xl shadow-2xl text-white">
+            <!-- SECTION 3: 1/12 RATE RESERVE -->
+            <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl text-white">
                 <div class="flex items-center space-x-4 mb-6">
-                    <div class="p-3 bg-blue-800 rounded-lg text-2xl">🔒</div>
+                    <div class="p-3 bg-slate-700 rounded-lg text-2xl">🔒</div>
                     <div>
-                        <h3 class="font-black uppercase text-sm tracking-widest italic" data-dk="1/12 Rate-Reserve (Årsabonnementer)" data-uk="1/12 Rate Reserve (Yearly Subs)">1/12 Rate-Reserve (Årsabonnementer)</h3>
-                        <p class="text-[10px] text-blue-300 font-bold uppercase tracking-widest">Penge der frigives løbende over de næste 11 måneder</p>
+                        <h3 class="font-black uppercase text-sm tracking-widest italic" data-dk="Plex Årskunde Reserve (1/12)" data-uk="Plex Yearly Reserve (1/12)">Plex Årskunde Reserve (1/12)</h3>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">Kostpris reserveret til de næste 11 måneders server-drift</p>
                     </div>
                 </div>
-                <div class="grid grid-cols-4 gap-8">
-                    <div class="bg-blue-800/50 p-6 rounded-xl border border-blue-700 text-center">
-                        <div class="text-xs font-bold text-blue-300 uppercase mb-2">Total Reserve</div>
-                        <div class="text-3xl font-black italic tracking-tighter">€ 1.450,00</div>
-                    </div>
-                    <div class="bg-blue-800/50 p-6 rounded-xl border border-blue-700 text-center opacity-50">
-                        <div class="text-xs font-bold text-blue-300 uppercase mb-2">Næste Måned</div>
-                        <div class="text-2xl font-black italic tracking-tighter">+ € 125,00</div>
-                    </div>
-                </div>
+                <div class="text-4xl font-black italic tracking-tighter font-mono text-yellow-500">€ 1.280,00</div>
             </div>
-
         </main>
     </div>
 
+    <!-- MODAL: REDIGER SERVER CONFIG -->
+    <div id="configModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-black border-b pb-4 mb-6 italic uppercase text-yellow-600">Server Configuration</h2>
+            <div>
+                <label>Månedlig Serverudgift (€)</label>
+                <input type="number" id="cfg-euro" value="287.00" step="0.01">
+            </div>
+            <div>
+                <label>Break-even Antal Klienter</label>
+                <input type="number" id="cfg-clients" value="30">
+            </div>
+            <div class="mt-8 flex justify-end">
+                <button onclick="closeModal()" class="mr-6 text-gray-400 font-black text-[10px] uppercase">Annuller</button>
+                <button onclick="saveConfig()" class="bg-yellow-500 text-white px-8 py-3 rounded font-black text-xs uppercase shadow-xl hover:bg-yellow-600 transition">Gem Indstillinger</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        function openConfigModal() { document.getElementById('configModal').style.display = 'block'; }
+        function closeModal() { document.getElementById('configModal').style.display = 'none'; }
+        
+        function saveConfig() {
+            const euro = document.getElementById('cfg-euro').value;
+            const clients = document.getElementById('cfg-clients').value;
+            document.getElementById('target-euro').innerText = "€ " + parseFloat(euro).toFixed(2);
+            document.getElementById('target-clients').innerText = clients;
+            closeModal();
+            alert('Finansielle mål opdateret!');
+        }
+
         function setLang(lang) {
             document.querySelectorAll('[data-dk]').forEach(el => {
                 el.innerText = (lang === 'dk') ? el.getAttribute('data-dk') : el.getAttribute('data-uk');
             });
-            document.getElementById('btn-dk').className = (lang === 'dk' ? 'text-red-500 underline font-black text-[11px]' : 'text-slate-500 font-black text-[11px]');
-            document.getElementById('btn-uk').className = (lang === 'uk' ? 'text-red-500 underline font-black text-[11px]' : 'text-slate-500 font-black text-[11px]');
         }
-
         window.onload = function() { setLang('dk'); };
     </script>
 </body>

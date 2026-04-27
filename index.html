@@ -4,79 +4,104 @@
     <meta charset="UTF-8">
     <title>Plex CRM Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 2% auto; padding: 20px; border-radius: 8px; width: 80%; max-height: 90vh; overflow-y: auto; }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans">
-    
-    <!-- Top Menu -->
-    <div class="bg-white p-4 shadow flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-gray-800 flex items-center">
-            <span class="mr-2">📺</span> Dit CRM System
-        </h1>
-        <button class="bg-red-500 text-white px-5 py-2 rounded shadow hover:bg-red-600 font-bold transition">
-            + Add Client
-        </button>
+<body class="bg-gray-100 flex h-screen overflow-hidden">
+
+    <!-- Venstre Menu (Sidebar) -->
+    <div class="w-64 bg-slate-800 text-white flex flex-col">
+        <div class="p-6 text-2xl font-bold border-b border-slate-700">Plex Admin</div>
+        <nav class="flex-1 p-4 space-y-2">
+            <a href="#" class="block p-3 bg-blue-600 rounded">👥 Klienter</a>
+            <a href="#" class="block p-3 hover:bg-slate-700 rounded">💬 Telegram Chat</a>
+            <a href="#" class="block p-3 hover:bg-slate-700 rounded">💰 Betalinger</a>
+            <a href="#" class="block p-3 hover:bg-slate-700 rounded">⚙️ Indstillinger</a>
+        </nav>
     </div>
 
-    <!-- Hovedindhold: Kundetabel -->
-    <div class="p-8">
-        <div class="bg-white rounded-lg shadow overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-50 text-gray-500 text-sm border-b">
-                        <th class="p-4 font-semibold">Navn</th>
-                        <th class="p-4 font-semibold">Email</th>
-                        <th class="p-4 font-semibold">Kategori</th>
-                        <th class="p-4 font-semibold">Status</th>
-                        <th class="p-4 font-semibold">Plex ID</th>
-                        <th class="p-4 font-semibold">Plan</th>
-                        <th class="p-4 font-semibold">Næste Betaling</th>
-                        <th class="p-4 font-semibold text-center">Handling</th>
-                    </tr>
-                </thead>
-                <tbody class="text-sm text-gray-700">
-                    
-                    <!-- Kunde 1 (Fra din CSV) -->
-                    <tr class="border-b hover:bg-gray-50 transition">
-                        <td class="p-4 font-bold flex items-center">
-                            <div class="h-8 w-8 rounded-full bg-gray-200 mr-3 flex items-center justify-center text-gray-500">M</div>
-                            Mr Mads Aggerholm
-                        </td>
-                        <td class="p-4">shin@shinhypnose.dk</td>
-                        <td class="p-4">Full Packet</td>
-                        <td class="p-4">
-                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">● Active</span>
-                        </td>
-                        <td class="p-4">sh2183</td>
-                        <td class="p-4">Yearly</td>
-                        <td class="p-4 font-semibold">18-01-2027</td>
-                        <td class="p-4 text-center">
-                            <button class="border px-3 py-1 rounded hover:bg-gray-200">⋮</button>
-                        </td>
-                    </tr>
+    <!-- Hovedindhold -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Top bar -->
+        <header class="bg-white shadow p-4 flex justify-between items-center">
+            <h2 class="text-xl font-semibold">Kundeoversigt</h2>
+            <button onclick="openModal()" class="bg-red-500 text-white px-6 py-2 rounded-md font-bold hover:bg-red-600 transition">
+                + Add Client
+            </button>
+        </header>
 
-                    <!-- Kunde 2 (Fra din CSV) -->
-                    <tr class="border-b hover:bg-gray-50 transition">
-                        <td class="p-4 font-bold flex items-center">
-                            <div class="h-8 w-8 rounded-full bg-gray-200 mr-3 flex items-center justify-center text-gray-500">C</div>
-                            Mrs Camilla
-                        </td>
-                        <td class="p-4">Cadasal20@gmail.com</td>
-                        <td class="p-4">Plex</td>
-                        <td class="p-4">
-                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">● Active</span>
-                        </td>
-                        <td class="p-4">cada877</td>
-                        <td class="p-4">Yearly</td>
-                        <td class="p-4 font-semibold text-orange-500">21-12-2026</td>
-                        <td class="p-4 text-center">
-                            <button class="border px-3 py-1 rounded hover:bg-gray-200">⋮</button>
-                        </td>
-                    </tr>
+        <!-- Tabel -->
+        <main class="flex-1 overflow-x-auto p-6">
+            <div class="bg-white rounded-lg shadow">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 border-b text-gray-500 uppercase text-xs">
+                        <tr>
+                            <th class="p-4">Navn</th>
+                            <th class="p-4">Email</th>
+                            <th class="p-4">Kategori</th>
+                            <th class="p-4">Status</th>
+                            <th class="p-4">Handling</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-4 font-bold">Mr Mads Aggerholm</td>
+                            <td class="p-4">shin@shinhypnose.dk</td>
+                            <td class="p-4">Full Packet</td>
+                            <td class="p-4"><span class="text-green-600 font-bold">● Active</span></td>
+                            <td class="p-4"><button class="text-gray-400">⋮</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
 
-                </tbody>
-            </table>
+    <!-- POPUP (Modal) - Det store oprettelsesvindue -->
+    <div id="addClientModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center border-b pb-4 mb-4">
+                <h2 class="text-2xl font-bold text-red-600">Add Client</h2>
+                <button onclick="closeModal()" class="text-3xl">&times;</button>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-6">
+                <!-- Her kommer felterne fra dine billeder 1 og 3 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Client Name *</label>
+                    <input type="text" placeholder="e.g. John Doe" class="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-gray-50">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" placeholder="e.g. mail@example.com" class="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-gray-50">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Plex ID</label>
+                    <input type="text" placeholder="Plex ID" class="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-gray-50">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Plan</label>
+                    <select class="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-gray-50">
+                        <option>Monthly</option>
+                        <option>Yearly</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-4 border-t flex justify-end">
+                <button onclick="closeModal()" class="mr-4 text-gray-600 font-bold">Cancel</button>
+                <button class="bg-blue-600 text-white px-8 py-2 rounded font-bold">Save Client</button>
+            </div>
         </div>
     </div>
 
+    <script>
+        function openModal() { document.getElementById('addClientModal').style.display = "block"; }
+        function closeModal() { document.getElementById('addClientModal').style.display = "none"; }
+    </script>
+
 </body>
+</html>
 </html>

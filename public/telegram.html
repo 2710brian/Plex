@@ -9,30 +9,32 @@
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); }
         .modal-content { background-color: white; margin: 10% auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border-top: 8px solid #0ea5e9; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
         label { display: block; font-size: 0.65rem; font-weight: 800; color: #4b5563; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
-        input, textarea, select { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; font-size: 0.85rem; background-color: #f9fafb; margin-bottom: 10px; font-weight: 600; }
+        input, textarea { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; font-size: 0.85rem; background-color: #f9fafb; margin-bottom: 10px; font-weight: 600; }
         .nav-active { background-color: #dc2626 !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
         .chat-scroll { height: calc(100vh - 185px); overflow-y: auto; display: flex; flex-direction: column; }
         .message-bubble { max-width: 80%; border-radius: 12px; padding: 10px 15px; margin-bottom: 8px; font-size: 13px; line-height: 1.4; position: relative; }
         .msg-in { background-color: #f3f4f6; color: #1f2937; align-self: flex-start; border-bottom-left-radius: 2px; }
         .msg-out { background-color: #0ea5e9; color: white; align-self: flex-end; border-bottom-right-radius: 2px; box-shadow: 0 4px 6px -1px rgba(14,165,233,0.2); }
-        .btn-inactive { color: #94a3b8; background-color: transparent; border: 1px solid transparent; }
-        .btn-active-support { background-color: white; color: #0ea5e9; border: 1px solid #e0f2fe; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .btn-active-info { background-color: white; color: #f59e0b; border: 1px solid #fef3c7; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .btn-active-support { background-color: white; color: #0ea5e9; border: 1px solid #e0f2fe; }
+        .btn-active-info { background-color: white; color: #f59e0b; border: 1px solid #fef3c7; }
+        .btn-inactive { color: #94a3b8; background-color: transparent; }
+        .recording-pulse { animation: pulse 1.5s infinite; color: #ef4444; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
     </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans">
 
-    <!-- SIDEBAR (FULL 7-ITEM MENU) -->
+    <!-- SIDEBAR (FULL MENU) -->
     <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl font-bold uppercase text-[10px] tracking-wider">
         <div class="p-6 text-2xl font-black border-b border-slate-800 italic text-red-600 tracking-tighter">⦿ PLEX CRM</div>
         <nav id="sidebar-nav" class="flex-1 p-4 space-y-1">
             <a href="index.html" class="nav-item block p-3 hover:bg-slate-800 rounded">👥 <span data-dk="Klient-Oversigt" data-uk="Client Overview">Klient-Oversigt</span></a>
-            <a href="approvals.html" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400 italic"><span>⏳ <span data-dk="Godkendelser" data-uk="Approvals">Godkendelser</span></span><span class="bg-orange-600 text-white text-[9px] px-2 py-0.5 rounded-full font-black">1</span></a>
-            <a href="resellers.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400 italic">👤 <span data-dk="Reseller Styring" data-uk="Reseller Mgmt">Reseller Styring</span></a>
-            <a href="commission.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black italic">💰 <span data-dk="Provision & Tal" data-uk="Profit & Data">Provision & Tal</span></a>
-            <a href="settings.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ <span data-dk="Pakke Indstillinger" data-uk="Package Settings">Pakke Indstillinger</span></a>
-            <a href="telegram.html" class="nav-item block p-3 bg-red-600 rounded nav-active text-white border-t border-slate-800 mt-4 italic">💬 <span data-dk="Telegram Chat" data-uk="Telegram Chat">Telegram Chat</span></a>
-            <a href="payments.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-slate-500 font-black italic uppercase">💳 <span data-dk="Betalinger" data-uk="Payments">Betalinger</span></a>
+            <a href="approvals.html" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400"><span>⏳ Godkendelser</span><span class="bg-orange-600 text-white text-[9px] px-2 py-0.5 rounded-full">1</span></a>
+            <a href="resellers.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400">👤 Resellers</a>
+            <a href="commission.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black">💰 Provision & Tal</a>
+            <a href="settings.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400">⚙️ Pakke Indstillinger</a>
+            <a href="telegram.html" class="nav-item block p-3 bg-red-600 rounded nav-active text-white border-t border-slate-800 mt-4 italic">💬 Telegram Chat</a>
+            <a href="payments.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-slate-500">💳 Betalinger</a>
         </nav>
         <div class="p-4 border-t border-slate-800 bg-black/20 text-center italic text-[9px] text-slate-500 uppercase">Admin: Brian</div>
     </div>
@@ -40,110 +42,65 @@
     <!-- MAIN AREA -->
     <div class="flex-1 flex flex-col overflow-hidden">
         
-        <!-- HEADER MED KONTO SKIFTER -->
+        <!-- HEADER -->
         <header class="bg-white shadow-sm p-4 flex justify-between items-center px-10 border-b">
             <div class="flex items-center space-x-6">
-                <div class="flex items-center space-x-3">
-                    <h2 class="text-xl font-black uppercase italic tracking-tighter text-slate-800">Telegram <span class="text-sky-500" id="header-bot-name">Support</span></h2>
-                    <button onclick="openTokenModal()" class="text-slate-300 hover:text-sky-500 transition text-xl">⚙️</button>
-                </div>
-                
+                <h2 class="text-xl font-black uppercase italic tracking-tighter text-slate-800">Telegram <span class="text-sky-500" id="header-name">Support</span></h2>
                 <div class="flex bg-slate-100 p-1 rounded-lg border italic">
-                    <button id="acc-support" onclick="switchBot('support')" class="btn-active-support px-5 py-2 rounded text-[10px] font-black uppercase tracking-widest transition-all">Support Chat</button>
-                    <button id="acc-info" onclick="switchBot('info')" class="btn-inactive px-5 py-2 rounded text-[10px] font-black uppercase tracking-widest transition-all">Info & Broadcast</button>
+                    <button id="acc-support" onclick="switchBot('support')" class="btn-active-support px-5 py-2 rounded text-[10px] font-black uppercase tracking-widest transition-all">Support</button>
+                    <button id="acc-info" onclick="switchBot('info')" class="btn-inactive px-5 py-2 rounded text-[10px] font-black uppercase tracking-widest transition-all">Broadcast</button>
                 </div>
             </div>
-            <div id="bot-status-tag" class="bg-sky-50 text-sky-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-sky-100 flex items-center">
-                <span class="w-1.5 h-1.5 bg-sky-500 rounded-full mr-2 animate-pulse"></span>
-                <span id="status-text">Support Bot Live</span>
-            </div>
+            <button onclick="openTokenModal()" class="text-slate-300 hover:text-sky-500 transition text-xl">⚙️</button>
         </header>
 
         <div class="flex-1 flex overflow-hidden">
-            
             <!-- CHAT LISTE -->
             <div class="w-80 bg-white border-r flex flex-col shrink-0">
                 <div class="p-4 border-b bg-slate-50/50">
-                    <input type="text" placeholder="SØG I SAMTALER..." class="w-full text-[11px] p-2 border rounded-md shadow-sm outline-none font-bold italic uppercase">
+                    <input type="text" placeholder="SØG I CHATS..." class="w-full text-[11px] p-2 border rounded shadow-sm outline-none font-bold italic">
                 </div>
-                <div id="chat-list" class="flex-1 overflow-y-auto divide-y divide-gray-50 uppercase italic font-bold">
-                    <!-- Beskeder indlæses her -->
-                </div>
+                <div id="chat-list" class="flex-1 overflow-y-auto divide-y divide-gray-50 uppercase italic font-bold"></div>
             </div>
 
-            <!-- SAMTALEN -->
+            <!-- CHAT VINDUE -->
             <div class="flex-1 flex flex-col bg-[#f0f2f5] relative">
-                <div id="chat-header-bar" class="p-4 bg-white/80 backdrop-blur border-b flex justify-between items-center shadow-sm z-10 hidden">
-                    <h3 class="font-black text-xs uppercase italic text-slate-700" id="active-user-name">Kunde Navn</h3>
+                <div id="chat-header-bar" class="p-4 bg-white/80 backdrop-blur border-b hidden font-black italic uppercase shadow-sm">
+                    <h3 class="text-xs text-slate-700" id="active-user-name">Kunde Navn</h3>
                 </div>
 
-                <div id="message-container" class="flex-1 p-6 chat-scroll space-y-2">
-                    <div class="h-full flex items-center justify-center text-gray-300 italic font-black uppercase text-xs">Vælg en samtale i listen</div>
-                </div>
+                <div id="message-container" class="flex-1 p-6 chat-scroll space-y-2"></div>
 
-                <!-- BREDT INPUT MED FIL-LOGIK -->
+                <!-- BREDT INPUT MED DIRECT VOICE RECORDER -->
                 <div id="chat-input-area" class="p-4 bg-white border-t hidden">
-                    <div class="flex items-center space-x-4 bg-slate-50 p-2 rounded-2xl border-2 border-slate-200 shadow-inner">
-                        <div class="flex space-x-2 px-2 border-r border-slate-200">
-                            <button onclick="triggerFile('img')" title="Billede" class="p-2 hover:scale-125 transition">🖼️</button>
-                            <button onclick="triggerFile('vid')" title="Video" class="p-2 hover:scale-125 transition">📹</button>
-                            <button onclick="triggerFile('voice')" title="Voice" class="p-2 hover:scale-125 transition">🎤</button>
+                    <div class="flex items-center space-x-4 bg-slate-50 p-2 rounded-2xl border-2 border-slate-200">
+                        <div class="flex space-x-2 px-2 border-r">
+                            <button onclick="triggerFile('img')" title="Billede" class="p-2">🖼️</button>
+                            <button onclick="triggerFile('vid')" title="Video" class="p-2">📹</button>
+                            <button id="voice-btn" onclick="toggleVoice()" title="Indtal Voice Note" class="p-2 text-xl">🎤</button>
                         </div>
-                        <!-- Skjulte fil-vælgere -->
-                        <input type="file" id="file-img" accept="image/*" class="hidden">
-                        <input type="file" id="file-vid" accept="video/*" class="hidden">
-                        <input type="file" id="file-voice" accept="audio/*" class="hidden">
+                        <input type="file" id="file-img" onchange="handleFileUpload(this, 'img')" class="hidden">
+                        <input type="file" id="file-vid" onchange="handleFileUpload(this, 'vid')" class="hidden">
 
-                        <input type="text" id="msg-input" placeholder="Skriv dit svar til kunden her..." class="flex-1 bg-transparent text-sm outline-none font-bold italic py-3 px-2">
-                        <button onclick="doSendMessage()" id="send-btn" class="bg-sky-500 text-white px-10 py-3 rounded-xl font-black uppercase text-[10px] shadow-xl hover:bg-sky-600 transition tracking-[0.2em]">Send besked</button>
+                        <input type="text" id="msg-input" placeholder="Skriv besked..." class="flex-1 bg-transparent text-sm outline-none font-bold italic px-2">
+                        <button onclick="doSendMessage()" class="bg-sky-500 text-white px-10 py-3 rounded-xl font-black uppercase text-[10px] shadow-xl">Send</button>
                     </div>
+                    <div id="rec-indicator" class="hidden text-center mt-2 text-[10px] font-black uppercase tracking-widest recording-pulse">🔴 OPTAGER LYD... KLIK PÅ MIKROFON FOR AT STOPPE OG SENDE</div>
                 </div>
             </div>
 
-            <!-- HØJRE KOLONNE: AUTOMATISK NOTE-SYSTEM -->
+            <!-- HØJRE KOLONNE: NOTER -->
             <div class="w-80 bg-white border-l p-6 flex flex-col space-y-8 italic font-black text-[10px] tracking-widest overflow-y-auto">
-                
                 <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 shadow-inner">
-                    <h4 class="text-slate-400 mb-4 border-b pb-1 uppercase">Opret Intern Note</h4>
-                    
-                    <label>Beskrivelse</label>
-                    <textarea id="note-text" class="h-24 mb-3 italic bg-white" placeholder="Hvad er sket?"></textarea>
-                    
+                    <h4 class="text-slate-400 mb-4 border-b pb-1 uppercase">Opret Note</h4>
+                    <textarea id="note-text" class="h-24 mb-3 italic bg-white" placeholder="Beskrivelse..."></textarea>
                     <div class="grid grid-cols-2 gap-2 mb-4">
-                        <div>
-                            <label>Dato (Auto)</label>
-                            <input type="date" id="note-date">
-                        </div>
-                        <div>
-                            <label>Tid (Auto)</label>
-                            <input type="time" id="note-time">
-                        </div>
+                        <input type="date" id="note-date">
+                        <input type="time" id="note-time">
                     </div>
-
-                    <button onclick="saveManualNote()" class="bg-slate-900 text-white w-full py-3 rounded-xl shadow-2xl uppercase hover:bg-black transition tracking-widest">Gem Note med Tidsstempel</button>
+                    <button onclick="saveNote()" class="bg-slate-900 text-white w-full py-3 rounded-xl shadow-xl uppercase">Gem Note</button>
                 </div>
-
-                <div>
-                    <h4 class="text-slate-400 mb-4 border-b pb-1 uppercase italic tracking-widest">Note Historik</h4>
-                    <div id="note-list" class="space-y-4">
-                        <!-- Noter her -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: TOKENS -->
-    <div id="tokenModal" class="modal">
-        <div class="modal-content">
-            <h2 class="text-xl font-black border-b pb-4 mb-6 uppercase text-sky-600 italic">Bot API Settings</h2>
-            <div class="space-y-4">
-                <div><label>Support Bot API Token</label><input type="password" id="t-support" class="bg-white"></div>
-                <div><label>Broadcast Bot API Token</label><input type="password" id="t-info" class="bg-white"></div>
-            </div>
-            <div class="mt-8 flex justify-end">
-                <button onclick="closeModal('tokenModal')" class="mr-6 text-gray-400 font-black uppercase text-[10px]">Luk</button>
-                <button onclick="alert('Indstillinger gemt!')" class="bg-slate-900 text-white px-10 py-3 rounded-lg uppercase text-xs font-black shadow-xl">Opdater Forbindelse</button>
+                <div id="note-list" class="space-y-4"></div>
             </div>
         </div>
     </div>
@@ -152,13 +109,11 @@
         let allMessages = [];
         let activeId = null;
         let activeBot = 'support';
+        let mediaRecorder;
+        let audioChunks = [];
 
-        window.onload = function() {
-            setNow();
-            fetchHistory();
-        };
+        window.onload = function() { setNow(); fetchHistory(); };
 
-        // 1. AUTOMATISK TID/DATO LOGIK
         function setNow() {
             const now = new Date();
             document.getElementById('note-date').valueAsDate = now;
@@ -166,30 +121,21 @@
         }
 
         async function fetchHistory() {
-            try {
-                const response = await fetch('/api/messages');
-                allMessages = await response.json();
-                renderList();
-                if (activeId) renderChat(activeId);
-            } catch (err) { console.error("History Error:", err); }
+            const res = await fetch('/api/messages');
+            allMessages = await res.json();
+            renderList();
+            if(activeId) renderChat(activeId);
         }
 
         function renderList() {
             const list = document.getElementById('chat-list');
             const unique = {};
-            // FILTRERING VIRKER HER: Vi viser kun chats fra den aktive bot
-            const filtered = allMessages.filter(m => m.bot_type === activeBot);
-            filtered.forEach(m => unique[m.chat_id] = m);
-
+            allMessages.filter(m => m.bot_type === activeBot).forEach(m => unique[m.chat_id] = m);
             list.innerHTML = Object.values(unique).reverse().map(m => `
-                <div onclick="selectChat('${m.chat_id}', '${m.sender_name}')" class="p-5 cursor-pointer hover:bg-slate-50 transition ${activeId == m.chat_id ? 'bg-sky-50 border-l-8 border-sky-500' : ''}">
-                    <div class="flex justify-between items-center mb-1 uppercase tracking-tighter">
-                        <span class="font-black text-slate-800 text-[12px]">${m.sender_name}</span>
-                        <span class="text-[8px] text-slate-400 font-bold">${new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-                    </div>
-                    <div class="text-[10px] text-slate-400 truncate italic tracking-normal">${m.message_text}</div>
-                </div>
-            `).join('') || '<div class="p-10 text-center text-slate-300 italic uppercase text-[9px]">Ingen beskeder på denne bot</div>';
+                <div onclick="selectChat('${m.chat_id}', '${m.sender_name}')" class="p-5 cursor-pointer hover:bg-slate-50 border-b ${activeId == m.chat_id ? 'bg-sky-50 border-l-8 border-sky-500' : ''}">
+                    <div class="text-slate-800 font-black">${m.sender_name}</div>
+                    <div class="text-[10px] text-slate-400 truncate mt-1 italic">${m.message_text}</div>
+                </div>`).join('');
         }
 
         function selectChat(id, name) {
@@ -203,13 +149,11 @@
 
         function renderChat(id) {
             const box = document.getElementById('message-container');
-            const msgs = allMessages.filter(m => m.chat_id == id);
-            box.innerHTML = msgs.map(m => `
+            box.innerHTML = allMessages.filter(m => m.chat_id == id).map(m => `
                 <div class="message-bubble ${m.direction == 'in' ? 'msg-in' : 'msg-out'} shadow-sm">
                     <div class="not-italic font-bold">${m.message_text}</div>
                     <div class="text-[7px] text-right mt-2 opacity-50 font-black">${new Date(m.created_at).toLocaleString()}</div>
-                </div>
-            `).join('');
+                </div>`).join('');
             box.scrollTop = box.scrollHeight;
         }
 
@@ -219,48 +163,62 @@
             await fetch('/api/send-message', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ chatId: activeId, text: input.value, botType: activeBot })
+                body: JSON.stringify({ chatId: activeId, text: input.value })
             });
             input.value = '';
             fetchHistory();
         }
 
-        // 2. KONTO SKIFTER LOGIK
-        function switchBot(type) {
-            activeBot = type;
-            activeId = null; 
-            document.getElementById('header-bot-name').innerText = (type === 'support') ? 'Support' : 'Broadcast';
-            document.getElementById('acc-support').className = (type === 'support') ? 'btn-active-support px-5 py-2 rounded text-[10px] font-black uppercase tracking-widest shadow-lg' : 'btn-inactive px-5 py-2 rounded text-[10px] font-black uppercase tracking-widest';
-            document.getElementById('acc-info').className = (type === 'info') ? 'btn-active-info px-5 py-2 rounded text-[10px] font-black uppercase tracking-widest shadow-lg' : 'btn-inactive px-5 py-2 rounded text-[10px] font-black uppercase tracking-widest';
-            
-            document.getElementById('chat-header-bar').classList.add('hidden');
-            document.getElementById('chat-input-area').classList.add('hidden');
-            document.getElementById('message-container').innerHTML = '<div class="h-full flex items-center justify-center text-gray-300 italic font-black uppercase text-xs">Skiftet konto...</div>';
-            
+        // --- FIL UPLOAD LOGIK ---
+        function triggerFile(id) { document.getElementById('file-'+id).click(); }
+        async function handleFileUpload(input, type) {
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+            formData.append('chatId', activeId);
+            formData.append('type', type);
+            await fetch('/api/send-media', { method: 'POST', body: formData });
             fetchHistory();
         }
 
-        function saveManualNote() {
-            const text = document.getElementById('note-text').value;
-            const d = document.getElementById('note-date').value;
-            const t = document.getElementById('note-time').value;
-            if(!text) return;
-            const list = document.getElementById('note-list');
-            const div = document.createElement('div');
-            div.className = "bg-yellow-50 p-4 rounded-xl border border-yellow-100 shadow-sm";
-            div.innerHTML = `<p class="text-yellow-900 not-italic font-black text-[11px] leading-tight">${text}</p><span class="text-[8px] opacity-40 mt-3 block uppercase font-black">${d} - ${t}</span>`;
-            list.prepend(div);
-            document.getElementById('note-text').value = '';
-            setNow(); // Nulstil tid til næste note
+        // --- VOICE RECORDER LOGIK ---
+        async function toggleVoice() {
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+                document.getElementById('rec-indicator').classList.add('hidden');
+                document.getElementById('voice-btn').innerText = "🎤";
+            } else {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/ogg; codecs=opus' });
+                    const formData = new FormData();
+                    formData.append('file', audioBlob, 'voice.ogg');
+                    formData.append('chatId', activeId);
+                    formData.append('type', 'voice');
+                    await fetch('/api/send-media', { method: 'POST', body: formData });
+                    fetchHistory();
+                };
+                mediaRecorder.start();
+                document.getElementById('rec-indicator').classList.remove('hidden');
+                document.getElementById('voice-btn').innerText = "⏹️";
+            }
         }
 
-        // 3. FIL TRIGGER
-        function triggerFile(type) { document.getElementById('file-' + type).click(); }
+        function saveNote() {
+            const text = document.getElementById('note-text').value;
+            if(!text) return;
+            const div = document.createElement('div');
+            div.className = "bg-yellow-50 p-4 rounded-xl border border-yellow-100 shadow-sm";
+            div.innerHTML = `<p class="font-black text-yellow-900">${text}</p><span class="text-[8px] opacity-40 block mt-2 uppercase">${document.getElementById('note-date').value} ${document.getElementById('note-time').value}</span>`;
+            document.getElementById('note-list').prepend(div);
+            document.getElementById('note-text').value = '';
+            setNow();
+        }
 
-        function openTokenModal() { document.getElementById('tokenModal').style.display = 'block'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function setLang(l) { /* Uniform sidebar handling */ }
-
+        function switchBot(t) { activeBot = t; activeId = null; fetchHistory(); }
+        function closeModal() { document.getElementById('tokenModal').style.display = 'none'; }
         setInterval(fetchHistory, 5000);
     </script>
 </body>

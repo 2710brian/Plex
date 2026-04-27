@@ -15,8 +15,8 @@
         .message-bubble { max-width: 80%; border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; font-size: 14px; line-height: 1.4; position: relative; }
         .msg-in { background-color: #f3f4f6; color: #1f2937; align-self: flex-start; border-bottom-left-radius: 2px; }
         .msg-out { background-color: #e0f2fe; color: #0369a1; align-self: flex-end; border-bottom-right-radius: 2px; box-shadow: 0 4px 6px -1px rgba(14,165,233,0.1); }
-        .btn-active-support { background-color: white; color: #0ea5e9; border: 1px solid #e0f2fe; shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .btn-active-info { background-color: white; color: #f59e0b; border: 1px solid #fef3c7; shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-active-support { background-color: white; color: #0ea5e9; border: 1px solid #e0f2fe; }
+        .btn-active-info { background-color: white; color: #f59e0b; border: 1px solid #fef3c7; }
         .btn-inactive { color: #94a3b8; background-color: transparent; }
         .recording-pulse { animation: pulse 1.5s infinite; color: #ef4444; font-weight: 900; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
@@ -25,7 +25,7 @@
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans uppercase font-black italic">
 
-    <!-- SIDEBAR (FULL 7-ITEM UNIFORM) -->
+    <!-- SIDEBAR (FULL 7-ITEM) -->
     <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl tracking-wider not-italic">
         <div class="p-6 text-2xl font-black border-b border-slate-800 text-red-600">⦿ PLEX CRM</div>
         <nav id="sidebar-nav" class="flex-1 p-4 space-y-1 text-[10px] font-bold uppercase tracking-widest">
@@ -46,7 +46,7 @@
             <div class="flex items-center space-x-6">
                 <h2 class="text-xl font-black uppercase italic tracking-tighter">Telegram <span class="text-sky-500" id="header-bot-title">Support</span></h2>
                 <div class="flex bg-slate-100 p-1 rounded-lg border italic shadow-inner">
-                    <button id="acc-support" onclick="switchBot('support')" class="btn-active-support px-5 py-2 rounded text-[10px] font-black uppercase tracking-widest transition-all">Support</button>
+                    <button id="acc-support" onclick="switchBot('support')" class="btn-active-support px-5 py-2 rounded text-[10px] font-black uppercase tracking-widest transition-all shadow-sm">Support</button>
                     <button id="acc-info" onclick="switchBot('info')" class="btn-inactive px-5 py-2 rounded text-[10px] font-black uppercase tracking-widest">Broadcast</button>
                 </div>
             </div>
@@ -63,7 +63,7 @@
                 <div id="chat-header-bar" class="p-4 bg-white/80 backdrop-blur border-b hidden font-black uppercase shadow-sm italic"><h3 class="text-xs text-slate-700 font-black" id="active-user-name">Kunde</h3></div>
                 <div id="message-container" class="flex-1 p-6 chat-scroll space-y-3"></div>
 
-                <!-- BREDT INPUT MED MEDIA -->
+                <!-- BREDT INPUT MODUL -->
                 <div id="chat-input-area" class="p-6 bg-white border-t hidden shadow-2xl">
                     <div class="flex items-center space-x-6 bg-slate-50 p-4 rounded-3xl border-2 border-slate-200 shadow-inner">
                         <div class="flex space-x-4 px-4 border-r border-slate-200 text-2xl">
@@ -81,9 +81,8 @@
                 </div>
             </div>
 
-            <!-- HØJRE KOLONNE: NOTER MED DATO/TID -->
             <div class="w-80 bg-white border-l p-6 flex flex-col space-y-8 font-black uppercase italic text-[10px] tracking-widest overflow-y-auto shadow-2xl">
-                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 shadow-inner">
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 shadow-inner text-center">
                     <h4 class="text-slate-400 mb-4 border-b pb-1 uppercase italic tracking-tighter">Opret Intern Note</h4>
                     <textarea id="note-text" class="h-28 mb-3 italic bg-white shadow-sm font-bold" placeholder="BESKRIV HÆNDELSE..."></textarea>
                     <div class="grid grid-cols-2 gap-2 mb-4">
@@ -92,9 +91,7 @@
                     </div>
                     <button onclick="saveNote()" class="bg-slate-900 text-white w-full py-4 rounded-xl shadow-xl uppercase hover:bg-black transition tracking-widest">Gem Note</button>
                 </div>
-                <div id="note-list" class="space-y-4">
-                    <h4 class="text-slate-400 border-b pb-1">Historik</h4>
-                </div>
+                <div id="note-list" class="space-y-4"><h4 class="text-slate-400 border-b pb-1">Historik</h4></div>
             </div>
         </div>
     </div>
@@ -109,7 +106,7 @@
         let mediaRecorder;
         let audioChunks = [];
 
-        function robustFormatDate(dateStr) {
+        function formatDate(dateStr) {
             const d = new Date(dateStr);
             if(isNaN(d.getTime())) return new Date().toLocaleString();
             return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
@@ -119,9 +116,9 @@
             if (text.startsWith('MEDIA|')) {
                 const [_, type, filename] = text.split('|');
                 const path = `/uploads/${filename}`;
-                if (type === 'img') return `<img src="${path}" class="max-w-xs rounded-xl shadow-lg border-4 border-white cursor-pointer" onclick="window.open('${path}')">`;
+                if (type === 'img') return `<img src="${path}" class="max-w-xs rounded-xl shadow-lg border-4 border-white">`;
                 if (type === 'vid') return `<video controls class="max-w-xs rounded-xl border-4 border-white shadow-lg"><source src="${path}"></video>`;
-                if (type === 'voice') return `<div class="bg-white/50 p-2 rounded-lg"><span class="block text-[8px] font-black mb-1">VOICE NOTE</span><audio controls class="w-48"><source src="${path}" type="audio/ogg"></audio></div>`;
+                if (type === 'voice') return `<div class="bg-white/50 p-2 rounded-lg border-2 border-blue-100"><span class="block text-[8px] font-black mb-1">VOICE NOTE</span><audio controls class="w-48"><source src="${path}"></audio></div>`;
             }
             return text;
         }
@@ -138,16 +135,11 @@
         function renderList() {
             const list = document.getElementById('chat-list');
             const unique = {};
-            // STRENG FILTRERING: Vis kun samtaler for den bot vi står på
             allMessages.filter(m => m.bot_type === activeBot).forEach(m => unique[m.chat_id] = m);
-            
-            const entries = Object.values(unique).reverse();
-            if(entries.length === 0) { list.innerHTML = `<div class="p-10 text-center text-slate-300 uppercase text-[9px] font-black italic">Ingen data for denne bot</div>`; return; }
-
-            list.innerHTML = entries.map(m => `
+            list.innerHTML = Object.values(unique).reverse().map(m => `
                 <div onclick="selectChat('${m.chat_id}', '${m.sender_name}')" class="p-6 cursor-pointer hover:bg-slate-50 border-b transition ${activeId == m.chat_id ? 'bg-sky-50 border-l-8 border-sky-500 shadow-xl' : ''}">
-                    <div class="flex justify-between items-center mb-1"><span class="text-slate-800 font-black text-sm">${m.sender_name}</span></div>
-                    <div class="text-[11px] text-slate-400 truncate italic font-bold">${m.message_text.includes('MEDIA|') ? '📎 FIL/MEDIE' : m.message_text}</div>
+                    <div class="font-black text-slate-800 text-sm">${m.sender_name}</div>
+                    <div class="text-[11px] text-slate-400 truncate italic font-bold">${m.message_text.includes('MEDIA|') ? '📎 MEDIEFIL' : m.message_text}</div>
                 </div>`).join('');
         }
 
@@ -163,12 +155,10 @@
         function renderChat(id) {
             const box = document.getElementById('message-container');
             const chatMsgs = allMessages.filter(m => m.chat_id == id && m.bot_type === activeBot);
-            if(chatMsgs.length === 0) { box.innerHTML = '<div class="h-full flex items-center justify-center text-gray-300 font-black uppercase text-xs italic">Vælg chat...</div>'; return; }
-
             box.innerHTML = chatMsgs.map(m => `
                 <div class="message-bubble ${m.direction == 'in' ? 'msg-in shadow-sm' : 'msg-out shadow-lg'}">
-                    <div class="not-italic font-black">${renderContent(m.message_text)}</div>
-                    <div class="text-[8px] text-right mt-2 opacity-50 font-black uppercase tracking-tighter">${robustFormatDate(m.created_at)}</div>
+                    <div class="not-italic font-black text-sm">${renderContent(m.message_text)}</div>
+                    <div class="text-[8px] text-right mt-2 opacity-50 font-black uppercase">${formatDate(m.created_at)}</div>
                 </div>`).join('');
             box.scrollTop = box.scrollHeight;
         }
@@ -183,17 +173,6 @@
             });
             input.value = '';
             fetchHistory();
-        }
-
-        function switchBot(t) {
-            activeBot = t; activeId = null;
-            document.getElementById('header-bot-title').innerText = (t === 'support') ? 'Support' : 'Broadcast';
-            document.getElementById('acc-support').className = (t === 'support') ? 'btn-active-support px-6 py-2 rounded text-[10px] font-black shadow' : 'btn-inactive px-6 py-2 rounded text-[10px] font-black';
-            document.getElementById('acc-info').className = (t === 'info') ? 'btn-active-info px-6 py-2 rounded text-[10px] font-black shadow' : 'btn-inactive px-6 py-2 rounded text-[10px] font-black';
-            document.getElementById('chat-header-bar').classList.add('hidden');
-            document.getElementById('chat-input-area').classList.add('hidden');
-            document.getElementById('message-container').innerHTML = '';
-            fetchHistory(); 
         }
 
         function triggerFile(id) { document.getElementById('file-'+id).click(); }
@@ -211,15 +190,16 @@
             if (mediaRecorder && mediaRecorder.state === "recording") {
                 mediaRecorder.stop();
                 document.getElementById('rec-indicator').classList.add('hidden');
+                document.getElementById('voice-btn').innerText = "🎤";
             } else {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
                 mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
                 mediaRecorder.onstop = async () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/ogg' });
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                     const formData = new FormData();
-                    formData.append('file', audioBlob, 'voice.ogg');
+                    formData.append('file', audioBlob, 'voice.webm');
                     formData.append('chatId', activeId);
                     formData.append('type', 'voice');
                     formData.append('botType', activeBot);
@@ -228,6 +208,7 @@
                 };
                 mediaRecorder.start();
                 document.getElementById('rec-indicator').classList.remove('hidden');
+                document.getElementById('voice-btn').innerText = "⏹️";
             }
         }
 
@@ -249,11 +230,18 @@
             document.getElementById('note-time').value = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
         }
 
-        function openTokenModal() { document.getElementById('tokenModal').style.display = 'block'; }
+        function switchBot(t) { activeBot = t; activeId = null; setNow(); fetchHistory(); 
+            document.getElementById('header-bot-title').innerText = (t === 'support') ? 'Support' : 'Broadcast';
+            document.getElementById('acc-support').className = (t === 'support') ? 'btn-active-support px-6 py-2 rounded text-[10px] font-black uppercase' : 'btn-inactive px-6 py-2 rounded text-[10px] font-black';
+            document.getElementById('acc-info').className = (t === 'info') ? 'btn-active-info px-6 py-2 rounded text-[10px] font-black' : 'btn-inactive px-6 py-2 rounded text-[10px] font-black';
+            document.getElementById('chat-header-bar').classList.add('hidden');
+            document.getElementById('chat-input-area').classList.add('hidden');
+            document.getElementById('message-container').innerHTML = '';
+        }
+
         function closeModal() { document.getElementById('tokenModal').style.display = 'none'; }
-        
+        function openTokenModal() { document.getElementById('tokenModal').style.display = 'block'; }
         setInterval(fetchHistory, 5000);
-        window.onload = function() { setNow(); fetchHistory(); };
     </script>
 </body>
 </html>

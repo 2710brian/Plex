@@ -21,11 +21,11 @@
             <a href="index.html" class="block p-3 hover:bg-slate-800 rounded">👥 Klient-Oversigt</a>
             <a href="approvals.html" class="block p-3 bg-orange-600 text-white rounded flex justify-between items-center shadow-lg">
                 <span>⏳ Godkendelser</span>
-                <span class="bg-white text-orange-600 text-[9px] px-2 py-0.5 rounded-full font-black">1</span>
+                <span class="bg-white text-orange-600 text-[9px] px-2 py-0.5 rounded-full font-black uppercase">1</span>
             </a>
             <a href="resellers.html" class="block p-3 hover:bg-slate-800 rounded text-blue-400 italic">👤 Reseller Styring</a>
-            <a href="commission.html" class="block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black">💰 Provision & Tal</a>
-            <a href="settings.html" class="block p-3 hover:bg-slate-800 rounded text-emerald-400">⚙️ Pakke Indstillinger</a>
+            <a href="commission.html" class="block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black italic">💰 Provision & Tal</a>
+            <a href="settings.html" class="block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ Pakke Indstillinger</a>
         </nav>
         <div class="p-4 border-t border-slate-800 bg-black/20 italic text-[9px] text-center text-slate-500 uppercase">Admin: Brian</div>
     </div>
@@ -34,7 +34,7 @@
     <div class="flex-1 flex flex-col overflow-hidden">
         <header class="bg-white shadow-sm p-5 flex justify-between items-center px-10 border-b">
             <h2 class="text-2xl font-black uppercase italic tracking-tighter text-orange-600">
-                Pending Approvals (Tjek data før godkendelse)
+                Pending Approvals (Godkend / Ret anmodninger)
             </h2>
         </header>
 
@@ -45,20 +45,18 @@
                         <tr>
                             <th class="p-5">Oprettet af</th>
                             <th class="p-5">Kunde Navn</th>
-                            <th class="p-5">Valgt Pakke</th>
-                            <th class="p-5">Status</th>
+                            <th class="p-5 text-center">Status</th>
                             <th class="p-5 text-center">Handling</th>
                         </tr>
                     </thead>
                     <tbody class="text-[11px] font-bold uppercase italic divide-y divide-orange-50">
                         <tr class="bg-orange-50/30">
                             <td class="p-5 text-blue-600 font-black uppercase tracking-tighter">Reseller: MarketingPusher</td>
-                            <td class="p-5 text-slate-900 uppercase font-black">Mrs Anette (Test-kunde)</td>
-                            <td class="p-5">Pakke 3 (IPTV Mdr)</td>
-                            <td class="p-5"><span class="bg-orange-200 text-orange-700 px-2 py-1 rounded text-[9px]">PENDING</span></td>
-                            <td class="p-5 flex justify-center space-x-3 italic">
-                                <button onclick="openApprovalModal('Mrs Anette')" class="bg-slate-800 text-white px-4 py-2 rounded text-[9px] font-black shadow hover:bg-black transition">🔍 SE & REDIGER</button>
-                                <button onclick="alert('Godkendt!')" class="bg-green-600 text-white px-4 py-2 rounded text-[9px] font-black shadow hover:bg-green-700 transition">GODKEND ✅</button>
+                            <td class="p-5 text-slate-900 uppercase font-black tracking-tight">Mrs Anette (Test-kunde)</td>
+                            <td class="p-5 text-center"><span class="bg-orange-200 text-orange-700 px-3 py-1 rounded text-[9px] font-black">PENDING</span></td>
+                            <td class="p-5 flex justify-center space-x-3">
+                                <button onclick="openApprovalModal('Mrs Anette')" class="bg-slate-800 text-white px-5 py-2 rounded text-[10px] font-black shadow hover:bg-black transition tracking-widest uppercase">🔍 Se & Rediger</button>
+                                <button onclick="alert('Kunde Aktiveret!')" class="bg-green-600 text-white px-5 py-2 rounded text-[10px] font-black shadow hover:bg-green-700 transition tracking-widest uppercase">Direkte Godkend ✅</button>
                             </td>
                         </tr>
                     </tbody>
@@ -67,57 +65,69 @@
         </main>
     </div>
 
-    <!-- MODAL: INSPECT & EDIT BEFORE APPROVAL -->
+    <!-- MODAL: REDIGER ALT FØR GODKENDELSE -->
     <div id="approvalModal" class="modal">
         <div class="modal-content">
             <div class="flex justify-between items-center border-b pb-5 mb-8 italic uppercase font-black tracking-tighter text-orange-600">
-                <h2 class="text-3xl font-black italic">Tjek Kunde-data: <span id="display-name" class="text-slate-900"></span></h2>
+                <h2 class="text-3xl italic">Ret & Godkend: <span id="display-name" class="text-slate-900"></span></h2>
                 <button onclick="closeModal()" class="text-gray-300 hover:text-black text-5xl font-light transition">&times;</button>
             </div>
             
             <div class="space-y-8">
-                <!-- Sektion 1: Stamdata -->
+                <!-- 1. Basis Info -->
                 <section>
-                    <h3 class="section-title">1. Stamdata (Indtastet af Partner)</h3>
+                    <h3 class="section-title">1. Kunde Info (Editable)</h3>
                     <div class="grid grid-cols-4 gap-4">
                         <div class="col-span-2"><label>Fulde Navn</label><input type="text" id="inp-name" value="Mrs Anette"></div>
                         <div><label>Email</label><input type="email" value="anette@test.dk"></div>
-                        <div><label>Mobil</label><input type="text" value="+45 00000000"></div>
+                        <div><label>Land</label><select><option>Spain</option><option>Denmark</option></select></div>
                     </div>
                 </section>
 
-                <!-- Sektion 2: Teknisk (Her skal du tjekke MAC osv.) -->
-                <section class="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-inner">
-                    <h3 class="section-title border-slate-300 text-orange-600">2. Teknisk Setup (Tjek her)</h3>
-                    <div class="grid grid-cols-4 gap-4">
-                        <div><label>Plex ID</label><input type="text" placeholder="Ikke udfyldt"></div>
-                        <div class="col-span-2"><label>MAC Adresse (IPTV)</label><input type="text" value="00:11:22:33:44:55" class="border-orange-200"></div>
-                        <div><label>App Navn</label><input type="text" value="IPTV Smarters"></div>
-                        <div><label>Næste Betaling</label><input type="date" class="font-black text-red-600"></div>
-                        <div><label>Agent</label><select><option>BH</option><option selected>KU</option></select></div>
-                        <div><label>Admin Panel</label><select><option>N</option><option>Y</option></select></div>
-                    </div>
-                </section>
-
-                <!-- Sektion 3: Pakke Info -->
-                <section>
-                    <h3 class="section-title">3. Valgt Pakke & Pris</h3>
-                    <div class="grid grid-cols-2 gap-4 bg-orange-50 p-6 rounded-xl border border-orange-100">
+                <!-- 2. Pakke-valg (Her kan du skifte pakken) -->
+                <section class="bg-red-50 p-8 rounded-2xl border-2 border-red-100 shadow-inner">
+                    <h3 class="section-title border-red-200 text-red-600">2. Pakke-valg & Salgspris</h3>
+                    <div class="grid grid-cols-2 gap-10 items-center">
                         <div>
-                            <label>Pakke</label>
-                            <input type="text" readonly value="Pakke 3: IPTV Månedlig" class="bg-white font-black text-orange-600">
+                            <label class="font-black text-red-600">Vælg rigtig pakke</label>
+                            <select id="packageSelect" onchange="updatePrice()" class="bg-white font-black h-14 text-xl border-red-200">
+                                <option value="81.00">#1: Plex Årsabonnement</option>
+                                <option value="11.00">#2: Plex Månedlig</option>
+                                <option value="21.00" selected>#3: IPTV Månedlig</option>
+                                <option value="29.00">#4: Combo Månedlig</option>
+                                <option value="282.00">#5: Combo Årlig</option>
+                                <option value="305.00">#6: Combo + Boks Årlig</option>
+                            </select>
                         </div>
-                        <div class="text-center">
-                            <label>Salgspris (€)</label>
-                            <div class="text-3xl font-black text-slate-800 italic">€ 21,00</div>
+                        <div class="bg-slate-900 p-6 rounded-xl text-center shadow-2xl border-b-8 border-red-600 text-white">
+                            <label class="text-gray-400 mb-2 uppercase font-black italic tracking-widest">Salgspris i Euro (€)</label>
+                            <div id="display-price" class="text-5xl font-black text-yellow-400 italic font-mono tracking-tighter">€ 21,00</div>
                         </div>
+                    </div>
+                </section>
+
+                <!-- 3. Teknisk Data -->
+                <section>
+                    <h3 class="section-title">3. Teknisk Konfiguration</h3>
+                    <div class="grid grid-cols-4 gap-4">
+                        <div><label>Plex ID</label><input type="text" placeholder="Udfyld her"></div>
+                        <div class="col-span-2"><label>MAC Adresse (IPTV)</label><input type="text" value="00:11:22:33:44:55"></div>
+                        <div><label>App Navn</label><input type="text" value="IPTV Smarters"></div>
+                        <div><label>Agent</label>
+                            <select class="font-bold border-blue-200 bg-blue-50">
+                                <option>BH</option>
+                                <option selected>KU</option>
+                            </select>
+                        </div>
+                        <div><label>Admin Panel</label><select><option>N</option><option>Y</option></select></div>
+                        <div><label>Overseer</label><select><option>N</option><option selected>Y</option></select></div>
                     </div>
                 </section>
             </div>
 
             <div class="mt-12 pt-8 border-t flex justify-end items-center italic">
-                <button onclick="closeModal()" class="mr-12 text-gray-400 font-black uppercase text-[11px] tracking-widest">Luk uden ændringer</button>
-                <button onclick="alert('Rettelser gemt og kunde godkendt!')" class="bg-green-600 text-white px-16 py-5 rounded-lg font-black shadow-2xl uppercase tracking-widest text-sm italic hover:bg-green-700 transition">GEM RETTELSER & GODKEND NU ✅</button>
+                <button onclick="closeModal()" class="mr-12 text-gray-400 font-black uppercase text-[11px] tracking-[0.3em]">Fortryd</button>
+                <button onclick="alert('Ændringer gemt og kunde godkendt!')" class="bg-green-600 text-white px-16 py-5 rounded-lg font-black shadow-2xl uppercase tracking-widest text-sm italic hover:bg-green-700 transition">GEM & GODKEND KUNDE NU ✅</button>
             </div>
         </div>
     </div>
@@ -126,9 +136,14 @@
         function openApprovalModal(name) {
             document.getElementById('display-name').innerText = name;
             document.getElementById('approvalModal').style.display = "block";
+            updatePrice();
         }
         function closeModal() {
             document.getElementById('approvalModal').style.display = "none";
+        }
+        function updatePrice() {
+            const price = document.getElementById('packageSelect').value;
+            document.getElementById('display-price').innerText = "€ " + parseFloat(price).toLocaleString('da-DK', {minimumFractionDigits: 2});
         }
     </script>
 </body>

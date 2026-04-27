@@ -2,152 +2,131 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plex CRM - Telegram Live</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); }
-        .modal-content { background-color: white; margin: 10% auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border-top: 8px solid #0ea5e9; }
-        label { display: block; font-size: 0.65rem; font-weight: 800; color: #4b5563; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
-        .nav-active { background-color: #dc2626 !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
-        .chat-scroll { height: calc(100vh - 180px); overflow-y: auto; }
-        .message-bubble { max-width: 80%; border-radius: 12px; padding: 10px 15px; margin-bottom: 10px; font-size: 13px; position: relative; }
-        .msg-in { background-color: #f3f4f6; color: #1f2937; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .msg-out { background-color: #e0f2fe; color: #0369a1; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .chat-scroll { height: calc(100vh - 180px); overflow-y: auto; display: flex; flex-direction: column; }
+        .message-bubble { max-width: 80%; border-radius: 12px; padding: 10px 15px; margin-bottom: 8px; font-size: 13px; line-height: 1.4; }
+        .msg-in { background-color: #f3f4f6; color: #1f2937; align-self: flex-start; border-bottom-left-radius: 2px; shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .msg-out { background-color: #0ea5e9; color: white; align-self: flex-end; border-bottom-right-radius: 2px; shadow: 0 2px 4px rgba(14,165,233,0.3); }
+        .nav-active { background-color: #dc2626 !important; }
     </style>
 </head>
-<body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans">
+<body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans font-medium uppercase text-[11px] italic">
 
-    <!-- SIDEBAR (UNIFORM 1:1) -->
-    <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl font-bold uppercase text-[10px] tracking-wider">
-        <div class="p-6 text-2xl font-black border-b border-slate-800 italic text-red-600 tracking-tighter">⦿ PLEX CRM</div>
-        <nav id="sidebar-nav" class="flex-1 p-4 space-y-1">
-            <a href="index.html" class="nav-item block p-3 hover:bg-slate-800 rounded">👥 <span data-dk="Klient-Oversigt" data-uk="Client Overview">Klient-Oversigt</span></a>
-            <a href="approvals.html" id="nav-approvals" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400 italic"><span>⏳ Godkendelser</span><span class="bg-orange-600 text-white text-[9px] px-2 py-0.5 rounded-full font-black">1</span></a>
-            <a href="resellers.html" id="nav-resellers" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400 italic">👤 Reseller Styring</a>
-            <a href="commission.html" id="nav-commission" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black italic">💰 Provision & Tal</a>
-            <a href="settings.html" id="nav-settings" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ Pakke Indstillinger</a>
-            <a href="telegram.html" class="nav-item block p-3 bg-red-600 rounded nav-active text-sky-400 border-t border-slate-800 mt-4 italic text-white">💬 Telegram Chat</a>
+    <!-- SIDEBAR -->
+    <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl tracking-wider not-italic">
+        <div class="p-6 text-2xl font-black border-b border-slate-800 text-red-600">⦿ PLEX CRM</div>
+        <nav class="flex-1 p-4 space-y-1">
+            <a href="index.html" class="block p-3 hover:bg-slate-800 rounded">👥 Klienter</a>
+            <a href="telegram.html" class="block p-3 bg-red-600 rounded nav-active text-white">💬 Telegram Chat</a>
         </nav>
-        <div class="p-4 border-t border-slate-800 bg-black/20 text-center italic text-[9px] text-slate-500 uppercase">Admin: Brian</div>
     </div>
 
     <!-- MAIN AREA -->
-    <div class="flex-1 flex flex-col overflow-hidden">
-        
-        <header class="bg-white shadow-sm p-4 flex justify-between items-center px-10 border-b">
-            <div class="flex items-center space-x-6">
-                <h2 class="text-xl font-black uppercase italic tracking-tighter text-slate-800">Telegram Center</h2>
-                <div class="flex bg-slate-100 p-1 rounded-lg border italic">
-                    <button class="bg-white text-sky-600 px-4 py-1.5 rounded shadow-sm text-[9px] font-black uppercase tracking-widest border border-sky-100">Live Support</button>
-                </div>
-            </div>
-            <div class="flex items-center space-x-2 text-[10px] font-black uppercase text-emerald-500 italic">
-                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                <span>Live Database Link Active</span>
-            </div>
+    <div class="flex-1 flex flex-col overflow-hidden not-italic">
+        <header class="bg-white p-4 flex justify-between items-center px-10 border-b shadow-sm font-black italic uppercase">
+            <h2 class="text-xl">Telegram <span class="text-sky-500">Live Support</span></h2>
+            <div class="text-[10px] text-emerald-500 animate-pulse">● System Connected</div>
         </header>
 
         <div class="flex-1 flex overflow-hidden">
-            
-            <!-- KOLONNE 1: CHAT LISTE (HENTES FRA DB) -->
+            <!-- LISTE -->
             <div class="w-80 bg-white border-r flex flex-col shrink-0">
-                <div class="p-4 border-b bg-slate-50/50">
-                    <input type="text" placeholder="Søg i samtaler..." class="w-full text-[11px] p-2 border rounded-md shadow-sm outline-none">
+                <div id="chat-list" class="flex-1 overflow-y-auto divide-y divide-gray-50"></div>
+            </div>
+
+            <!-- CHAT VINDUE -->
+            <div class="flex-1 flex flex-col bg-[#f0f2f5]">
+                <div id="chat-header" class="p-4 bg-white border-b hidden font-black italic uppercase">
+                    <h3 id="active-user-name" class="text-sm">Vælg chat</h3>
                 </div>
-                <div id="chat-list" class="chat-scroll divide-y divide-gray-50">
-                    <div class="p-8 text-center text-gray-400 text-xs italic uppercase">Henter samtaler...</div>
+                
+                <div id="message-container" class="flex-1 p-6 chat-scroll space-y-2">
+                    <div class="h-full flex items-center justify-center text-gray-300">Vælg en samtale i listen til venstre</div>
+                </div>
+
+                <div id="input-area" class="p-4 bg-white border-t hidden">
+                    <div class="flex space-x-3 bg-slate-50 p-2 rounded-xl border">
+                        <input type="text" id="msg-input" placeholder="Skriv svar..." class="flex-1 bg-transparent outline-none p-2 text-sm font-bold">
+                        <button onclick="doSendMessage()" class="bg-sky-500 text-white px-8 py-2 rounded-lg font-black uppercase text-[10px] shadow-lg">Send</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- KOLONNE 2: SELVE SAMTALEN -->
-            <div class="flex-1 flex flex-col bg-[#f0f2f5] relative">
-                <div id="chat-header" class="p-4 bg-white/80 backdrop-blur border-b flex justify-between items-center shadow-sm z-10 hidden">
-                    <div>
-                        <h3 class="font-black text-xs uppercase italic text-slate-700" id="active-user-name">Vælg en chat</h3>
-                        <p class="text-[8px] text-slate-400 font-black uppercase italic" id="active-user-id">Venter på valg...</p>
-                    </div>
+            <!-- HØJRE KOLONNE (NOTER & FILER) -->
+            <div class="w-72 bg-white border-l p-6 flex flex-col space-y-8 uppercase italic font-black text-[10px]">
+                <div>
+                    <h4 class="text-slate-400 mb-4 border-b pb-1">Interne Noter</h4>
+                    <textarea id="note-input" class="w-full h-32 border rounded p-3 bg-yellow-50 text-yellow-900 text-[11px] mb-2" placeholder="Skriv en note om kunden..."></textarea>
+                    <button class="bg-slate-800 text-white w-full py-2 rounded shadow">Gem Note</button>
                 </div>
-
-                <!-- Her indlæses beskederne dynamisk -->
-                <div id="message-container" class="flex-1 p-6 flex flex-col overflow-y-auto chat-scroll space-y-2">
-                    <div class="flex flex-col items-center justify-center h-full text-gray-400 italic text-xs uppercase">
-                        <span>👈 Vælg en person i listen for at se beskeder</span>
-                    </div>
-                </div>
-
-                <div id="chat-input-area" class="p-4 bg-white border-t hidden">
-                    <div class="flex items-center space-x-3 bg-slate-50 p-2 rounded-xl border border-slate-200">
-                        <input type="text" id="msg-input" placeholder="Skriv din besked..." class="flex-1 bg-transparent text-xs outline-none font-bold italic p-2">
-                        <button onclick="sendMessage()" class="bg-sky-500 text-white px-6 py-2 rounded-lg font-black uppercase text-[10px] shadow-lg hover:bg-sky-600 transition tracking-widest">Send</button>
-                    </div>
+                <div>
+                    <h4 class="text-slate-400 mb-4 border-b pb-1">Vedhæftede filer</h4>
+                    <input type="file" id="file-input" class="hidden">
+                    <button onclick="document.getElementById('file-input').click()" class="border-2 border-dashed border-slate-200 w-full py-6 rounded text-slate-300 hover:border-sky-300 hover:text-sky-400 transition">📎 Vedhæft Fil</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let allMessages = [];
-        let activeChatId = null;
+        let messages = [];
+        let activeId = null;
 
-        async function fetchMessages() {
-            try {
-                const response = await fetch('/api/messages');
-                allMessages = await response.json();
-                renderChatList();
-                if (activeChatId) renderConversation(activeChatId);
-            } catch (err) {
-                console.error("Fejl ved hentning af beskeder:", err);
-            }
+        async function load() {
+            const res = await fetch('/api/messages');
+            messages = await res.json();
+            renderList();
+            if(activeId) renderChat(activeId);
         }
 
-        function renderChatList() {
+        function renderList() {
             const list = document.getElementById('chat-list');
-            const uniqueChats = {};
-            
-            // Find den nyeste besked for hver chat_id
-            allMessages.forEach(m => {
-                if (!uniqueChats[m.chat_id]) uniqueChats[m.chat_id] = m;
-            });
-
-            list.innerHTML = Object.values(uniqueChats).map(m => `
-                <div onclick="selectChat('${m.chat_id}', '${m.sender_name}')" class="p-4 hover:bg-sky-50 cursor-pointer transition ${activeChatId == m.chat_id ? 'bg-sky-50 border-l-4 border-sky-500' : ''}">
-                    <div class="flex justify-between items-center mb-1 uppercase italic">
-                        <span class="text-[11px] font-black text-slate-800">${m.sender_name}</span>
-                        <span class="text-[7px] text-slate-400 font-bold">${new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                    </div>
-                    <p class="text-[10px] text-gray-500 truncate italic">${m.message_text}</p>
+            const unique = {};
+            messages.forEach(m => unique[m.chat_id] = m);
+            list.innerHTML = Object.values(unique).reverse().map(m => `
+                <div onclick="select('${m.chat_id}', '${m.sender_name}')" class="p-4 cursor-pointer hover:bg-sky-50 ${activeId == m.chat_id ? 'bg-sky-50 border-l-4 border-sky-500' : ''}">
+                    <div class="font-black text-slate-800">${m.sender_name}</div>
+                    <div class="text-[9px] text-gray-400 truncate">${m.message_text}</div>
                 </div>
             `).join('');
         }
 
-        function selectChat(id, name) {
-            activeChatId = id;
+        function select(id, name) {
+            activeId = id;
             document.getElementById('chat-header').classList.remove('hidden');
-            document.getElementById('chat-input-area').classList.remove('hidden');
+            document.getElementById('input-area').classList.remove('hidden');
             document.getElementById('active-user-name').innerText = name;
-            document.getElementById('active-user-id').innerText = "Telegram ID: " + id;
-            renderConversation(id);
-            renderChatList(); // Opdater "active" styling i listen
+            renderChat(id);
         }
 
-        function renderConversation(id) {
-            const container = document.getElementById('message-container');
-            const chatMessages = allMessages.filter(m => m.chat_id == id).reverse();
-            
-            container.innerHTML = chatMessages.map(m => `
-                <div class="message-bubble ${m.direction === 'in' ? 'msg-in' : 'msg-out'} shadow-sm">
+        function renderChat(id) {
+            const box = document.getElementById('message-container');
+            const chatMsgs = messages.filter(m => m.chat_id == id);
+            box.innerHTML = chatMsgs.map(m => `
+                <div class="message-bubble ${m.direction == 'in' ? 'msg-in' : 'msg-out'} shadow-sm">
                     ${m.message_text}
-                    <div class="text-[7px] text-right mt-1 opacity-40 font-black">${new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    <div class="text-[7px] text-right mt-1 opacity-50">${new Date(m.created_at).toLocaleTimeString()}</div>
                 </div>
             `).join('');
-            
-            container.scrollTop = container.scrollHeight;
+            box.scrollTop = box.scrollHeight;
         }
 
-        // Kør hver 5. sekund
-        setInterval(fetchMessages, 5000);
-        window.onload = fetchMessages;
+        async function doSendMessage() {
+            const text = document.getElementById('msg-input').value;
+            if(!text || !activeId) return;
+            await fetch('/api/send-message', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ chatId: activeId, text: text })
+            });
+            document.getElementById('msg-input').value = '';
+            load(); // Genindlæs for at se din egen besked i chatten
+        }
+
+        setInterval(load, 3000);
+        window.onload = load;
     </script>
 </body>
 </html>

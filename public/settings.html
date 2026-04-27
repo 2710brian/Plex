@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title>Plex CRM - Pakke Indstillinger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); }
+        .modal-content { background-color: white; margin: 5% auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 800px; border-top: 8px solid #10b981; }
+        label { display: block; font-size: 0.65rem; font-weight: 800; color: #4b5563; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+        input { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; font-size: 0.85rem; background-color: #f9fafb; margin-bottom: 10px; font-weight: 600; }
+        .nav-active { background-color: #dc2626 !important; }
+    </style>
+</head>
+<body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans">
+
+    <!-- SIDEBAR -->
+    <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl font-bold uppercase text-[10px] tracking-wider">
+        <div class="p-6 text-2xl font-black border-b border-slate-800 italic text-red-600 tracking-tighter">⦿ PLEX CRM</div>
+        <nav class="flex-1 p-4 space-y-1">
+            <a href="index.html" class="block p-3 hover:bg-slate-800 rounded">👥 <span class="dk">Klient-Oversigt</span><span class="uk hidden">Client Overview</span></a>
+            <a href="approvals.html" class="block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400"><span>⏳ <span class="dk">Godkendelser</span><span class="uk hidden">Approvals</span></span></a>
+            <a href="resellers.html" class="block p-3 hover:bg-slate-800 rounded text-blue-400 italic">👤 <span class="dk">Reseller Styring</span><span class="uk hidden">Reseller Mgmt</span></a>
+            <a href="commission.html" class="block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black">💰 <span class="dk">Provision & Tal</span><span class="uk hidden">Profit & Data</span></a>
+            <a href="settings.html" class="block p-3 bg-emerald-600 rounded text-white font-black">⚙️ <span class="dk">Pakke Indstillinger</span><span class="uk hidden">Package Settings</span></a>
+        </nav>
+        <div class="p-4 border-t border-slate-800 bg-black/20 italic text-[9px] text-center text-slate-500 uppercase">Admin: Brian</div>
+    </div>
+
+    <!-- MAIN AREA -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="bg-white shadow-sm p-5 flex justify-between items-center px-10 border-b">
+            <h2 class="text-2xl font-black uppercase italic tracking-tighter text-emerald-600">
+                <span class="dk">Pakke Administration</span><span class="uk hidden">Package Administration</span> (€)
+            </h2>
+        </header>
+
+        <main class="flex-1 overflow-auto p-8">
+            <div class="bg-white rounded-xl shadow-lg border border-emerald-100 overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-emerald-50 text-emerald-800 text-[10px] font-black uppercase tracking-widest border-b">
+                        <tr>
+                            <th class="p-5">Pakke / Nr / Tekst</th>
+                            <th class="p-5 text-red-600 italic">Kost (€)</th>
+                            <th class="p-5 text-blue-600">Salg (€)</th>
+                            <th class="p-5 text-orange-500">Agent (€)</th>
+                            <th class="p-5 text-blue-400">Reseller (€)</th>
+                            <th class="p-5 text-emerald-600 underline">Netto Profit (€)</th>
+                            <th class="p-5 text-center">Aktion</th>
+                        </tr>
+                    </thead>
+                    <tbody id="settings-table-body" class="text-[11px] font-bold divide-y divide-gray-50 uppercase italic">
+                        <!-- JS fylder her -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: REDIGER PAKKE -->
+    <div id="editPackageModal" class="modal">
+        <div class="modal-content shadow-2xl">
+            <div class="flex justify-between items-center border-b pb-4 mb-8 font-black text-emerald-600 uppercase tracking-tighter">
+                <h2 class="text-2xl italic">Rediger Pakke <span id="edit-pkg-label"></span></h2>
+                <button onclick="closeModal()" class="text-gray-300 hover:text-black text-5xl font-light">&times;</button>
+            </div>
+            <div class="space-y-6">
+                <div><label>Beskrivelse</label><input type="text" id="edit-name"></div>
+                <div class="grid grid-cols-2 gap-6">
+                    <div><label class="text-red-500">Kostpris (€)</label><input type="number" id="edit-cost" step="0.01" class="font-mono text-lg"></div>
+                    <div><label class="text-blue-600">Salgspris (€)</label><input type="number" id="edit-sale" step="0.01" class="font-mono text-lg"></div>
+                    <div><label class="text-orange-500">Agent Provision (€)</label><input type="number" id="edit-agent" step="0.01" class="bg-orange-50"></div>
+                    <div><label class="text-blue-400">Reseller Provision (€)</label><input type="number" id="edit-reseller" step="0.01" class="bg-blue-50"></div>
+                </div>
+            </div>
+            <div class="mt-10 flex justify-end">
+                <button onclick="closeModal()" class="mr-8 text-gray-400 font-black text-[10px] uppercase">Annuller</button>
+                <button onclick="savePkg()" class="bg-emerald-600 text-white px-10 py-3 rounded-lg font-black text-xs uppercase shadow-xl hover:bg-emerald-700 transition">Gem ændringer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let packages = [
+            { id: 1, name: "Plex Årsabonnement", cost: 20.00, sale: 81.00, agent: 10.00, reseller: 5.00 },
+            { id: 2, name: "Plex Månedlig", cost: 5.00, sale: 11.00, agent: 1.00, reseller: 1.00 },
+            { id: 3, name: "IPTV Månedlig", cost: 10.00, sale: 21.00, agent: 2.00, reseller: 2.00 },
+            { id: 4, name: "Combo Månedlig", cost: 15.00, sale: 29.00, agent: 3.00, reseller: 3.00 },
+            { id: 5, name: "Combo Årlig", cost: 35.00, sale: 282.00, agent: 30.00, reseller: 20.00 },
+            { id: 6, name: "Combo + Boks Årlig", cost: 100.00, sale: 305.00, agent: 40.00, reseller: 25.00 }
+        ];
+
+        let currentId = null;
+
+        function render() {
+            const tbody = document.getElementById('settings-table-body');
+            tbody.innerHTML = '';
+            packages.forEach(p => {
+                const profit = (p.sale - p.cost - p.agent - p.reseller).toFixed(2);
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-5 uppercase font-black text-slate-800 tracking-tight">#${p.id} ${p.name}</td>
+                        <td class="p-5 text-red-500 italic font-mono text-sm">€ ${p.cost.toFixed(2)}</td>
+                        <td class="p-5 text-blue-700 font-black font-mono text-sm">€ ${p.sale.toFixed(2)}</td>
+                        <td class="p-5 text-orange-500 font-bold text-[10px] font-mono">€ ${p.agent.toFixed(2)}</td>
+                        <td class="p-5 text-blue-400 font-bold text-[10px] font-mono">€ ${p.reseller.toFixed(2)}</td>
+                        <td class="p-5 text-emerald-600 font-black underline italic font-mono text-sm">€ ${profit}</td>
+                        <td class="p-5 text-center"><button onclick="edit(${p.id})" class="bg-slate-100 hover:bg-emerald-600 hover:text-white px-4 py-2 rounded transition text-[10px] uppercase shadow-sm">📝 Rediger</button></td>
+                    </tr>`;
+            });
+        }
+
+        function edit(id) {
+            currentId = id;
+            const p = packages.find(x => x.id === id);
+            document.getElementById('edit-pkg-label').innerText = "#" + p.id;
+            document.getElementById('edit-name').value = p.name;
+            document.getElementById('edit-cost').value = p.cost;
+            document.getElementById('edit-sale').value = p.sale;
+            document.getElementById('edit-agent').value = p.agent;
+            document.getElementById('edit-reseller').value = p.reseller;
+            document.getElementById('editPackageModal').style.display = 'block';
+        }
+
+        function savePkg() {
+            const p = packages.find(x => x.id === currentId);
+            p.name = document.getElementById('edit-name').value;
+            p.cost = parseFloat(document.getElementById('edit-cost').value);
+            p.sale = parseFloat(document.getElementById('edit-sale').value);
+            p.agent = parseFloat(document.getElementById('edit-agent').value);
+            p.reseller = parseFloat(document.getElementById('edit-reseller').value);
+            render();
+            closeModal();
+        }
+
+        function closeModal() { document.getElementById('editPackageModal').style.display = 'none'; }
+        window.onload = render;
+    </script>
+</body>
+</html>

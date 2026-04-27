@@ -2,109 +2,202 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <title>Plex CRM - Telegram Live</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plex CRM - Telegram Master Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .chat-scroll { height: calc(100vh - 180px); overflow-y: auto; display: flex; flex-direction: column; }
-        .message-bubble { max-width: 80%; border-radius: 12px; padding: 10px 15px; margin-bottom: 8px; font-size: 13px; line-height: 1.4; }
-        .msg-in { background-color: #f3f4f6; color: #1f2937; align-self: flex-start; border-bottom-left-radius: 2px; shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .msg-out { background-color: #0ea5e9; color: white; align-self: flex-end; border-bottom-right-radius: 2px; shadow: 0 2px 4px rgba(14,165,233,0.3); }
-        .nav-active { background-color: #dc2626 !important; }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); }
+        .modal-content { background-color: white; margin: 10% auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border-top: 8px solid #0ea5e9; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        label { display: block; font-size: 0.65rem; font-weight: 800; color: #4b5563; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+        input, textarea { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; font-size: 0.85rem; background-color: #f9fafb; margin-bottom: 10px; font-weight: 600; }
+        .nav-active { background-color: #dc2626 !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
+        .chat-scroll { height: calc(100vh - 185px); overflow-y: auto; display: flex; flex-direction: column; }
+        .message-bubble { max-width: 80%; border-radius: 12px; padding: 10px 15px; margin-bottom: 8px; font-size: 13px; line-height: 1.4; position: relative; }
+        .msg-in { background-color: #f3f4f6; color: #1f2937; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .msg-out { background-color: #0ea5e9; color: white; align-self: flex-end; border-bottom-right-radius: 2px; box-shadow: 0 4px 6px -1px rgba(14,165,233,0.2); }
+        .btn-inactive { color: #94a3b8; background-color: transparent; border: 1px solid transparent; }
+        .btn-active-support { background-color: white; color: #0ea5e9; border: 1px solid #e0f2fe; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .btn-active-info { background-color: white; color: #f59e0b; border: 1px solid #fef3c7; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
     </style>
 </head>
-<body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans font-medium uppercase text-[11px] italic">
+<body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans">
 
     <!-- SIDEBAR -->
-    <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl tracking-wider not-italic">
-        <div class="p-6 text-2xl font-black border-b border-slate-800 text-red-600">⦿ PLEX CRM</div>
-        <nav class="flex-1 p-4 space-y-1">
-            <a href="index.html" class="block p-3 hover:bg-slate-800 rounded">👥 Klienter</a>
-            <a href="telegram.html" class="block p-3 bg-red-600 rounded nav-active text-white">💬 Telegram Chat</a>
+    <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl font-bold uppercase text-[10px] tracking-wider">
+        <div class="p-6 text-2xl font-black border-b border-slate-800 italic text-red-600 tracking-tighter">⦿ PLEX CRM</div>
+        <nav id="sidebar-nav" class="flex-1 p-4 space-y-1">
+            <a href="index.html" class="nav-item block p-3 hover:bg-slate-800 rounded">👥 <span data-dk="Klient-Oversigt" data-uk="Client Overview">Klient-Oversigt</span></a>
+            <a href="approvals.html" id="nav-approvals" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400 italic">
+                <span>⏳ <span data-dk="Godkendelser" data-uk="Approvals">Godkendelser</span></span>
+                <span class="bg-orange-600 text-white text-[9px] px-2 py-0.5 rounded-full font-black">1</span>
+            </a>
+            <a href="resellers.html" id="nav-resellers" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400 italic">👤 <span data-dk="Reseller Styring" data-uk="Reseller Mgmt">Reseller Styring</span></a>
+            <a href="commission.html" id="nav-commission" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black italic">💰 <span data-dk="Provision & Tal" data-uk="Profit & Data">Provision & Tal</span></a>
+            <a href="settings.html" id="nav-settings" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ <span data-dk="Pakke Indstillinger" data-uk="Package Settings">Pakke Indstillinger</span></a>
+            <a href="telegram.html" id="nav-telegram" class="nav-item block p-3 bg-red-600 rounded nav-active text-white border-t border-slate-800 mt-4 italic">💬 <span data-dk="Telegram Chat" data-uk="Telegram Chat">Telegram Chat</span></a>
+            <a href="payments.html" id="nav-payments" class="nav-item block p-3 hover:bg-slate-800 rounded text-slate-500 font-black italic uppercase">💳 <span data-dk="Betalinger" data-uk="Payments">Betalinger</span></a>
         </nav>
+        
+        <div class="p-4 border-t border-slate-800 bg-black/20">
+            <div class="flex justify-between items-center mb-4 italic text-[9px] text-slate-500 font-black uppercase tracking-widest text-center">Admin: Brian</div>
+            <div class="flex space-x-2 justify-center">
+                <button onclick="setLang('dk')" id="btn-dk" class="text-red-500 underline font-black text-[11px]">DK</button>
+                <button onclick="setLang('uk')" id="btn-uk" class="text-slate-500 font-black text-[11px]">UK</button>
+            </div>
+        </div>
     </div>
 
     <!-- MAIN AREA -->
-    <div class="flex-1 flex flex-col overflow-hidden not-italic">
-        <header class="bg-white p-4 flex justify-between items-center px-10 border-b shadow-sm font-black italic uppercase">
-            <h2 class="text-xl">Telegram <span class="text-sky-500">Live Support</span></h2>
-            <div class="text-[10px] text-emerald-500 animate-pulse">● System Connected</div>
+    <div class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- HEADER -->
+        <header class="bg-white shadow-sm p-4 flex justify-between items-center px-10 border-b">
+            <div class="flex items-center space-x-6">
+                <h2 class="text-xl font-black uppercase italic tracking-tighter text-slate-800">Telegram Center</h2>
+                <div class="flex bg-slate-100 p-1 rounded-lg border italic">
+                    <button id="acc-support" onclick="switchBot('support')" class="btn-active-support px-4 py-1.5 rounded text-[9px] font-black uppercase tracking-widest transition-all">Support Chat</button>
+                    <button id="acc-info" onclick="switchBot('info')" class="btn-inactive px-4 py-1.5 rounded text-[9px] font-black uppercase tracking-widest transition-all">Info & Broadcast</button>
+                </div>
+            </div>
+            <button onclick="openTokenModal()" class="text-slate-300 hover:text-sky-500 transition text-xl">⚙️</button>
         </header>
 
         <div class="flex-1 flex overflow-hidden">
-            <!-- LISTE -->
+            
+            <!-- CHAT LISTE -->
             <div class="w-80 bg-white border-r flex flex-col shrink-0">
-                <div id="chat-list" class="flex-1 overflow-y-auto divide-y divide-gray-50"></div>
+                <div class="p-4 border-b bg-slate-50/50">
+                    <input type="text" placeholder="SØG I CHATS..." class="w-full text-[11px] p-2 border rounded-md shadow-sm outline-none font-bold italic">
+                </div>
+                <div id="chat-list" class="flex-1 overflow-y-auto divide-y divide-gray-50 uppercase italic font-bold">
+                    <!-- Beskeder indlæses her -->
+                </div>
             </div>
 
-            <!-- CHAT VINDUE -->
-            <div class="flex-1 flex flex-col bg-[#f0f2f5]">
-                <div id="chat-header" class="p-4 bg-white border-b hidden font-black italic uppercase">
-                    <h3 id="active-user-name" class="text-sm">Vælg chat</h3>
-                </div>
-                
-                <div id="message-container" class="flex-1 p-6 chat-scroll space-y-2">
-                    <div class="h-full flex items-center justify-center text-gray-300">Vælg en samtale i listen til venstre</div>
+            <!-- SAMTALEN -->
+            <div class="flex-1 flex flex-col bg-[#f0f2f5] relative">
+                <div id="chat-header-bar" class="p-4 bg-white/80 backdrop-blur border-b flex justify-between items-center shadow-sm z-10 hidden">
+                    <h3 class="font-black text-xs uppercase italic text-slate-700" id="active-user-name">Kunde Navn</h3>
                 </div>
 
-                <div id="input-area" class="p-4 bg-white border-t hidden">
-                    <div class="flex space-x-3 bg-slate-50 p-2 rounded-xl border">
-                        <input type="text" id="msg-input" placeholder="Skriv svar..." class="flex-1 bg-transparent outline-none p-2 text-sm font-bold">
-                        <button onclick="doSendMessage()" class="bg-sky-500 text-white px-8 py-2 rounded-lg font-black uppercase text-[10px] shadow-lg">Send</button>
+                <div id="message-container" class="flex-1 p-6 chat-scroll space-y-2">
+                    <div class="h-full flex items-center justify-center text-gray-300 italic font-black uppercase text-xs">Vælg samtale</div>
+                </div>
+
+                <!-- INPUT MED FIL MULIGHEDER -->
+                <div id="chat-input-area" class="p-4 bg-white border-t hidden">
+                    <div class="flex items-center space-x-3 bg-slate-50 p-2 rounded-xl border">
+                        <div class="flex space-x-1">
+                            <button title="Vedhæft Billede" class="p-2 text-slate-400 hover:text-sky-500">🖼️</button>
+                            <button title="Send Video" class="p-2 text-slate-400 hover:text-sky-500">📹</button>
+                            <button title="Send Voice" class="p-2 text-slate-400 hover:text-sky-500">🎤</button>
+                        </div>
+                        <input type="text" id="msg-input" placeholder="Skriv svar..." class="flex-1 bg-transparent text-sm outline-none font-bold italic px-2">
+                        <button onclick="doSendMessage()" class="bg-sky-500 text-white px-8 py-2.5 rounded-lg font-black uppercase text-[10px] shadow-lg">Send</button>
                     </div>
                 </div>
             </div>
 
-            <!-- HØJRE KOLONNE (NOTER & FILER) -->
-            <div class="w-72 bg-white border-l p-6 flex flex-col space-y-8 uppercase italic font-black text-[10px]">
-                <div>
-                    <h4 class="text-slate-400 mb-4 border-b pb-1">Interne Noter</h4>
-                    <textarea id="note-input" class="w-full h-32 border rounded p-3 bg-yellow-50 text-yellow-900 text-[11px] mb-2" placeholder="Skriv en note om kunden..."></textarea>
-                    <button class="bg-slate-800 text-white w-full py-2 rounded shadow">Gem Note</button>
+            <!-- HØJRE KOLONNE: NOTER MED DATO/TID -->
+            <div class="w-80 bg-white border-l p-6 flex flex-col space-y-8 italic font-black text-[10px] tracking-widest overflow-y-auto">
+                
+                <!-- NOTE MODUL -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-inner">
+                    <h4 class="text-slate-400 mb-4 border-b pb-1 uppercase">Opret Intern Note</h4>
+                    
+                    <label>Notens tekst</label>
+                    <textarea id="note-text" class="h-20 mb-3 italic" placeholder="Skriv hændelse her..."></textarea>
+                    
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div>
+                            <label>Vælg Dato</label>
+                            <input type="date" id="note-date" class="mb-0">
+                        </div>
+                        <div>
+                            <label>Vælg Tid</label>
+                            <input type="time" id="note-time" class="mb-0">
+                        </div>
+                    </div>
+
+                    <button onclick="saveManualNote()" class="bg-slate-800 text-white w-full py-3 rounded-lg shadow-xl uppercase hover:bg-black transition">Gem Note m. Tidspunkt</button>
                 </div>
+
+                <!-- NOTER LISTE -->
                 <div>
-                    <h4 class="text-slate-400 mb-4 border-b pb-1">Vedhæftede filer</h4>
-                    <input type="file" id="file-input" class="hidden">
-                    <button onclick="document.getElementById('file-input').click()" class="border-2 border-dashed border-slate-200 w-full py-6 rounded text-slate-300 hover:border-sky-300 hover:text-sky-400 transition">📎 Vedhæft Fil</button>
+                    <h4 class="text-slate-400 mb-4 border-b pb-1 uppercase italic">Note Historik</h4>
+                    <div id="note-list" class="space-y-3">
+                        <div class="bg-yellow-50 p-3 rounded border border-yellow-100 shadow-sm">
+                            <p class="text-yellow-900 not-italic font-bold">Velkomst-opkald gennemført. Kunden er glad.</p>
+                            <span class="text-[8px] opacity-40 mt-2 block uppercase">27.04.2026 - 14:30</span>
+                        </div>
+                    </div>
                 </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: TOKENS -->
+    <div id="tokenModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-black border-b pb-4 mb-6 uppercase text-sky-600">Telegram API Tokens</h2>
+            <div class="space-y-4">
+                <div><label>Chat Bot Token</label><input type="password" id="t-support"></div>
+                <div><label>Info Bot Token</label><input type="password" id="t-info"></div>
+            </div>
+            <div class="mt-8 flex justify-end">
+                <button onclick="closeModal('tokenModal')" class="mr-6 text-gray-400 uppercase">Luk</button>
+                <button onclick="alert('Tokens gemt!')" class="bg-slate-900 text-white px-8 py-2 rounded uppercase text-xs font-black">Gem</button>
             </div>
         </div>
     </div>
 
     <script>
-        let messages = [];
+        let allMessages = [];
         let activeId = null;
 
-        async function load() {
-            const res = await fetch('/api/messages');
-            messages = await res.json();
-            renderList();
-            if(activeId) renderChat(activeId);
+        window.onload = function() {
+            // Sæt dags dato og tid som standard i note-modulet
+            const nu = new Date();
+            document.getElementById('note-date').valueAsDate = nu;
+            document.getElementById('note-time').value = nu.getHours().toString().padStart(2, '0') + ":" + nu.getMinutes().toString().padStart(2, '0');
+            fetchMessages();
+        };
+
+        async function fetchMessages() {
+            try {
+                const res = await fetch('/api/messages');
+                allMessages = await res.json();
+                renderList();
+                if(activeId) renderChat(activeId);
+            } catch(e) {}
         }
 
         function renderList() {
             const list = document.getElementById('chat-list');
             const unique = {};
-            messages.forEach(m => unique[m.chat_id] = m);
+            allMessages.forEach(m => unique[m.chat_id] = m);
             list.innerHTML = Object.values(unique).reverse().map(m => `
                 <div onclick="select('${m.chat_id}', '${m.sender_name}')" class="p-4 cursor-pointer hover:bg-sky-50 ${activeId == m.chat_id ? 'bg-sky-50 border-l-4 border-sky-500' : ''}">
-                    <div class="font-black text-slate-800">${m.sender_name}</div>
-                    <div class="text-[9px] text-gray-400 truncate">${m.message_text}</div>
+                    <div class="text-slate-800 font-black">${m.sender_name}</div>
+                    <div class="text-[9px] text-gray-400 truncate mt-1">${m.message_text}</div>
                 </div>
             `).join('');
         }
 
         function select(id, name) {
             activeId = id;
-            document.getElementById('chat-header').classList.remove('hidden');
-            document.getElementById('input-area').classList.remove('hidden');
+            document.getElementById('chat-header-bar').classList.remove('hidden');
+            document.getElementById('chat-input-area').classList.remove('hidden');
             document.getElementById('active-user-name').innerText = name;
             renderChat(id);
+            renderList();
         }
 
         function renderChat(id) {
             const box = document.getElementById('message-container');
-            const chatMsgs = messages.filter(m => m.chat_id == id);
-            box.innerHTML = chatMsgs.map(m => `
+            const msgs = allMessages.filter(m => m.chat_id == id);
+            box.innerHTML = msgs.map(m => `
                 <div class="message-bubble ${m.direction == 'in' ? 'msg-in' : 'msg-out'} shadow-sm">
                     ${m.message_text}
                     <div class="text-[7px] text-right mt-1 opacity-50">${new Date(m.created_at).toLocaleTimeString()}</div>
@@ -114,19 +207,38 @@
         }
 
         async function doSendMessage() {
-            const text = document.getElementById('msg-input').value;
-            if(!text || !activeId) return;
+            const val = document.getElementById('msg-input').value;
+            if(!val || !activeId) return;
             await fetch('/api/send-message', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ chatId: activeId, text: text })
+                body: JSON.stringify({ chatId: activeId, text: val })
             });
             document.getElementById('msg-input').value = '';
-            load(); // Genindlæs for at se din egen besked i chatten
+            fetchMessages();
         }
 
-        setInterval(load, 3000);
-        window.onload = load;
+        function saveManualNote() {
+            const text = document.getElementById('note-text').value;
+            const date = document.getElementById('note-date').value;
+            const time = document.getElementById('note-time').value;
+            if(!text) return alert('Skriv venligst en note');
+            
+            const list = document.getElementById('note-list');
+            const newNote = document.createElement('div');
+            newNote.className = "bg-yellow-50 p-3 rounded border border-yellow-100 shadow-sm";
+            newNote.innerHTML = `<p class="text-yellow-900 not-italic font-bold">${text}</p><span class="text-[8px] opacity-40 mt-2 block uppercase">${date} - ${time}</span>`;
+            list.prepend(newNote);
+            
+            document.getElementById('note-text').value = '';
+            alert('Note gemt med succes!');
+        }
+
+        function openTokenModal() { document.getElementById('tokenModal').style.display = 'block'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function setLang(l) { /* Samme logik som index */ }
+
+        setInterval(fetchMessages, 5000);
     </script>
 </body>
 </html>

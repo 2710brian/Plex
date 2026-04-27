@@ -28,6 +28,7 @@ let botSupport, botInfo;
 
 if (supportToken) {
     botSupport = new TelegramBot(supportToken, { polling: true });
+    console.log("Support Bot Online ✅");
     botSupport.on('message', async (msg) => {
         const chatId = msg.chat.id;
         const senderName = msg.from.first_name + (msg.from.last_name ? ' ' + msg.from.last_name : '');
@@ -38,7 +39,7 @@ if (supportToken) {
                 const fileType = msg.photo ? 'img' : (msg.voice ? 'voice' : 'vid');
                 const filePath = await botSupport.downloadFile(fileId, uploadDir);
                 content = `MEDIA|${fileType}|${path.basename(filePath)}`;
-            } catch (e) { content = '[Fil modtaget - kunne ikke hentes]'; }
+            } catch (e) { content = '[Fil modtaget]'; }
         }
         await pool.query('INSERT INTO telegram_messages (bot_type, chat_id, sender_name, message_text, direction) VALUES ($1, $2, $3, $4, $5)', ['support', chatId, senderName, content, 'in']);
     });
@@ -65,12 +66,12 @@ app.post('/api/send-message', async (req, res) => {
 app.post('/api/send-media', upload.single('file'), async (req, res) => {
     const { chatId, type, botType } = req.body;
     const bot = (botType === 'info') ? botInfo : botSupport;
-    const fileName = req.file.filename;
+    const filePath = req.file.path;
     try {
-        if (type === 'img') await bot.sendPhoto(chatId, req.file.path);
-        else if (type === 'vid') await bot.sendVideo(chatId, req.file.path);
-        else if (type === 'voice') await bot.sendVoice(chatId, req.file.path);
-        await pool.query('INSERT INTO telegram_messages (bot_type, chat_id, sender_name, message_text, direction) VALUES ($1, $2, $3, $4, $5)', [botType, chatId, 'Admin', `MEDIA|${type}|${fileName}`, 'out']);
+        if (type === 'img') await bot.sendPhoto(chatId, filePath);
+        else if (type === 'vid') await bot.sendVideo(chatId, filePath);
+        else if (type === 'voice') await bot.sendVoice(chatId, filePath);
+        await pool.query('INSERT INTO telegram_messages (bot_type, chat_id, sender_name, message_text, direction) VALUES ($1, $2, $3, $4, $5)', [botType, chatId, 'Admin', `MEDIA|${type}|${req.file.filename}`, 'out']);
         res.json({ success: true });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });

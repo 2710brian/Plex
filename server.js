@@ -5,7 +5,6 @@ const { Pool } = require('pg');
 const TelegramBot = require('node-telegram-bot-api');
 const multer = require('multer');
 
-// Opret uploads mappe hvis den ikke findes
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) { fs.mkdirSync(uploadDir, { recursive: true }); }
 
@@ -33,24 +32,17 @@ if (supportToken) {
         const chatId = msg.chat.id;
         const senderName = msg.from.first_name + (msg.from.last_name ? ' ' + msg.from.last_name : '');
         let content = msg.text || '';
-
-        // Håndtering af indkommende billeder/voice fra kunden
         if (msg.photo || msg.voice || msg.video) {
-            const fileId = msg.photo ? msg.photo[msg.photo.length - 1].file_id : (msg.voice ? msg.voice.file_id : msg.video.file_id);
-            const fileType = msg.photo ? 'img' : (msg.voice ? 'voice' : 'vid');
-            const filePath = await botSupport.downloadFile(fileId, uploadDir);
-            content = `MEDIA|${fileType}|${path.basename(filePath)}`;
+            try {
+                const fileId = msg.photo ? msg.photo[msg.photo.length - 1].file_id : (msg.voice ? msg.voice.file_id : msg.video.file_id);
+                const fileType = msg.photo ? 'img' : (msg.voice ? 'voice' : 'vid');
+                const filePath = await botSupport.downloadFile(fileId, uploadDir);
+                content = `MEDIA|${fileType}|${path.basename(filePath)}`;
+            } catch (e) { content = '[Fil modtaget - kunne ikke hentes]'; }
         }
-
-        try {
-            await pool.query(
-                'INSERT INTO telegram_messages (bot_type, chat_id, sender_name, message_text, direction) VALUES ($1, $2, $3, $4, $5)',
-                ['support', chatId, senderName, content, 'in']
-            );
-        } catch (err) { console.error('DB Error:', err.message); }
+        await pool.query('INSERT INTO telegram_messages (bot_type, chat_id, sender_name, message_text, direction) VALUES ($1, $2, $3, $4, $5)', ['support', chatId, senderName, content, 'in']);
     });
 }
-
 if (infoToken) { botInfo = new TelegramBot(infoToken, { polling: true }); }
 
 app.get('/api/messages', async (req, res) => {
@@ -74,14 +66,11 @@ app.post('/api/send-media', upload.single('file'), async (req, res) => {
     const { chatId, type, botType } = req.body;
     const bot = (botType === 'info') ? botInfo : botSupport;
     const fileName = req.file.filename;
-
     try {
         if (type === 'img') await bot.sendPhoto(chatId, req.file.path);
         else if (type === 'vid') await bot.sendVideo(chatId, req.file.path);
         else if (type === 'voice') await bot.sendVoice(chatId, req.file.path);
-
-        await pool.query('INSERT INTO telegram_messages (bot_type, chat_id, sender_name, message_text, direction) VALUES ($1, $2, $3, $4, $5)', 
-            [botType, chatId, 'Admin', `MEDIA|${type}|${fileName}`, 'out']);
+        await pool.query('INSERT INTO telegram_messages (bot_type, chat_id, sender_name, message_text, direction) VALUES ($1, $2, $3, $4, $5)', [botType, chatId, 'Admin', `MEDIA|${type}|${fileName}`, 'out']);
         res.json({ success: true });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });

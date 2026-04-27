@@ -9,12 +9,12 @@
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); }
         .modal-content { background-color: white; margin: 10% auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; border-top: 8px solid #0ea5e9; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
         label { display: block; font-size: 0.65rem; font-weight: 800; color: #4b5563; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
-        input, textarea { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; font-size: 0.85rem; background-color: #f9fafb; margin-bottom: 10px; font-weight: 600; }
+        input, textarea, select { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; font-size: 0.85rem; background-color: #f9fafb; margin-bottom: 10px; font-weight: 600; }
         .nav-active { background-color: #dc2626 !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
-        .chat-scroll { height: calc(100vh - 185px); overflow-y: auto; display: flex; flex-direction: column; }
+        .chat-scroll { height: calc(100vh - 190px); overflow-y: auto; display: flex; flex-direction: column; }
         .message-bubble { max-width: 80%; border-radius: 12px; padding: 10px 15px; margin-bottom: 8px; font-size: 13px; line-height: 1.4; position: relative; }
         .msg-in { background-color: #f3f4f6; color: #1f2937; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .msg-out { background-color: #0ea5e9; color: white; align-self: flex-end; border-bottom-right-radius: 2px; box-shadow: 0 4px 6px -1px rgba(14,165,233,0.2); }
+        .msg-out { background-color: #e0f2fe; color: #0369a1; align-self: flex-end; border-bottom-right-radius: 2px; box-shadow: 0 4px 6px -1px rgba(14,165,233,0.1); }
         .btn-active-support { background-color: white; color: #0ea5e9; border: 1px solid #e0f2fe; }
         .btn-active-info { background-color: white; color: #f59e0b; border: 1px solid #fef3c7; }
         .btn-inactive { color: #94a3b8; background-color: transparent; }
@@ -24,86 +24,77 @@
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans">
 
-    <!-- SIDEBAR (FULL MENU) -->
+    <!-- SIDEBAR -->
     <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl font-bold uppercase text-[10px] tracking-wider">
         <div class="p-6 text-2xl font-black border-b border-slate-800 italic text-red-600 tracking-tighter">⦿ PLEX CRM</div>
         <nav id="sidebar-nav" class="flex-1 p-4 space-y-1">
-            <a href="index.html" class="nav-item block p-3 hover:bg-slate-800 rounded">👥 <span data-dk="Klient-Oversigt" data-uk="Client Overview">Klient-Oversigt</span></a>
+            <a href="index.html" class="nav-item block p-3 hover:bg-slate-800 rounded">👥 Klient-Oversigt</a>
             <a href="approvals.html" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400"><span>⏳ Godkendelser</span><span class="bg-orange-600 text-white text-[9px] px-2 py-0.5 rounded-full">1</span></a>
             <a href="resellers.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400">👤 Resellers</a>
             <a href="commission.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black">💰 Provision & Tal</a>
-            <a href="settings.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400">⚙️ Pakke Indstillinger</a>
+            <a href="settings.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ Pakke Indstillinger</a>
             <a href="telegram.html" class="nav-item block p-3 bg-red-600 rounded nav-active text-white border-t border-slate-800 mt-4 italic">💬 Telegram Chat</a>
-            <a href="payments.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-slate-500">💳 Betalinger</a>
+            <a href="payments.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-slate-500 font-black italic uppercase">💳 Betalinger</a>
         </nav>
         <div class="p-4 border-t border-slate-800 bg-black/20 text-center italic text-[9px] text-slate-500 uppercase">Admin: Brian</div>
     </div>
 
     <!-- MAIN AREA -->
     <div class="flex-1 flex flex-col overflow-hidden">
-        
-        <!-- HEADER -->
         <header class="bg-white shadow-sm p-4 flex justify-between items-center px-10 border-b">
             <div class="flex items-center space-x-6">
-                <h2 class="text-xl font-black uppercase italic tracking-tighter text-slate-800">Telegram <span class="text-sky-500" id="header-name">Support</span></h2>
-                <div class="flex bg-slate-100 p-1 rounded-lg border italic">
-                    <button id="acc-support" onclick="switchBot('support')" class="btn-active-support px-5 py-2 rounded text-[10px] font-black uppercase tracking-widest transition-all">Support</button>
-                    <button id="acc-info" onclick="switchBot('info')" class="btn-inactive px-5 py-2 rounded text-[10px] font-black uppercase tracking-widest transition-all">Broadcast</button>
+                <h2 class="text-xl font-black uppercase italic tracking-tighter text-slate-800">Telegram <span class="text-sky-500" id="header-bot-title">Support</span></h2>
+                <div class="flex bg-slate-100 p-1 rounded-lg border italic shadow-inner">
+                    <button id="acc-support" onclick="switchBot('support')" class="btn-active-support px-6 py-2 rounded text-[10px] font-black uppercase tracking-widest shadow-sm">Support Bot</button>
+                    <button id="acc-info" onclick="switchBot('info')" class="btn-inactive px-6 py-2 rounded text-[10px] font-black uppercase tracking-widest">Broadcast Bot</button>
                 </div>
             </div>
             <button onclick="openTokenModal()" class="text-slate-300 hover:text-sky-500 transition text-xl">⚙️</button>
         </header>
 
         <div class="flex-1 flex overflow-hidden">
-            <!-- CHAT LISTE -->
             <div class="w-80 bg-white border-r flex flex-col shrink-0">
                 <div class="p-4 border-b bg-slate-50/50">
-                    <input type="text" placeholder="SØG I CHATS..." class="w-full text-[11px] p-2 border rounded shadow-sm outline-none font-bold italic">
+                    <input type="text" placeholder="SØG I SAMTALER..." class="w-full text-[11px] p-2 border rounded-xl shadow-sm outline-none font-bold italic">
                 </div>
                 <div id="chat-list" class="flex-1 overflow-y-auto divide-y divide-gray-50 uppercase italic font-bold"></div>
             </div>
 
-            <!-- CHAT VINDUE -->
             <div class="flex-1 flex flex-col bg-[#f0f2f5] relative">
-                <div id="chat-header-bar" class="p-4 bg-white/80 backdrop-blur border-b hidden font-black italic uppercase shadow-sm">
-                    <h3 class="text-xs text-slate-700" id="active-user-name">Kunde Navn</h3>
-                </div>
-
+                <div id="chat-header-bar" class="p-4 bg-white/80 backdrop-blur border-b hidden font-black italic uppercase shadow-sm"><h3 class="text-xs text-slate-700" id="active-user-name">Navn</h3></div>
                 <div id="message-container" class="flex-1 p-6 chat-scroll space-y-2"></div>
 
-                <!-- BREDT INPUT MED DIRECT VOICE RECORDER -->
+                <!-- BREDT INPUT MED MEDIA -->
                 <div id="chat-input-area" class="p-4 bg-white border-t hidden">
-                    <div class="flex items-center space-x-4 bg-slate-50 p-2 rounded-2xl border-2 border-slate-200">
-                        <div class="flex space-x-2 px-2 border-r">
-                            <button onclick="triggerFile('img')" title="Billede" class="p-2">🖼️</button>
-                            <button onclick="triggerFile('vid')" title="Video" class="p-2">📹</button>
-                            <button id="voice-btn" onclick="toggleVoice()" title="Indtal Voice Note" class="p-2 text-xl">🎤</button>
+                    <div class="flex items-center space-x-4 bg-slate-50 p-2 rounded-2xl border-2 border-slate-200 shadow-inner">
+                        <div class="flex space-x-2 px-2 border-r border-slate-200">
+                            <button onclick="triggerFile('img')" title="Billede" class="text-xl hover:scale-125 transition">🖼️</button>
+                            <button onclick="triggerFile('vid')" title="Video" class="text-xl hover:scale-125 transition">📹</button>
+                            <button id="voice-btn" onclick="toggleVoice()" title="Indtal Voice" class="text-xl hover:scale-125 transition">🎤</button>
                         </div>
-                        <input type="file" id="file-img" onchange="handleFileUpload(this, 'img')" class="hidden">
-                        <input type="file" id="file-vid" onchange="handleFileUpload(this, 'vid')" class="hidden">
+                        <input type="file" id="file-img" onchange="handleFileUpload(this, 'img')" class="hidden" accept="image/*">
+                        <input type="file" id="file-vid" onchange="handleFileUpload(this, 'vid')" class="hidden" accept="video/*">
 
-                        <input type="text" id="msg-input" placeholder="Skriv besked..." class="flex-1 bg-transparent text-sm outline-none font-bold italic px-2">
-                        <button onclick="doSendMessage()" class="bg-sky-500 text-white px-10 py-3 rounded-xl font-black uppercase text-[10px] shadow-xl">Send</button>
+                        <input type="text" id="msg-input" placeholder="Skriv svar her..." class="flex-1 bg-transparent text-sm outline-none font-bold italic px-4 py-3">
+                        <button onclick="doSendMessage()" class="bg-sky-500 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px] shadow-lg hover:bg-sky-600 transition tracking-[0.2em]">Send</button>
                     </div>
-                    <div id="rec-indicator" class="hidden text-center mt-2 text-[10px] font-black uppercase tracking-widest recording-pulse">🔴 OPTAGER LYD... KLIK PÅ MIKROFON FOR AT STOPPE OG SENDE</div>
+                    <div id="rec-indicator" class="hidden text-center mt-2 text-[9px] font-black uppercase tracking-widest recording-pulse">🔴 OPTAGER LYD... KLIK PÅ MIKROFON IGEN FOR AT SENDE</div>
                 </div>
             </div>
 
-            <!-- HØJRE KOLONNE: NOTER -->
-            <div class="w-80 bg-white border-l p-6 flex flex-col space-y-8 italic font-black text-[10px] tracking-widest overflow-y-auto">
+            <div class="w-80 bg-white border-l p-6 flex flex-col space-y-8 italic font-black text-[10px] tracking-widest overflow-y-auto shadow-2xl">
                 <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 shadow-inner">
-                    <h4 class="text-slate-400 mb-4 border-b pb-1 uppercase">Opret Note</h4>
-                    <textarea id="note-text" class="h-24 mb-3 italic bg-white" placeholder="Beskrivelse..."></textarea>
-                    <div class="grid grid-cols-2 gap-2 mb-4">
-                        <input type="date" id="note-date">
-                        <input type="time" id="note-time">
-                    </div>
-                    <button onclick="saveNote()" class="bg-slate-900 text-white w-full py-3 rounded-xl shadow-xl uppercase">Gem Note</button>
+                    <h4 class="text-slate-400 mb-4 border-b pb-1 uppercase italic">Opret Intern Note</h4>
+                    <textarea id="note-text" class="h-24 mb-3 italic bg-white" placeholder="Notér hændelse..."></textarea>
+                    <button onclick="saveNote()" class="bg-slate-900 text-white w-full py-3 rounded-xl shadow-xl uppercase hover:bg-black transition tracking-widest">Gem Note med Tidspunkt</button>
                 </div>
-                <div id="note-list" class="space-y-4"></div>
+                <div id="note-list" class="space-y-4"><h4 class="text-slate-400 border-b pb-1 uppercase italic">Historik</h4></div>
             </div>
         </div>
     </div>
+
+    <!-- MODAL: TOKENS -->
+    <div id="tokenModal" class="modal"><div class="modal-content"><h2 class="text-xl font-black border-b pb-4 mb-6 uppercase text-sky-600 italic">API Tokens</h2><div class="space-y-4"><div><label>Support Bot Token</label><input type="password" id="t-support"></div><div><label>Info Bot Token</label><input type="password" id="t-info"></div></div><div class="mt-8 flex justify-end"><button onclick="closeModal()" class="mr-6 text-gray-400 uppercase">Luk</button><button onclick="alert('Tokens gemt!')" class="bg-slate-900 text-white px-10 py-3 rounded-lg uppercase text-xs font-black">Gem</button></div></div></div>
 
     <script>
         let allMessages = [];
@@ -112,29 +103,26 @@
         let mediaRecorder;
         let audioChunks = [];
 
-        window.onload = function() { setNow(); fetchHistory(); };
-
-        function setNow() {
-            const now = new Date();
-            document.getElementById('note-date').valueAsDate = now;
-            document.getElementById('note-time').value = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-        }
+        window.onload = function() { fetchHistory(); };
 
         async function fetchHistory() {
-            const res = await fetch('/api/messages');
-            allMessages = await res.json();
-            renderList();
-            if(activeId) renderChat(activeId);
+            try {
+                const res = await fetch('/api/messages');
+                allMessages = await res.json();
+                renderList();
+                if(activeId) renderChat(activeId);
+            } catch(e) {}
         }
 
         function renderList() {
             const list = document.getElementById('chat-list');
             const unique = {};
+            // Filtrer baseret på hvilken bot der er aktiv (Support viser kun dialoger)
             allMessages.filter(m => m.bot_type === activeBot).forEach(m => unique[m.chat_id] = m);
             list.innerHTML = Object.values(unique).reverse().map(m => `
-                <div onclick="selectChat('${m.chat_id}', '${m.sender_name}')" class="p-5 cursor-pointer hover:bg-slate-50 border-b ${activeId == m.chat_id ? 'bg-sky-50 border-l-8 border-sky-500' : ''}">
-                    <div class="text-slate-800 font-black">${m.sender_name}</div>
-                    <div class="text-[10px] text-slate-400 truncate mt-1 italic">${m.message_text}</div>
+                <div onclick="selectChat('${m.chat_id}', '${m.sender_name}')" class="p-5 cursor-pointer hover:bg-slate-50 border-b transition ${activeId == m.chat_id ? 'bg-sky-50 border-l-8 border-sky-500 shadow-sm' : ''}">
+                    <div class="flex justify-between items-center mb-1"><span class="text-slate-800 font-black text-[12px] uppercase font-bold">${m.sender_name}</span><span class="text-[7px] text-slate-300 font-black">${new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span></div>
+                    <div class="text-[10px] text-slate-400 truncate italic">${m.message_text}</div>
                 </div>`).join('');
         }
 
@@ -149,8 +137,8 @@
 
         function renderChat(id) {
             const box = document.getElementById('message-container');
-            box.innerHTML = allMessages.filter(m => m.chat_id == id).map(m => `
-                <div class="message-bubble ${m.direction == 'in' ? 'msg-in' : 'msg-out'} shadow-sm">
+            box.innerHTML = allMessages.filter(m => m.chat_id == id && m.bot_type === activeBot).map(m => `
+                <div class="message-bubble ${m.direction == 'in' ? 'msg-in shadow-sm' : 'msg-out shadow-md'}">
                     <div class="not-italic font-bold">${m.message_text}</div>
                     <div class="text-[7px] text-right mt-2 opacity-50 font-black">${new Date(m.created_at).toLocaleString()}</div>
                 </div>`).join('');
@@ -163,29 +151,29 @@
             await fetch('/api/send-message', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ chatId: activeId, text: input.value })
+                body: JSON.stringify({ chatId: activeId, text: input.value, botType: activeBot })
             });
             input.value = '';
             fetchHistory();
         }
 
-        // --- FIL UPLOAD LOGIK ---
+        // --- FIL & VOICE ---
         function triggerFile(id) { document.getElementById('file-'+id).click(); }
         async function handleFileUpload(input, type) {
+            if(!activeId) return alert("Vælg en chat først");
             const formData = new FormData();
             formData.append('file', input.files[0]);
             formData.append('chatId', activeId);
             formData.append('type', type);
+            formData.append('botType', activeBot);
             await fetch('/api/send-media', { method: 'POST', body: formData });
             fetchHistory();
         }
 
-        // --- VOICE RECORDER LOGIK ---
         async function toggleVoice() {
             if (mediaRecorder && mediaRecorder.state === "recording") {
                 mediaRecorder.stop();
                 document.getElementById('rec-indicator').classList.add('hidden');
-                document.getElementById('voice-btn').innerText = "🎤";
             } else {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaRecorder = new MediaRecorder(stream);
@@ -197,28 +185,37 @@
                     formData.append('file', audioBlob, 'voice.ogg');
                     formData.append('chatId', activeId);
                     formData.append('type', 'voice');
+                    formData.append('botType', activeBot);
                     await fetch('/api/send-media', { method: 'POST', body: formData });
                     fetchHistory();
                 };
                 mediaRecorder.start();
                 document.getElementById('rec-indicator').classList.remove('hidden');
-                document.getElementById('voice-btn').innerText = "⏹️";
             }
         }
 
         function saveNote() {
             const text = document.getElementById('note-text').value;
             if(!text) return;
+            const now = new Date();
+            const timestamp = now.toLocaleDateString() + " " + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             const div = document.createElement('div');
             div.className = "bg-yellow-50 p-4 rounded-xl border border-yellow-100 shadow-sm";
-            div.innerHTML = `<p class="font-black text-yellow-900">${text}</p><span class="text-[8px] opacity-40 block mt-2 uppercase">${document.getElementById('note-date').value} ${document.getElementById('note-time').value}</span>`;
+            div.innerHTML = `<p class="font-black text-yellow-900 leading-tight">${text}</p><span class="text-[7px] opacity-40 block mt-3 uppercase font-black">${timestamp}</span>`;
             document.getElementById('note-list').prepend(div);
             document.getElementById('note-text').value = '';
-            setNow();
         }
 
-        function switchBot(t) { activeBot = t; activeId = null; fetchHistory(); }
+        function switchBot(t) { activeBot = t; activeId = null; 
+            document.getElementById('header-bot-title').innerText = (t === 'support') ? 'Support' : 'Broadcast';
+            document.getElementById('acc-support').className = (t === 'support') ? 'btn-active-support px-6 py-2 rounded text-[10px] font-black uppercase tracking-widest shadow-sm' : 'btn-inactive px-6 py-2 rounded text-[10px] font-black uppercase tracking-widest';
+            document.getElementById('acc-info').className = (t === 'info') ? 'btn-active-info px-6 py-2 rounded text-[10px] font-black uppercase tracking-widest shadow-sm' : 'btn-inactive px-6 py-2 rounded text-[10px] font-black uppercase tracking-widest';
+            fetchHistory(); 
+        }
+
         function closeModal() { document.getElementById('tokenModal').style.display = 'none'; }
+        function openTokenModal() { document.getElementById('tokenModal').style.display = 'block'; }
+
         setInterval(fetchHistory, 5000);
     </script>
 </body>

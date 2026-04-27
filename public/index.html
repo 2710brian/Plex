@@ -2,99 +2,384 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <title>Plex CRM</title>
+    <title>Plex & IPTV CRM - Professional Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); }
-        .modal-content { background-color: white; margin: 1% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 1400px; max-height: 96vh; overflow-y: auto; border-top: 8px solid #dc2626; }
-        label { display: block; font-size: 0.65rem; font-weight: 800; color: #4b5563; margin-bottom: 2px; text-transform: uppercase; }
-        input, select, textarea { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px; font-size: 0.8rem; background-color: #f9fafb; margin-bottom: 10px; }
-        tr.clickable { cursor: pointer; }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); }
+        .modal-content { background-color: white; margin: 0.5% auto; padding: 30px; border-radius: 12px; width: 98%; max-width: 1500px; max-height: 98vh; overflow-y: auto; border-top: 8px solid #dc2626; }
+        label { display: block; font-size: 0.65rem; font-weight: 800; color: #4b5563; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+        input, select, textarea { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 12px; font-size: 0.85rem; background-color: #f9fafb; margin-bottom: 10px; font-weight: 600; }
+        .section-title { border-bottom: 2px solid #f3f4f6; margin: 20px 0 12px 0; padding-bottom: 6px; color: #111827; font-weight: 900; text-transform: uppercase; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-active { background-color: #dc2626 !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
+        tr.clickable { cursor: pointer; transition: all 0.15s; }
         tr.clickable:hover { background-color: #fef2f2 !important; }
+        .font-black-custom { font-weight: 900; }
     </style>
 </head>
-<body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900">
+<body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans">
 
-    <!-- Sidebar -->
-    <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl font-bold uppercase text-[10px]">
-        <div class="p-6 text-2xl font-black border-b border-slate-800 italic text-red-600 tracking-tighter">⦿ PLEX CRM</div>
-        <nav class="flex-1 p-4 space-y-1">
-            <a href="index.html" class="block p-3 bg-red-600 rounded">👥 <span class="lang-dk">Klient-Oversigt</span><span class="lang-uk hidden">Client Overview</span></a>
-            <a href="settings.html" class="block p-3 hover:bg-slate-800 rounded">⚙️ <span class="lang-dk">Pakke Indstillinger</span><span class="lang-uk hidden">Package Settings</span></a>
+    <!-- SIDEBAR -->
+    <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl">
+        <div class="p-6 text-2xl font-black border-b border-slate-800 italic tracking-tighter text-red-600">⦿ PLEX CRM</div>
+        <nav id="sidebar-nav" class="flex-1 p-4 space-y-1 text-[10px] font-bold uppercase tracking-wider">
+            <a href="#" onclick="showPage('clients', this)" class="nav-item block p-3 hover:bg-slate-800 rounded nav-active">👥 <span class="txt-clients">Klient-Oversigt</span></a>
+            <a href="#" onclick="showPage('approvals', this)" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400">
+                <span>⏳ <span class="txt-approvals">Godkendelser</span></span>
+                <span class="bg-orange-600 text-white text-[10px] px-2 py-0.5 rounded-full">1</span>
+            </a>
+            <a href="#" onclick="showPage('resellers', this)" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400">👤 <span class="txt-reseller-mgmt">Reseller Management</span></a>
+            <a href="#" onclick="showPage('commission', this)" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black italic">💰 <span class="txt-profit-tal">Provision & Tal</span></a>
+            <a href="#" onclick="showPage('settings', this)" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400">⚙️ <span class="txt-pkg-settings">Pakke Indstillinger</span></a>
+            <a href="#" class="block p-3 hover:bg-slate-800 rounded text-sky-400 border-t border-slate-800 mt-4">💬 <span class="txt-telegram">Telegram Chat</span></a>
+            <a href="#" class="block p-3 hover:bg-slate-800 rounded text-slate-400 font-black italic uppercase">💳 <span class="txt-payments">Betalinger</span></a>
         </nav>
-        <div class="p-4 border-t border-slate-800">
-            <div class="flex justify-between items-center">
-                <button onclick="setLang('dk')" id="btn-dk" class="text-red-500 underline">DK</button>
-                <button onclick="setLang('uk')" id="btn-uk" class="text-slate-500">UK</button>
+        <div class="p-4 border-t border-slate-800 bg-black/20">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-[9px] text-slate-500 font-black uppercase">Sprog / Language:</span>
+                <div class="flex space-x-2">
+                    <button onclick="setLang('dk')" id="btn-dk" class="text-red-500 underline font-black text-[11px]">DK</button>
+                    <button onclick="setLang('uk')" id="btn-uk" class="text-slate-500 font-black text-[11px]">UK</button>
+                </div>
+            </div>
+            <select onchange="simulateUser(this.value)" class="bg-slate-800 border-none text-white text-[10px] font-bold p-2 w-full rounded cursor-pointer">
+                <option value="admin">ADMIN (Brian)</option>
+                <option value="reseller">RESELLER (Partner)</option>
+                <option value="agent">AGENT (Kurt)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- MAIN AREA -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- SIDE: KLIENTER (BILLEDE 2 & CSV) -->
+        <div id="page-clients" class="flex flex-col h-full page-view">
+            <header class="bg-white shadow-sm p-5 flex justify-between items-center px-10 border-b">
+                <h2 class="text-2xl font-black uppercase italic tracking-tighter text-slate-800 txt-clients">Klienter</h2>
+                <button onclick="openModal('addClientModal', false)" class="bg-red-600 text-white px-10 py-3 rounded shadow-2xl font-black hover:bg-red-700 transition uppercase text-[11px] tracking-widest">+ <span class="txt-new-client">Opret Klient</span></button>
+            </header>
+            <main class="flex-1 overflow-auto p-6">
+                <div class="bg-white rounded-xl shadow-lg border overflow-x-auto">
+                    <table class="w-full text-left min-w-[1800px] border-collapse">
+                        <thead class="bg-slate-50 border-b text-slate-400 text-[9px] font-black uppercase tracking-widest italic">
+                            <tr>
+                                <th class="p-4 w-12 text-center">#</th>
+                                <th class="p-4">Kunde / Navn</th>
+                                <th class="p-4">Email</th>
+                                <th class="p-4">Mobile</th>
+                                <th class="p-4">Kategori</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4">Created</th>
+                                <th class="p-4">Plex ID</th>
+                                <th class="p-4">Plan</th>
+                                <th class="p-4">Næste Betaling</th>
+                                <th class="p-4">Betalt</th>
+                                <th class="p-4">Type</th>
+                                <th class="p-4">Admin Panel</th>
+                                <th class="p-4">Plex</th>
+                                <th class="p-4">Overseer</th>
+                                <th class="p-4">Agent</th>
+                                <th class="p-4 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="client-table-body" class="text-[11px] font-bold uppercase italic tracking-tight divide-y divide-gray-100">
+                            <!-- Mads (Fra CSV) -->
+                            <tr class="clickable hover:bg-gray-50" onclick="openModal('addClientModal', true, 'Mr Mads Aggerholm Munch Lange')">
+                                <td class="p-4 text-center text-gray-300 font-mono">1</td>
+                                <td class="p-4 font-black text-slate-900">Mr Mads Aggerholm Munch Lange</td>
+                                <td class="p-4 text-gray-400 font-normal lowercase italic">shin@shinhypnose.dk</td>
+                                <td class="p-4">--</td>
+                                <td class="p-4">Full Packet</td>
+                                <td class="p-4 text-green-600">Active</td>
+                                <td class="p-4 font-normal italic">27-01-2026</td>
+                                <td class="p-4">sh2183</td>
+                                <td class="p-4 text-blue-600 underline">Yearly</td>
+                                <td class="p-4 text-slate-800">18-01-2027</td>
+                                <td class="p-4">Ja</td>
+                                <td class="p-4">IP-Movie</td>
+                                <td class="p-4 font-normal">N</td>
+                                <td class="p-4 font-normal">Y</td>
+                                <td class="p-4 font-normal">Y</td>
+                                <td class="p-4 text-slate-400">KU</td>
+                                <td class="p-4 text-center">⚙️</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+
+        <!-- SIDE: PAKKE INDSTILLINGER (REDIGERBAR) -->
+        <div id="page-settings" class="hidden h-full flex flex-col bg-slate-50 page-view">
+            <header class="bg-white p-5 px-10 border-b italic"><h2 class="text-2xl font-black uppercase text-emerald-600 tracking-tighter txt-pkg-settings">Pakke Konfiguration</h2></header>
+            <main class="p-10">
+                <div class="bg-white rounded-xl shadow-2xl border border-emerald-100 overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-emerald-50 text-emerald-800 text-[10px] font-black uppercase tracking-widest border-b">
+                            <tr>
+                                <th class="p-5">Nr / Beskrivelse</th>
+                                <th class="p-5 text-red-600 italic">Kost (€)</th>
+                                <th class="p-5 text-blue-600">Salg (€)</th>
+                                <th class="p-5 text-orange-500">Agent (€)</th>
+                                <th class="p-5 text-blue-400">Reseller (€)</th>
+                                <th class="p-5 text-emerald-600 underline">Netto Profit (€)</th>
+                                <th class="p-5 text-center">Aktion</th>
+                            </tr>
+                        </thead>
+                        <tbody id="settings-table-body" class="text-[11px] font-bold divide-y uppercase italic">
+                            <!-- JS fylder her -->
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+
+        <!-- SIDE: COMMISSION / SERVER -->
+        <div id="page-commission" class="hidden h-full flex flex-col bg-slate-50 page-view">
+            <header class="bg-white p-5 px-10 border-b italic"><h2 class="text-2xl font-black uppercase text-yellow-600 txt-profit-tal">Provision & Tal</h2></header>
+            <main class="p-10">
+                <div class="bg-white p-10 rounded-2xl shadow-2xl border-2 border-red-50 inline-block font-black uppercase italic">
+                    <div class="text-slate-400 text-xs tracking-widest mb-2">Server Udgift</div>
+                    <div class="text-6xl text-red-600 underline tracking-tighter">€ 287,00</div>
+                </div>
+            </main>
+        </div>
+
+        <!-- RESTERENDE SIDER -->
+        <div id="page-approvals" class="hidden h-full p-10 page-view uppercase font-black italic text-orange-600 text-3xl">Godkendelser...</div>
+        <div id="page-resellers" class="hidden h-full p-10 page-view uppercase font-black italic text-blue-400 text-3xl">Reseller Management...</div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT CLIENT (KOMPLET FRA BILLEDE 1 & 3) -->
+    <div id="addClientModal" class="modal">
+        <div class="modal-content shadow-2xl">
+            <div class="flex justify-between items-center border-b pb-5 mb-8 italic uppercase font-black tracking-tighter">
+                <h2 id="modal-title">Add Client</h2>
+                <button onclick="closeModal('addClientModal')" class="text-gray-300 hover:text-black text-5xl font-light transition">&times;</button>
+            </div>
+            
+            <div class="space-y-10">
+                <!-- 1. Account Details (Billede 1) -->
+                <section>
+                    <h3 class="section-title"><span>1. Account Details</span> <span class="text-[9px] text-gray-300 italic uppercase">Billede 1</span></h3>
+                    <div class="grid grid-cols-4 gap-4">
+                        <div><label class="txt-lbl-salutation">Salutation</label><select><option>Mr</option><option>Mrs</option><option>Miss</option></select></div>
+                        <div class="col-span-2"><label class="txt-lbl-name">Client Name *</label><input type="text" id="inp-name" placeholder="Fulde Navn"></div>
+                        <div><label class="txt-lbl-email">Email</label><input type="email" placeholder="mail@example.com"></div>
+                        <div><label class="txt-lbl-country">Country</label><select><option>Spain</option><option>Denmark</option></select></div>
+                        <div><label class="txt-lbl-mobile">Mobile</label><input type="text" placeholder="+45"></div>
+                        <div><label class="txt-lbl-gender">Gender</label><select><option>Male</option><option>Female</option></select></div>
+                        <div><label class="txt-lbl-language">Language</label><select><option>Danish</option><option>English</option></select></div>
+                        <div><label class="txt-lbl-category">Client Category</label><select><option>Full Packet</option><option>Plex</option><option>Hosting+</option></select></div>
+                        <div><label class="txt-lbl-subcat">Client Sub Category</label><input type="text"></div>
+                        <div><label class="txt-lbl-login">Login Allowed?</label><select><option>No</option><option>Yes</option></select></div>
+                        <div><label class="txt-lbl-notify">Email Notifications?</label><select><option>No</option><option>Yes</option></select></div>
+                    </div>
+                </section>
+
+                <!-- 2. Company Details (Billede 1) -->
+                <section class="bg-gray-50 p-6 rounded-xl border border-gray-100 opacity-80">
+                    <h3 class="section-title border-gray-200"><span>2. Company Details</span></h3>
+                    <div class="grid grid-cols-4 gap-4">
+                        <div class="col-span-2"><label>Company Name</label><input type="text"></div>
+                        <div><label>Official Website</label><input type="text"></div>
+                        <div><label>Tax Name</label><input type="text"></div>
+                        <div><label>VAT / GST Number</label><input type="text"></div>
+                        <div><label>City</label><input type="text"></div>
+                        <div><label>State</label><input type="text"></div>
+                        <div><label>Postal Code</label><input type="text"></div>
+                    </div>
+                </section>
+
+                <!-- 3. Pakke & Profit (LOGIK) -->
+                <section class="bg-slate-900 p-10 rounded-2xl text-white shadow-2xl border-b-8 border-red-600">
+                    <h3 class="section-title border-slate-700 text-slate-500 uppercase tracking-widest italic">3. Abonnement & Finansiel Logik</h3>
+                    <div class="grid grid-cols-2 gap-10 items-center">
+                        <div>
+                            <label class="text-red-500 font-black mb-2 uppercase txt-lbl-package">Vælg Pakke</label>
+                            <select id="packageSelect" onchange="calculatePrice()" class="bg-white text-slate-900 font-black h-14 text-xl border-none">
+                                <option value="">Vælg...</option>
+                                <option value="1">#1: Plex Årsabonnement (81,00 €)</option>
+                                <option value="2">#2: Plex Månedlig (11,00 €)</option>
+                                <option value="3">#3: IPTV Månedlig (21,00 €)</option>
+                                <option value="4">#4: Combo Månedlig (29,00 €)</option>
+                                <option value="5">#5: Combo Årlig (282,00 €)</option>
+                                <option value="6">#6: Combo + Boks Årlig (305,00 €)</option>
+                            </select>
+                        </div>
+                        <div id="profit-display-box" class="bg-slate-800 p-8 rounded-xl border border-slate-700 text-center">
+                            <!-- JS fylder her -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. Teknisk Konfiguration (Billede 3) -->
+                <section>
+                    <h3 class="section-title"><span>4. Teknisk Setup (Plex / IPTV)</span> <span class="text-[9px] text-gray-300 italic uppercase">Billede 3</span></h3>
+                    <div class="grid grid-cols-4 gap-4">
+                        <div><label>Plex ID</label><input type="text"></div>
+                        <div><label>Plan Type</label><select><option>Monthly</option><option>Yearly</option></select></div>
+                        <div><label>Næste Betaling</label><input type="date" class="font-black text-red-600 border-red-100"></div>
+                        <div><label>Betalt Status</label><select class="font-black text-green-600"><option>Ja</option><option>Nej</option></select></div>
+                        <div><label>Type</label><select><option>IP-Movie</option><option>Movie</option><option>IP</option></select></div>
+                        <div><label>Admin Panel</label><select><option>No (N)</option><option>Yes (Y)</option></select></div>
+                        <div><label>MAC Adresse</label><input type="text" placeholder="00:00:00:00:00:00"></div>
+                        <div><label>App / Enhed</label><input type="text"></div>
+                        <div><label>Plex Pass</label><input type="text"></div>
+                        <div><label>User IP</label><input type="text"></div>
+                        <div><label>Overseer</label><select><option>No (N)</option><option>Yes (Y)</option></select></div>
+                        <div><label>Agent</label><select><option>BH</option><option>KU</option></select></div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="mt-12 pt-8 border-t flex justify-end items-center italic">
+                <button onclick="closeModal('addClientModal')" class="mr-12 text-gray-400 font-black uppercase text-[10px] tracking-widest txt-cancel">Annuller</button>
+                <button id="save-btn" class="bg-slate-900 text-white px-16 py-5 rounded-lg font-black shadow-2xl uppercase tracking-widest text-sm italic tracking-widest txt-save">Opret & Gem</button>
             </div>
         </div>
     </div>
 
-    <!-- Main -->
-    <div class="flex-1 flex flex-col overflow-hidden">
-        <header class="bg-white p-5 flex justify-between items-center border-b shadow-sm">
-            <h2 class="text-xl font-black uppercase italic tracking-tighter"><span class="lang-dk">Klienter</span><span class="lang-uk hidden">Clients</span></h2>
-            <button onclick="openModal('addClientModal', false)" class="bg-red-600 text-white px-8 py-2.5 rounded font-black uppercase text-[10px] tracking-widest">+ <span class="lang-dk">Ny Klient</span><span class="lang-uk hidden">New Client</span></button>
-        </header>
-
-        <main class="flex-1 overflow-auto p-8">
-            <div class="bg-white rounded shadow-lg border overflow-hidden">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50 border-b text-slate-400 text-[9px] font-black uppercase tracking-widest">
-                        <tr><th class="p-4">Navn</th><th class="p-4">Email</th><th class="p-4 text-center">Pakke Nr</th><th class="p-4">Handling</th></tr>
-                    </thead>
-                    <tbody class="text-[11px] font-bold uppercase italic">
-                        <tr class="clickable border-b" onclick="openModal('addClientModal', true, 'Mads Aggerholm')">
-                            <td class="p-4">Mads Aggerholm</td><td class="p-4 lowercase italic font-normal">shin@shinhypnose.dk</td><td class="p-4 text-center">5</td><td class="p-4 text-center text-gray-300">⚙️</td>
-                        </tr>
-                    </tbody>
-                </table>
+    <!-- MODAL: REDIGER PAKKE -->
+    <div id="editPackageModal" class="modal">
+        <div class="modal-content max-w-xl">
+            <h2 class="text-2xl font-black border-b pb-4 mb-8 italic uppercase text-emerald-600">Edit Package <span id="edit-pkg-nr"></span></h2>
+            <div class="space-y-6">
+                <div><label>Beskrivelse</label><input type="text" id="edit-pkg-name"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label>Kostpris (€)</label><input type="number" id="edit-pkg-cost" step="0.01"></div>
+                    <div><label>Salgspris (€)</label><input type="number" id="edit-pkg-sale" step="0.01"></div>
+                    <div><label>Agent Provision (€)</label><input type="number" id="edit-pkg-agent" step="0.01"></div>
+                    <div><label>Reseller Provision (€)</label><input type="number" id="edit-pkg-reseller" step="0.01"></div>
+                </div>
             </div>
-        </main>
-    </div>
-
-    <!-- Modal (Alle felter fra billede 1 og 3) -->
-    <div id="addClientModal" class="modal">
-        <div class="modal-content">
-            <div class="flex justify-between items-center border-b pb-4 mb-6 uppercase italic font-black">
-                <h2 id="modal-title">Add Client</h2>
-                <button onclick="closeModal('addClientModal')" class="text-gray-300 hover:text-black text-4xl">&times;</button>
-            </div>
-            
-            <div class="grid grid-cols-4 gap-4">
-                <div class="col-span-2"><label>Name *</label><input type="text" id="inp-name"></div>
-                <div><label>Email</label><input type="email"></div>
-                <div><label>Mobile</label><input type="text"></div>
-                
-                <div class="col-span-4 border-t pt-4 mt-2 font-black uppercase text-[10px] text-red-600">Teknisk (Plex / IPTV)</div>
-                <div><label>Plex ID</label><input type="text"></div>
-                <div><label>Mac Adresse</label><input type="text"></div>
-                <div><label>App</label><input type="text"></div>
-                <div><label>Næste Betaling</label><input type="date"></div>
-                <div><label>Betalt?</label><select><option>Ja</option><option>Nej</option></select></div>
-                <div><label>Admin Panel</label><select><option>N</option><option>Y</option></select></div>
-                <div><label>Overseer</label><select><option>N</option><option>Y</option></select></div>
-                <div><label>Agent</label><select><option>BH</option><option>KU</option></select></div>
-            </div>
-
-            <div class="mt-8 pt-4 border-t flex justify-end font-black uppercase text-[10px]">
-                <button onclick="closeModal('addClientModal')" class="mr-8 text-gray-400">Cancel</button>
-                <button class="bg-slate-900 text-white px-10 py-3 rounded">Save</button>
+            <div class="mt-10 flex justify-end">
+                <button onclick="closeModal('editPackageModal')" class="mr-6 text-gray-400 font-black text-[11px] uppercase">Annuller</button>
+                <button onclick="savePackage()" class="bg-emerald-600 text-white px-10 py-3 rounded font-black text-xs uppercase shadow-xl tracking-widest">Opdater Pakke</button>
             </div>
         </div>
     </div>
 
     <script>
+        // MASTER DATABASE
+        let packages = [
+            { id: 1, name: "Plex Årsabonnement", cost: 20.00, saleEUR: 81.00, agentComm: 10.00, resellerComm: 5.00 },
+            { id: 2, name: "Plex Månedlig", cost: 5.00, saleEUR: 11.00, agentComm: 1.00, resellerComm: 1.00 },
+            { id: 3, name: "IPTV Månedlig", cost: 10.00, saleEUR: 21.00, agentComm: 2.00, resellerComm: 2.00 },
+            { id: 4, name: "Combo Månedlig", cost: 15.00, saleEUR: 29.00, agentComm: 3.00, resellerComm: 3.00 },
+            { id: 5, name: "Combo Årlig", cost: 35.00, saleEUR: 282.00, agentComm: 30.00, resellerComm: 20.00 },
+            { id: 6, name: "Combo + Boks Årlig", cost: 100.00, saleEUR: 305.00, agentComm: 40.00, resellerComm: 25.00 }
+        ];
+
+        let currentLang = 'dk';
+        let currentUser = 'admin';
+
+        window.onload = function() { 
+            loadSettingsTable(); 
+            setLang('dk');
+        };
+
+        // SPROG LOGIK
+        const translations = {
+            dk: {
+                clients: "Klient-Oversigt", approvals: "Godkendelser", resellerMgmt: "Reseller Management", profitTal: "Provision & Tal", pkgSettings: "Pakke Indstillinger",
+                telegram: "Telegram Chat", payments: "Betalinger", newClient: "Opret Klient", cancel: "Annuller", save: "Gem & Opret", salutation: "Tiltale", name: "Navn *",
+                email: "Email", country: "Land", mobile: "Mobil", gender: "Køn", lang: "Sprog", cat: "Kategori", subcat: "Under-kategori", login: "Login tilladt?", notify: "Notifikationer?", package: "Vælg Pakke"
+            },
+            uk: {
+                clients: "Client Overview", approvals: "Approvals", resellerMgmt: "Reseller Management", profitTal: "Profit & Commission", pkgSettings: "Package Settings",
+                telegram: "Telegram Chat", payments: "Payments", newClient: "Add Client", cancel: "Cancel", save: "Save & Create", salutation: "Salutation", name: "Client Name *",
+                email: "Email", country: "Country", mobile: "Mobile", gender: "Gender", lang: "Language", cat: "Category", subcat: "Sub Category", login: "Login Allowed?", notify: "Notifications?", package: "Select Package"
+            }
+        };
+
         function setLang(lang) {
-            document.querySelectorAll('.lang-dk').forEach(el => el.style.display = (lang === 'dk' ? 'inline' : 'none'));
-            document.querySelectorAll('.lang-uk').forEach(el => el.style.display = (lang === 'uk' ? 'inline' : 'none'));
-            document.getElementById('btn-dk').className = (lang === 'dk' ? 'text-red-500 underline' : 'text-slate-500');
-            document.getElementById('btn-uk').className = (lang === 'uk' ? 'text-red-500 underline' : 'text-slate-500');
+            currentLang = lang;
+            const t = translations[lang];
+            document.querySelectorAll('.txt-clients').forEach(el => el.innerText = t.clients);
+            document.querySelectorAll('.txt-approvals').forEach(el => el.innerText = t.approvals);
+            document.querySelectorAll('.txt-reseller-mgmt').forEach(el => el.innerText = t.resellerMgmt);
+            document.querySelectorAll('.txt-profit-tal').forEach(el => el.innerText = t.profitTal);
+            document.querySelectorAll('.txt-pkg-settings').forEach(el => el.innerText = t.pkgSettings);
+            document.querySelectorAll('.txt-telegram').forEach(el => el.innerText = t.telegram);
+            document.querySelectorAll('.txt-payments').forEach(el => el.innerText = t.payments);
+            document.querySelectorAll('.txt-new-client').forEach(el => el.innerText = t.newClient);
+            document.querySelectorAll('.txt-cancel').forEach(el => el.innerText = t.cancel);
+            document.querySelectorAll('.txt-save').forEach(el => el.innerText = (currentUser === 'admin' ? t.save : "Opret (Send til godkendelse)"));
+            
+            document.querySelectorAll('.txt-lbl-salutation').forEach(el => el.innerText = t.salutation);
+            document.querySelectorAll('.txt-lbl-name').forEach(el => el.innerText = t.name);
+            document.querySelectorAll('.txt-lbl-email').forEach(el => el.innerText = t.email);
+            document.querySelectorAll('.txt-lbl-country').forEach(el => el.innerText = t.country);
+            document.querySelectorAll('.txt-lbl-mobile').forEach(el => el.innerText = t.mobile);
+            document.querySelectorAll('.txt-lbl-gender').forEach(el => el.innerText = t.gender);
+            document.querySelectorAll('.txt-lbl-language').forEach(el => el.innerText = t.lang);
+            document.querySelectorAll('.txt-lbl-category').forEach(el => el.innerText = t.cat);
+            document.querySelectorAll('.txt-lbl-subcat').forEach(el => el.innerText = t.subcat);
+            document.querySelectorAll('.txt-lbl-login').forEach(el => el.innerText = t.login);
+            document.querySelectorAll('.txt-lbl-notify').forEach(el => el.innerText = t.notify);
+            document.querySelectorAll('.txt-lbl-package').forEach(el => el.innerText = t.package);
+
+            document.getElementById('btn-dk').className = (lang === 'dk' ? 'text-red-500 underline font-black text-[11px]' : 'text-slate-500 font-black text-[11px]');
+            document.getElementById('btn-uk').className = (lang === 'uk' ? 'text-red-500 underline font-black text-[11px]' : 'text-slate-500 font-black text-[11px]');
+        }
+
+        // FINANSIEL LOGIK
+        function calculatePrice() {
+            const id = document.getElementById('packageSelect').value;
+            const pkg = packages.find(p => p.id == id);
+            const box = document.getElementById('profit-display-box');
+            if(!pkg) { box.innerHTML = '<div class="text-slate-500 font-black italic uppercase text-xs">Vælg en pakke...</div>'; return; }
+
+            if (currentUser === 'admin') {
+                const profit = (pkg.saleEUR - pkg.cost - pkg.agentComm - pkg.resellerComm).toFixed(2);
+                box.innerHTML = `<label class="text-emerald-400 font-black uppercase tracking-widest mb-2">Dit Netto Overskud (€)</label><div class="text-5xl font-black text-emerald-500 italic font-mono tracking-tighter">€ ${profit.toLocaleString('da-DK', {minimumFractionDigits: 2})}</div>`;
+            } else {
+                box.innerHTML = `<label class="text-yellow-400 font-black uppercase tracking-widest mb-2">Din Provision (€)</label><div class="text-5xl font-black text-yellow-500 italic font-mono tracking-tighter">€ ${pkg.agentComm.toLocaleString('da-DK', {minimumFractionDigits: 2})}</div>`;
+            }
+        }
+
+        function loadSettingsTable() {
+            const tbody = document.getElementById('settings-table-body');
+            tbody.innerHTML = '';
+            packages.forEach(pkg => {
+                const profit = (pkg.saleEUR - pkg.cost - pkg.agentComm - pkg.resellerComm).toFixed(2);
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-5 uppercase font-black">#${pkg.id} ${pkg.name}</td>
+                        <td class="p-5 text-red-500 italic font-mono">€ ${pkg.cost.toFixed(2)}</td>
+                        <td class="p-5 text-blue-700 font-black font-mono">€ ${pkg.saleEUR.toFixed(2)}</td>
+                        <td class="p-5 text-orange-500 italic font-bold text-[10px] font-mono">€ ${pkg.agentComm.toFixed(2)}</td>
+                        <td class="p-5 text-blue-400 italic font-bold text-[10px] font-mono">€ ${pkg.resellerComm.toFixed(2)}</td>
+                        <td class="p-5 text-emerald-600 font-black underline italic font-mono">€ ${profit}</td>
+                        <td class="p-5 text-center"><button onclick="openEditPackage(${pkg.id})" class="bg-slate-100 hover:bg-emerald-600 hover:text-white px-4 py-2 rounded transition text-[10px] font-black uppercase tracking-widest">📝 Rediger</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        // UI FUNKTIONER
+        function simulateUser(role) { 
+            currentUser = role; 
+            const isAdmin = (role === 'admin');
+            document.getElementById('page-approvals').style.display = isAdmin ? 'flex' : 'none';
+            document.getElementById('page-commission').style.display = isAdmin ? 'flex' : 'none';
+            document.getElementById('page-resellers').style.display = isAdmin ? 'flex' : 'none';
+            document.getElementById('page-settings').style.display = isAdmin ? 'flex' : 'none';
+            calculatePrice();
+            setLang(currentLang);
+        }
+
+        function showPage(pageId, el) {
+            document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
+            document.getElementById('page-' + pageId).classList.remove('hidden');
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('nav-active'));
+            el.classList.add('nav-active');
         }
 
         function openModal(id, isEdit, name = '') {
             document.getElementById(id).style.display = "block";
-            document.getElementById('modal-title').innerText = isEdit ? "Rediger: " + name : "Opret ny klient";
+            document.getElementById('modal-title').innerText = isEdit ? (currentLang === 'dk' ? "Rediger Kunde: " : "Edit Client: ") + name : (currentLang === 'dk' ? "Opret Klient" : "Add Client");
             if(isEdit) document.getElementById('inp-name').value = name;
         }
 

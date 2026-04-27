@@ -5,7 +5,11 @@
     <title>Plex CRM - Godkendelser</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .nav-active { background-color: #dc2626 !important; }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); }
+        .modal-content { background-color: white; margin: 1% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 1300px; max-height: 96vh; overflow-y: auto; border-top: 8px solid #f97316; }
+        label { display: block; font-size: 0.65rem; font-weight: 800; color: #4b5563; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+        input, select, textarea { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 12px; font-size: 0.85rem; background-color: #f9fafb; margin-bottom: 10px; font-weight: 600; }
+        .section-title { border-bottom: 2px solid #f3f4f6; margin: 20px 0 12px 0; padding-bottom: 6px; color: #111827; font-weight: 900; text-transform: uppercase; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans">
@@ -15,7 +19,7 @@
         <div class="p-6 text-2xl font-black border-b border-slate-800 italic text-red-600 tracking-tighter">⦿ PLEX CRM</div>
         <nav class="flex-1 p-4 space-y-1">
             <a href="index.html" class="block p-3 hover:bg-slate-800 rounded">👥 Klient-Oversigt</a>
-            <a href="approvals.html" class="block p-3 bg-orange-600 text-white rounded flex justify-between items-center">
+            <a href="approvals.html" class="block p-3 bg-orange-600 text-white rounded flex justify-between items-center shadow-lg">
                 <span>⏳ Godkendelser</span>
                 <span class="bg-white text-orange-600 text-[9px] px-2 py-0.5 rounded-full font-black">1</span>
             </a>
@@ -29,8 +33,8 @@
     <!-- MAIN AREA -->
     <div class="flex-1 flex flex-col overflow-hidden">
         <header class="bg-white shadow-sm p-5 flex justify-between items-center px-10 border-b">
-            <h2 class="text-2xl font-black uppercase italic tracking-tighter text-orange-600 underline">
-                Pending Approvals (Afventer Godkendelse)
+            <h2 class="text-2xl font-black uppercase italic tracking-tighter text-orange-600">
+                Pending Approvals (Tjek data før godkendelse)
             </h2>
         </header>
 
@@ -42,29 +46,90 @@
                             <th class="p-5">Oprettet af</th>
                             <th class="p-5">Kunde Navn</th>
                             <th class="p-5">Valgt Pakke</th>
-                            <th class="p-5">Dato</th>
+                            <th class="p-5">Status</th>
                             <th class="p-5 text-center">Handling</th>
                         </tr>
                     </thead>
                     <tbody class="text-[11px] font-bold uppercase italic divide-y divide-orange-50">
                         <tr class="bg-orange-50/30">
-                            <td class="p-5 text-blue-600 font-black uppercase">Reseller: MarketingPusher</td>
+                            <td class="p-5 text-blue-600 font-black uppercase tracking-tighter">Reseller: MarketingPusher</td>
                             <td class="p-5 text-slate-900 uppercase font-black">Mrs Anette (Test-kunde)</td>
                             <td class="p-5">Pakke 3 (IPTV Mdr)</td>
-                            <td class="p-5 font-normal">27-04-2026</td>
-                            <td class="p-5 flex justify-center space-x-3">
-                                <button onclick="alert('Kunde Godkendt!')" class="bg-green-600 text-white px-5 py-2 rounded text-[10px] font-black shadow-lg hover:bg-green-700 transition">GODKEND ✅</button>
-                                <button onclick="alert('Afvist')" class="bg-red-100 text-red-600 px-5 py-2 rounded text-[10px] font-black hover:bg-red-200 transition">AFVIS ❌</button>
+                            <td class="p-5"><span class="bg-orange-200 text-orange-700 px-2 py-1 rounded text-[9px]">PENDING</span></td>
+                            <td class="p-5 flex justify-center space-x-3 italic">
+                                <button onclick="openApprovalModal('Mrs Anette')" class="bg-slate-800 text-white px-4 py-2 rounded text-[9px] font-black shadow hover:bg-black transition">🔍 SE & REDIGER</button>
+                                <button onclick="alert('Godkendt!')" class="bg-green-600 text-white px-4 py-2 rounded text-[9px] font-black shadow hover:bg-green-700 transition">GODKEND ✅</button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <p class="mt-6 text-[10px] text-gray-400 font-bold uppercase italic tracking-widest">
-                💡 Kun kunder godkendt her, tæller med i provisioner og overskud.
-            </p>
         </main>
     </div>
 
+    <!-- MODAL: INSPECT & EDIT BEFORE APPROVAL -->
+    <div id="approvalModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center border-b pb-5 mb-8 italic uppercase font-black tracking-tighter text-orange-600">
+                <h2 class="text-3xl font-black italic">Tjek Kunde-data: <span id="display-name" class="text-slate-900"></span></h2>
+                <button onclick="closeModal()" class="text-gray-300 hover:text-black text-5xl font-light transition">&times;</button>
+            </div>
+            
+            <div class="space-y-8">
+                <!-- Sektion 1: Stamdata -->
+                <section>
+                    <h3 class="section-title">1. Stamdata (Indtastet af Partner)</h3>
+                    <div class="grid grid-cols-4 gap-4">
+                        <div class="col-span-2"><label>Fulde Navn</label><input type="text" id="inp-name" value="Mrs Anette"></div>
+                        <div><label>Email</label><input type="email" value="anette@test.dk"></div>
+                        <div><label>Mobil</label><input type="text" value="+45 00000000"></div>
+                    </div>
+                </section>
+
+                <!-- Sektion 2: Teknisk (Her skal du tjekke MAC osv.) -->
+                <section class="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-inner">
+                    <h3 class="section-title border-slate-300 text-orange-600">2. Teknisk Setup (Tjek her)</h3>
+                    <div class="grid grid-cols-4 gap-4">
+                        <div><label>Plex ID</label><input type="text" placeholder="Ikke udfyldt"></div>
+                        <div class="col-span-2"><label>MAC Adresse (IPTV)</label><input type="text" value="00:11:22:33:44:55" class="border-orange-200"></div>
+                        <div><label>App Navn</label><input type="text" value="IPTV Smarters"></div>
+                        <div><label>Næste Betaling</label><input type="date" class="font-black text-red-600"></div>
+                        <div><label>Agent</label><select><option>BH</option><option selected>KU</option></select></div>
+                        <div><label>Admin Panel</label><select><option>N</option><option>Y</option></select></div>
+                    </div>
+                </section>
+
+                <!-- Sektion 3: Pakke Info -->
+                <section>
+                    <h3 class="section-title">3. Valgt Pakke & Pris</h3>
+                    <div class="grid grid-cols-2 gap-4 bg-orange-50 p-6 rounded-xl border border-orange-100">
+                        <div>
+                            <label>Pakke</label>
+                            <input type="text" readonly value="Pakke 3: IPTV Månedlig" class="bg-white font-black text-orange-600">
+                        </div>
+                        <div class="text-center">
+                            <label>Salgspris (€)</label>
+                            <div class="text-3xl font-black text-slate-800 italic">€ 21,00</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="mt-12 pt-8 border-t flex justify-end items-center italic">
+                <button onclick="closeModal()" class="mr-12 text-gray-400 font-black uppercase text-[11px] tracking-widest">Luk uden ændringer</button>
+                <button onclick="alert('Rettelser gemt og kunde godkendt!')" class="bg-green-600 text-white px-16 py-5 rounded-lg font-black shadow-2xl uppercase tracking-widest text-sm italic hover:bg-green-700 transition">GEM RETTELSER & GODKEND NU ✅</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openApprovalModal(name) {
+            document.getElementById('display-name').innerText = name;
+            document.getElementById('approvalModal').style.display = "block";
+        }
+        function closeModal() {
+            document.getElementById('approvalModal').style.display = "none";
+        }
+    </script>
 </body>
 </html>

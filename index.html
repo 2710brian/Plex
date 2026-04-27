@@ -2,56 +2,62 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <title>Plex CRM Dashboard</title>
+    <title>Plex & IPTV CRM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: white; margin: 2% auto; padding: 20px; border-radius: 8px; width: 80%; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background-color: white; margin: 1% auto; padding: 30px; border-radius: 8px; width: 90%; max-width: 1100px; max-height: 95vh; overflow-y: auto; }
+        label { display: block; font-size: 0.75rem; font-weight: 600; color: #374151; margin-bottom: 4px; text-transform: uppercase; }
+        input, select, textarea { width: 100%; border: 1px solid #d1d5db; border-radius: 4px; padding: 8px; font-size: 0.875rem; background-color: #f9fafb; }
+        .section-title { border-bottom: 2px solid #f3f4f6; margin-bottom: 15px; padding-bottom: 5px; color: #1f2937; font-weight: bold; }
     </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden">
 
-    <!-- Venstre Menu (Sidebar) -->
-    <div class="w-64 bg-slate-800 text-white flex flex-col">
-        <div class="p-6 text-2xl font-bold border-b border-slate-700">Plex Admin</div>
+    <!-- Sidebar -->
+    <div class="w-64 bg-slate-900 text-white flex flex-col">
+        <div class="p-6 text-xl font-bold border-b border-slate-800 flex items-center">
+            <span class="mr-2 text-red-500">⬤</span> Plex Admin
+        </div>
         <nav class="flex-1 p-4 space-y-2">
-            <a href="#" class="block p-3 bg-blue-600 rounded">👥 Klienter</a>
-            <a href="#" class="block p-3 hover:bg-slate-700 rounded">💬 Telegram Chat</a>
-            <a href="#" class="block p-3 hover:bg-slate-700 rounded">💰 Betalinger</a>
-            <a href="#" class="block p-3 hover:bg-slate-700 rounded">⚙️ Indstillinger</a>
+            <a href="#" class="block p-3 bg-red-600 rounded font-semibold text-sm">👥 Dashboard / Klienter</a>
+            <a href="#" class="block p-3 hover:bg-slate-800 rounded text-sm">💬 Telegram Chat</a>
+            <a href="#" class="block p-3 hover:bg-slate-800 rounded text-sm">💳 Vivid Betalinger</a>
+            <a href="#" class="block p-3 hover:bg-slate-800 rounded text-sm">📦 Pakker & Priser</a>
         </nav>
     </div>
 
-    <!-- Hovedindhold -->
+    <!-- Main -->
     <div class="flex-1 flex flex-col overflow-hidden">
-        <!-- Top bar -->
-        <header class="bg-white shadow p-4 flex justify-between items-center">
-            <h2 class="text-xl font-semibold">Kundeoversigt</h2>
-            <button onclick="openModal()" class="bg-red-500 text-white px-6 py-2 rounded-md font-bold hover:bg-red-600 transition">
+        <header class="bg-white shadow-sm p-4 flex justify-between items-center px-8 border-b">
+            <h2 class="text-xl font-bold text-slate-700">Kundeoversigt</h2>
+            <button onclick="openModal()" class="bg-red-600 text-white px-8 py-2.5 rounded shadow-lg font-bold hover:bg-red-700 transition uppercase text-sm tracking-wider">
                 + Add Client
             </button>
         </header>
 
-        <!-- Tabel -->
-        <main class="flex-1 overflow-x-auto p-6">
-            <div class="bg-white rounded-lg shadow">
+        <main class="flex-1 overflow-auto p-8">
+            <!-- Tabel her (vi fylder den med rigtige data senere) -->
+            <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
                 <table class="w-full text-left">
-                    <thead class="bg-gray-50 border-b text-gray-500 uppercase text-xs">
+                    <thead class="bg-gray-50 border-b text-gray-400 text-xs font-bold uppercase tracking-widest">
                         <tr>
-                            <th class="p-4">Navn</th>
-                            <th class="p-4">Email</th>
-                            <th class="p-4">Kategori</th>
+                            <th class="p-4">Kunde</th>
+                            <th class="p-4">Pakke / Type</th>
                             <th class="p-4">Status</th>
+                            <th class="p-4">Næste Betaling</th>
+                            <th class="p-4">Agent</th>
                             <th class="p-4">Handling</th>
                         </tr>
                     </thead>
-                    <tbody class="text-sm">
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="p-4 font-bold">Mr Mads Aggerholm</td>
-                            <td class="p-4">shin@shinhypnose.dk</td>
-                            <td class="p-4">Full Packet</td>
-                            <td class="p-4"><span class="text-green-600 font-bold">● Active</span></td>
-                            <td class="p-4"><button class="text-gray-400">⋮</button></td>
+                    <tbody class="divide-y divide-gray-100 text-sm">
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="p-4"><div class="font-bold text-slate-800">Mads Aggerholm</div><div class="text-xs text-gray-400">shin@shinhypnose.dk</div></td>
+                            <td class="p-4 font-semibold text-slate-600">Plex & IPTV Årlig (Pakke 5)</td>
+                            <td class="p-4"><span class="bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-[10px] font-black uppercase">Active</span></td>
+                            <td class="p-4 font-mono text-blue-600">18-01-2027</td>
+                            <td class="p-4 font-bold text-gray-400">KU</td>
+                            <td class="p-4"><button class="text-gray-300 hover:text-gray-600">⚙️</button></td>
                         </tr>
                     </tbody>
                 </table>
@@ -59,40 +65,89 @@
         </main>
     </div>
 
-    <!-- POPUP (Modal) - Det store oprettelsesvindue -->
+    <!-- DEN STORE POPUP (Modal) -->
     <div id="addClientModal" class="modal">
         <div class="modal-content">
-            <div class="flex justify-between items-center border-b pb-4 mb-4">
-                <h2 class="text-2xl font-bold text-red-600">Add Client</h2>
-                <button onclick="closeModal()" class="text-3xl">&times;</button>
+            <div class="flex justify-between items-center border-b pb-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800">ADD CLIENT</h2>
+                    <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Oprettelse af ny Plex / IPTV abonnement</p>
+                </div>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-black text-3xl font-light">&times;</button>
             </div>
             
-            <div class="grid grid-cols-2 gap-6">
-                <!-- Her kommer felterne fra dine billeder 1 og 3 -->
+            <div class="space-y-8">
+                <!-- 1. Account Details -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Client Name *</label>
-                    <input type="text" placeholder="e.g. John Doe" class="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-gray-50">
+                    <h3 class="section-title">Account Details</h3>
+                    <div class="grid grid-cols-4 gap-4">
+                        <div><label>Salutation</label><select><option>Mr</option><option>Mrs</option></select></div>
+                        <div class="col-span-2"><label>Client Name *</label><input type="text" placeholder="John Doe"></div>
+                        <div><label>Email</label><input type="email" placeholder="mail@example.com"></div>
+                        <div><label>Country</label><select><option>Denmark</option><option>Spain</option></select></div>
+                        <div><label>Mobile</label><input type="text" placeholder="+45 00000000"></div>
+                        <div><label>Gender</label><select><option>Male</option><option>Female</option></select></div>
+                        <div><label>Language</label><select><option>Danish</option><option>English</option></select></div>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" placeholder="e.g. mail@example.com" class="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-gray-50">
+
+                <!-- 2. System & Package (Vælg din pakke her) -->
+                <div class="bg-blue-50 p-6 rounded-lg border border-blue-100">
+                    <h3 class="section-title border-blue-200">Pakkevalg & Pris</h3>
+                    <div class="grid grid-cols-3 gap-6">
+                        <div>
+                            <label>Vælg Pakke (Fra prisliste)</label>
+                            <select id="packageSelect" onchange="calculatePrice()" class="bg-white border-blue-300 font-bold">
+                                <option value="0">Vælg løsning...</option>
+                                <option value="50">1: Plex Årsabonnement (50 kr/md)</option>
+                                <option value="75">2: Plex Månedlig (75 kr/md)</option>
+                                <option value="150">3: IPTV (150 kr/md)</option>
+                                <option value="210">4: Combo Månedlig (210 kr/md)</option>
+                                <option value="175">5: Combo Årlig (175 kr/md)</option>
+                                <option value="189">6: Combo + Boks Årlig (189 kr/md)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Salgspris (DKK)</label>
+                            <input type="number" id="salePrice" class="font-bold text-lg bg-white" readonly>
+                        </div>
+                        <div>
+                            <label>Agent</label>
+                            <select class="bg-white"><option>BH (Brian)</option><option>KU (Kurt)</option></select>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- 3. Teknisk Info (Billede 3) -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Plex ID</label>
-                    <input type="text" placeholder="Plex ID" class="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-gray-50">
+                    <h3 class="section-title">Teknisk Info (Plex / IPTV)</h3>
+                    <div class="grid grid-cols-4 gap-4">
+                        <div><label>Plex ID</label><input type="text"></div>
+                        <div><label>Mac Adresse</label><input type="text" placeholder="00:11:22:33:44:55"></div>
+                        <div><label>App</label><input type="text"></div>
+                        <div><label>User IP</label><input type="text"></div>
+                        <div><label>Næste Betaling</label><input type="date"></div>
+                        <div><label>Betalt Status</label><select><option>Ja</option><option>Nej</option></select></div>
+                        <div><label>Admin Panel</label><select><option>Y</option><option>N</option></select></div>
+                        <div><label>Overseer</label><select><option>Y</option><option>N</option></select></div>
+                    </div>
                 </div>
+
+                <!-- 4. Company Details -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Plan</label>
-                    <select class="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-gray-50">
-                        <option>Monthly</option>
-                        <option>Yearly</option>
-                    </select>
+                    <h3 class="section-title text-gray-400">Company Details (Valgfri)</h3>
+                    <div class="grid grid-cols-4 gap-4 opacity-70">
+                        <div class="col-span-2"><label>Company Name</label><input type="text"></div>
+                        <div><label>Tax Name</label><input type="text"></div>
+                        <div><label>VAT Number</label><input type="text"></div>
+                    </div>
                 </div>
             </div>
 
-            <div class="mt-8 pt-4 border-t flex justify-end">
-                <button onclick="closeModal()" class="mr-4 text-gray-600 font-bold">Cancel</button>
-                <button class="bg-blue-600 text-white px-8 py-2 rounded font-bold">Save Client</button>
+            <div class="mt-10 pt-6 border-t flex justify-end items-center">
+                <div class="mr-auto text-sm font-bold text-gray-500">Indtjeningskalkulation: <span id="calcResult" class="text-green-600">0 kr.</span></div>
+                <button onclick="closeModal()" class="mr-6 text-gray-400 font-bold uppercase text-xs tracking-widest hover:text-black">Cancel</button>
+                <button class="bg-blue-600 text-white px-12 py-3 rounded-md font-black shadow-xl hover:bg-blue-700 transition uppercase tracking-widest text-sm">Save Client</button>
             </div>
         </div>
     </div>
@@ -100,8 +155,14 @@
     <script>
         function openModal() { document.getElementById('addClientModal').style.display = "block"; }
         function closeModal() { document.getElementById('addClientModal').style.display = "none"; }
+        
+        function calculatePrice() {
+            var price = document.getElementById('packageSelect').value;
+            document.getElementById('salePrice').value = price;
+            // Vi kan tilføje 'Omkostninger' her senere for at regne profit
+            document.getElementById('calcResult').innerText = price + " kr. / md.";
+        }
     </script>
 
 </body>
-</html>
 </html>

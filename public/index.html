@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title>Plex CRM - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); }
+        .modal-content { background-color: white; margin: 1% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 1400px; max-height: 96vh; overflow-y: auto; border-top: 8px solid #dc2626; }
+        label { display: block; font-size: 0.65rem; font-weight: 800; color: #4b5563; margin-bottom: 2px; text-transform: uppercase; }
+        input, select { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px 10px; font-size: 0.8rem; background-color: #f9fafb; margin-bottom: 8px; }
+        .nav-active { background-color: #dc2626 !important; }
+        tr.clickable { cursor: pointer; transition: background 0.2s; }
+        tr.clickable:hover { background-color: #fef2f2 !important; }
+    </style>
+</head>
+<body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans">
+
+    <!-- SIDEBAR -->
+    <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl">
+        <div class="p-6 text-2xl font-black border-b border-slate-800 italic text-red-600 tracking-tighter">⦿ PLEX CRM</div>
+        <nav class="flex-1 p-4 space-y-1 text-[10px] font-bold uppercase tracking-widest">
+            <a href="index.html" class="block p-3 bg-red-600 rounded">👥 Klienter</a>
+            <a href="approvals.html" class="block p-3 hover:bg-slate-800 rounded text-orange-400">⏳ Godkendelser</a>
+            <a href="resellers.html" class="block p-3 hover:bg-slate-800 rounded text-blue-400">👤 Resellers</a>
+            <a href="commission.html" class="block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black italic">💰 Tal & Overskud</a>
+            <a href="settings.html" class="block p-3 hover:bg-slate-800 rounded text-emerald-400">⚙️ Pakker</a>
+            <a href="telegram.html" class="block p-3 hover:bg-slate-800 rounded text-sky-400 border-t border-slate-800 mt-4">💬 Telegram</a>
+            <a href="payments.html" class="block p-3 hover:bg-slate-800 rounded">💳 Betalinger</a>
+        </nav>
+        
+        <!-- SPROG-DELEN (FIXET) -->
+        <div class="p-4 border-t border-slate-800 bg-black/20">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-[9px] text-slate-500 font-black uppercase">System Sprog:</span>
+                <div class="flex space-x-2">
+                    <button id="lang-dk" onclick="setLang('dk')" class="text-[10px] font-black text-red-500 underline">DK</button>
+                    <button id="lang-uk" onclick="setLang('uk')" class="text-[10px] font-black text-slate-500 hover:text-white transition">UK</button>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-400 font-bold uppercase italic tracking-widest text-center">Admin: Brian</div>
+        </div>
+    </div>
+
+    <!-- MAIN AREA -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="bg-white shadow-sm p-4 flex justify-between items-center px-10 border-b">
+            <h2 id="page-title" class="text-xl font-black uppercase italic tracking-tighter">Klienter</h2>
+            <button onclick="openModal('addClientModal', false)" class="bg-red-600 text-white px-8 py-2.5 rounded shadow-xl font-black hover:bg-red-700 transition uppercase text-[10px] tracking-widest">+ Ny Klient</button>
+        </header>
+
+        <main class="flex-1 overflow-auto p-6">
+            <div class="bg-white rounded shadow-lg border overflow-x-auto">
+                <table class="w-full text-left min-w-[1500px]">
+                    <thead class="bg-slate-50 border-b text-slate-400 text-[9px] font-black uppercase tracking-widest">
+                        <tr>
+                            <th class="p-3">#</th>
+                            <th class="p-3">Navn</th>
+                            <th class="p-3">Email</th>
+                            <th class="p-3">Plex ID</th>
+                            <th class="p-3">Plan</th>
+                            <th class="p-3">Næste Betaling</th>
+                            <th class="p-3">Agent</th>
+                            <th class="p-3 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-[10px] font-bold uppercase italic">
+                        <!-- KLIKBARE RÆKKER -->
+                        <tr class="clickable border-b" onclick="openModal('addClientModal', true, 'Mads Aggerholm')">
+                            <td class="p-3 text-gray-300">1</td>
+                            <td class="p-3 font-black text-slate-800">Mads Aggerholm</td>
+                            <td class="p-3 text-gray-400 font-normal">shin@shinhypnose.dk</td>
+                            <td class="p-3">sh2183</td>
+                            <td class="p-3 text-blue-600 underline">Yearly</td>
+                            <td class="p-3">18-01-2027</td>
+                            <td class="p-3 text-slate-400">KU</td>
+                            <td class="p-3 text-center">⚙️</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: KUNDEKORT (REGERING / VISNING) -->
+    <div id="addClientModal" class="modal">
+        <div class="modal-content shadow-2xl">
+            <div class="flex justify-between items-center border-b pb-4 mb-6">
+                <div>
+                    <h2 id="modal-title" class="text-2xl font-black text-slate-900 italic uppercase">Add Client</h2>
+                    <p class="text-[9px] text-gray-400 uppercase font-black tracking-widest">Kunde Detaljer & Opsætning</p>
+                </div>
+                <button onclick="closeModal('addClientModal')" class="text-gray-300 hover:text-black text-4xl font-light">&times;</button>
+            </div>
+            
+            <div class="grid grid-cols-4 gap-4">
+                <div class="col-span-2"><label>Fulde Navn</label><input type="text" id="client-name"></div>
+                <div><label>Plex ID</label><input type="text"></div>
+                <div><label>Email</label><input type="email"></div>
+                <!-- ... Flere felter her ... -->
+            </div>
+
+            <div class="mt-10 pt-6 border-t flex justify-end">
+                <button onclick="closeModal('addClientModal')" class="mr-8 text-gray-400 uppercase text-[10px] font-black">Afbryd</button>
+                <button id="save-btn" class="bg-slate-900 text-white px-10 py-3 rounded font-black uppercase text-xs">Save & Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sprog logik
+        function setLang(lang) {
+            document.getElementById('lang-dk').classList.toggle('text-red-500', lang === 'dk');
+            document.getElementById('lang-dk').classList.toggle('underline', lang === 'dk');
+            document.getElementById('lang-uk').classList.toggle('text-red-500', lang === 'uk');
+            document.getElementById('lang-uk').classList.toggle('underline', lang === 'uk');
+            // Her kan vi senere ændre tekster på hele siden
+        }
+
+        // Modal logik (Åbn ved klik på række)
+        function openModal(id, isEdit, name = '') {
+            document.getElementById(id).style.display = "block";
+            if(isEdit) {
+                document.getElementById('modal-title').innerText = "Rediger Kunde: " + name;
+                document.getElementById('client-name').value = name;
+                document.getElementById('save-btn').innerText = "Gem ændringer (Kræver godkendelse)";
+            } else {
+                document.getElementById('modal-title').innerText = "Opret ny kunde";
+                document.getElementById('save-btn').innerText = "Opret & Send til godkendelse";
+            }
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = "none"; }
+    </script>
+</body>
+</html>

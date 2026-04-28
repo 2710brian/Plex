@@ -12,14 +12,15 @@
             <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em] mt-2 text-red-600">Secure Access Portal</p>
         </div>
 
+        <!-- Bemærk: type="text" så du kan skrive både 'admin' og e-mails -->
         <form onsubmit="handleLogin(event)" class="space-y-6 uppercase font-black italic">
             <div>
-                <label class="text-[10px] text-slate-500 block mb-2">E-mail Adresse</label>
-                <input type="email" id="email" class="w-full border-2 border-slate-100 p-3 rounded-xl outline-none focus:border-red-500 transition-all text-sm" required>
+                <label class="text-[10px] text-slate-500 block mb-2">Brugernavn / E-mail</label>
+                <input type="text" id="email" class="w-full border-2 border-slate-100 p-3 rounded-xl outline-none focus:border-red-500 transition-all text-sm" required placeholder="Indtast ID...">
             </div>
             <div>
                 <label class="text-[10px] text-slate-500 block mb-2">Adgangskode</label>
-                <input type="password" id="password" class="w-full border-2 border-slate-100 p-3 rounded-xl outline-none focus:border-red-500 transition-all text-sm" required>
+                <input type="password" id="password" class="w-full border-2 border-slate-100 p-3 rounded-xl outline-none focus:border-red-500 transition-all text-sm" required placeholder="********">
             </div>
             
             <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-xl shadow-xl hover:bg-black transition-all tracking-[0.2em] text-xs">
@@ -27,8 +28,8 @@
             </button>
         </form>
         
-        <div class="mt-8 text-center">
-            <p class="text-[9px] text-slate-300 font-bold uppercase italic">Brian Hald CRM v.1.0 | Protected Access</p>
+        <div class="mt-8 text-center border-t pt-6">
+            <p class="text-[9px] text-slate-300 font-bold uppercase italic tracking-widest">Protected by STB Systems</p>
         </div>
     </div>
 
@@ -38,18 +39,24 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const res = await fetch('/api/login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email, password })
-            });
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email, password })
+                });
 
-            if (res.ok) {
-                const data = await res.json();
-                localStorage.setItem('crm_user', JSON.stringify(data.user));
-                window.location.href = '/index.html';
-            } else {
-                alert('Forkert e-mail eller adgangskode');
+                if (res.ok) {
+                    const data = await res.json();
+                    // Gem brugeren i browseren
+                    localStorage.setItem('crm_user', JSON.stringify(data.user));
+                    // Send brugeren videre til dashboardet
+                    window.location.href = '/index.html';
+                } else {
+                    alert('Adgang nægtet: Forkert brugernavn eller kode.');
+                }
+            } catch (err) {
+                alert('Server fejl - Prøv igen senere.');
             }
         }
     </script>

@@ -171,4 +171,4 @@ app.post('/api/send-media', upload.single('file'), async (req, res) => {
 
 app.use(express.static('public'));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-app.listen(PORT, () => console.log(`🚀 Server kører på port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server kører på port ${PORT}`)); 

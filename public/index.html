@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plex & IPTV CRM - Master Interface</title>
+    <title>Plex CRM - Master Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); }
@@ -14,58 +14,69 @@
         .nav-active { background-color: #dc2626 !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
         tr.clickable { cursor: pointer; transition: all 0.1s; }
         tr.clickable:hover { background-color: #fef2f2 !important; }
-        .font-mono-custom { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-        th.sortable { cursor: pointer; position: relative; }
+        
+        /* Sticky Header & Table Scroll Logic */
+        .table-wrapper { height: calc(100vh - 180px); overflow: auto; border: 1px solid #e5e7eb; border-radius: 12px; background: white; }
+        thead th { position: sticky; top: 0; z-index: 20; background-color: #f8fafc !important; box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1); }
+        th.sortable { cursor: pointer; white-space: nowrap; }
         th.sortable:hover { color: #dc2626; text-decoration: underline; }
     </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans">
 
-    <!-- SIDEBAR -->
+    <!-- SIDEBAR (CLEANED - NO TELEGRAM) -->
     <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl font-bold uppercase text-[10px] tracking-wider">
         <div class="p-6 text-2xl font-black border-b border-slate-800 italic tracking-tighter text-red-600">⦿ PLEX CRM</div>
         <nav id="sidebar-nav" class="flex-1 p-4 space-y-1">
             <a href="index.html" class="nav-item block p-3 bg-red-600 rounded nav-active text-white">👥 <span data-dk="Klient-Oversigt" data-uk="Client Overview">Klient-Oversigt</span></a>
-            <a href="approvals.html" id="nav-approvals" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400 italic">
+            <a href="approvals.html" id="nav-approvals" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400 italic font-black">
                 <span>⏳ <span data-dk="Godkendelser" data-uk="Approvals">Godkendelser</span></span>
-                <span class="bg-orange-600 text-white text-[9px] px-2 py-0.5 rounded-full font-black">1</span>
+                <span id="badge-count" class="bg-orange-600 text-white text-[9px] px-2 py-0.5 rounded-full">0</span>
             </a>
             <a href="resellers.html" id="nav-resellers" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400 italic">👤 <span data-dk="Reseller Styring" data-uk="Reseller Mgmt">Reseller Styring</span></a>
             <a href="commission.html" id="nav-commission" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black italic">💰 <span data-dk="Provision & Tal" data-uk="Profit & Data">Provision & Tal</span></a>
             <a href="settings.html" id="nav-settings" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ <span data-dk="Pakke Indstillinger" data-uk="Package Settings">Pakke Indstillinger</span></a>
-            <a href="telegram.html" id="nav-telegram" class="nav-item block p-3 hover:bg-slate-800 rounded border-t border-slate-800 mt-4 text-sky-400 italic">💬 <span data-dk="Telegram Chat" data-uk="Telegram Chat">Telegram Chat</span></a>
-            <a href="payments.html" id="nav-payments" class="nav-item block p-3 hover:bg-slate-800 rounded text-slate-500 font-black italic uppercase">💳 <span data-dk="Betalinger" data-uk="Payments">Betalinger</span></a>
+            <a href="payments.html" id="nav-payments" class="nav-item block p-3 hover:bg-slate-800 rounded text-slate-500 font-black italic uppercase mt-4 border-t border-slate-800 pt-4">💳 <span data-dk="Betalinger" data-uk="Payments">Betalinger</span></a>
         </nav>
         
         <div class="p-4 border-t border-slate-800 bg-black/20">
-            <div class="flex justify-between items-center mb-4 italic text-[9px] text-slate-500 font-black uppercase tracking-widest text-center">Admin: Brian</div>
-            <div class="flex space-x-2 justify-center">
-                <button onclick="setLang('dk')" id="btn-dk" class="text-red-500 underline font-black text-[11px]">DK</button>
-                <button onclick="setLang('uk')" id="btn-uk" class="text-slate-500 font-black text-[11px]">UK</button>
+            <div class="flex justify-between items-center mb-4 italic text-[9px] text-slate-500 font-black uppercase tracking-widest">
+                <span>Language:</span>
+                <div class="flex space-x-2">
+                    <button onclick="setLang('dk')" id="btn-dk" class="text-red-500 underline font-black text-[11px]">DK</button>
+                    <button onclick="setLang('uk')" id="btn-uk" class="text-slate-500 font-black text-[11px]">UK</button>
+                </div>
             </div>
-            <div class="mt-4">
-                <select onchange="simulateUser(this.value)" class="bg-slate-800 border-none text-white text-[10px] font-bold p-2 w-full rounded cursor-pointer">
-                    <option value="admin">ADMIN (Brian)</option>
-                    <option value="agent">AGENT (Kurt)</option>
-                    <option value="reseller">RESELLER (Partner)</option>
-                </select>
-            </div>
+            <div class="text-[9px] text-slate-500 font-black uppercase mb-1 tracking-widest">Simuler Rolle:</div>
+            <select onchange="simulateUser(this.value)" class="bg-slate-800 border-none text-white text-[10px] font-bold p-2 w-full rounded cursor-pointer">
+                <option value="admin">ADMIN (Brian)</option>
+                <option value="agent">AGENT (Kurt)</option>
+                <option value="reseller">RESELLER (Partner)</option>
+            </select>
         </div>
     </div>
 
     <!-- MAIN AREA -->
     <div class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- HEADER WITH SEARCH -->
         <header class="bg-white shadow-sm p-5 flex justify-between items-center px-10 border-b">
-            <h2 class="text-2xl font-black uppercase italic tracking-tighter text-slate-800">
-                <span data-dk="Klient Oversigt" data-uk="Client Overview">Klient Oversigt</span>
-            </h2>
-            <button onclick="openClientModal(false)" class="bg-red-600 text-white px-10 py-3 rounded shadow-2xl font-black hover:bg-red-700 transition uppercase text-[11px] tracking-widest">
-                + <span data-dk="Opret Klient" data-uk="Add Client">Opret Klient</span>
-            </button>
+            <div class="flex items-center space-x-8 flex-1">
+                <h2 class="text-2xl font-black uppercase italic tracking-tighter text-slate-800">
+                    <span data-dk="Klient Oversigt" data-uk="Client Overview">Klient Oversigt</span>
+                </h2>
+                <!-- SØGEFELT -->
+                <div class="relative w-96 italic font-bold">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 font-black">🔍</span>
+                    <input type="text" id="globalSearch" onkeyup="renderTable()" placeholder="SØG NAVN, EMAIL ELLER ID..." class="pl-10 w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-2 text-[11px] font-black uppercase outline-none focus:border-red-500 transition-all mb-0">
+                </div>
+            </div>
+            <button onclick="openClientModal(false)" class="bg-red-600 text-white px-10 py-3 rounded shadow-2xl hover:bg-red-700 transition uppercase text-[11px] tracking-widest font-black italic shadow-lg">+ <span data-dk="Opret Klient" data-uk="Add Client">Opret Klient</span></button>
         </header>
 
-        <main class="flex-1 overflow-auto p-8">
-            <div class="bg-white rounded-xl shadow-lg border overflow-x-auto">
+        <!-- TABLE AREA -->
+        <main class="flex-1 p-8 overflow-hidden">
+            <div class="table-wrapper shadow-xl border border-gray-200">
                 <table class="w-full text-left min-w-[2400px] border-collapse">
                     <thead class="bg-slate-50 border-b text-slate-400 text-[9px] font-black uppercase tracking-widest italic">
                         <tr>
@@ -74,40 +85,37 @@
                             <th class="p-4 sortable" onclick="doSort('email')">Email</th>
                             <th class="p-4">Mobil</th>
                             <th class="p-4 sortable" onclick="doSort('category')">Kategori</th>
-                            <th class="p-4">Status</th>
+                            <th class="p-4 sortable" onclick="doSort('status')">Status</th>
                             <th class="p-4 sortable" onclick="doSort('created_date')">Oprettet</th>
                             <th class="p-4">Plex ID</th>
-                            <th class="p-4">Plan</th>
+                            <th class="p-4 sortable" onclick="doSort('plan')">Plan</th>
                             <th class="p-4 sortable" onclick="doSort('next_payment')">Næste Betaling</th>
-                            <th class="p-4">Betalt</th>
-                            <th class="p-4">Type</th>
-                            <th class="p-4">Admin</th>
-                            <th class="p-4">Plex</th>
-                            <th class="p-4">Overseer</th>
-                            <th class="p-4">Agent</th>
+                            <th class="p-4 sortable" onclick="doSort('paid')">Betalt</th>
+                            <th class="p-4 sortable" onclick="doSort('agent')">Agent</th>
                             <th class="p-4 text-center">Cashflow</th>
                             <th class="p-4 text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody id="client-table-body" class="text-[11px] font-bold uppercase italic tracking-tight divide-y divide-gray-100">
-                        <!-- Her indlæser JavaScript data fra databasen -->
+                        <!-- Indlæses dynamisk -->
                     </tbody>
                 </table>
             </div>
         </main>
     </div>
 
-    <!-- MODAL: ADD / EDIT CLIENT -->
+    <!-- THE LARGE MODAL (DET STORE KUNDEKORT) -->
     <div id="clientModal" class="modal">
         <div class="modal-content shadow-2xl">
             <div class="flex justify-between items-center border-b-4 border-gray-50 pb-5 mb-8 italic uppercase font-black tracking-tighter leading-none">
-                <h2 id="modal-title-text" class="text-4xl text-slate-900">Add Client</h2>
+                <h2 id="modal-title-text" class="text-4xl text-slate-900 underline decoration-red-600">Add Client</h2>
                 <button onclick="closeModal()" class="text-gray-300 hover:text-black text-5xl font-light transition">&times;</button>
             </div>
             
-            <form id="clientForm" class="space-y-10">
+            <form id="clientForm" onsubmit="saveClient(event)" class="space-y-10">
                 <input type="hidden" id="f-id">
                 
+                <!-- 1. ACCOUNT DETAILS (BILLEDE 1) -->
                 <section>
                     <h3 class="section-title">
                         <span>1. Account Details</span>
@@ -115,56 +123,55 @@
                     </h3>
                     <div class="grid grid-cols-4 gap-4 italic font-bold">
                         <div><label data-dk="Tiltale" data-uk="Salutation">Salutation</label>
-                            <select id="f-salutation"><option>Mr</option><option>Mrs</option><option>Miss</option></select>
+                            <select id="f-salutation" name="salutation"><option>Mr</option><option>Mrs</option><option>Miss</option></select>
                         </div>
                         <div class="col-span-2"><label data-dk="Navn *" data-uk="Full Name *">Full Name *</label>
-                            <input type="text" id="f-name" placeholder="Navn">
+                            <input type="text" id="f-name" name="name" required>
                         </div>
                         <div><label>Email</label>
-                            <input type="email" id="f-email" placeholder="mail@example.com">
+                            <input type="email" id="f-email" name="email" placeholder="mail@example.com">
                         </div>
                         <div><label data-dk="Land" data-uk="Country">Country</label>
-                            <select id="f-country"><option>Spain</option><option>Denmark</option><option>Other</option></select>
+                            <select id="f-country" name="country"><option>Spain</option><option>Denmark</option><option>Other</option></select>
                         </div>
                         <div><label data-dk="Mobil" data-uk="Mobile">Mobile</label>
-                            <input type="text" id="f-mobile" placeholder="+34 / +45">
+                            <input type="text" id="f-mobile" name="mobile" placeholder="+34 / +45">
                         </div>
                         <div><label data-dk="Køn" data-uk="Gender">Gender</label>
-                            <select id="f-gender"><option>Male</option><option>Female</option></select>
+                            <select id="f-gender" name="gender"><option>Male</option><option>Female</option></select>
                         </div>
                         <div><label data-dk="Sprog" data-uk="Language">Language</label>
-                            <select id="f-lang"><option>Danish</option><option>English</option></select>
+                            <select id="f-lang" name="language"><option>Danish</option><option>English</option></select>
                         </div>
                         <div><label data-dk="Kategori" data-uk="Category">Category</label>
-                            <input type="text" id="f-category">
+                            <input type="text" id="f-category" name="category">
                         </div>
                         <div><label data-dk="Under-kat" data-uk="Sub-Cat">Sub-Category</label>
-                            <input type="text" id="f-subcat">
+                            <input type="text" id="f-subcat" name="sub_category">
                         </div>
                         <div><label data-dk="Login tilladt?" data-uk="Login Allowed?">Login Allowed?</label>
-                            <select id="f-login"><option>No</option><option>Yes</option></select>
-                        </div>
-                        <div><label data-dk="Email Notifikationer?" data-uk="Email Notify?">Email Notifications?</label>
-                            <select id="f-notify"><option>Yes</option><option>No</option></select>
+                            <select id="f-login" name="login_allowed"><option value="No">No</option><option value="Yes">Yes</option></select>
                         </div>
                         <div><label data-dk="Oprettelses Dato" data-uk="Creation Date">Creation Date</label>
-                            <input type="text" id="f-created">
+                            <input type="text" id="f-created" name="created_date">
                         </div>
                     </div>
                 </section>
 
+                <!-- 2. COMPANY DETAILS (BILLEDE 1) -->
                 <section class="bg-gray-50 p-8 rounded-xl border border-gray-100 opacity-80 shadow-inner">
                     <h3 class="section-title border-gray-200"><span>2. Company Details</span></h3>
                     <div class="grid grid-cols-4 gap-4 italic font-bold">
-                        <div class="col-span-2"><label data-dk="Firma Navn" data-uk="Company Name">Company Name</label><input type="text" id="f-company"></div>
-                        <div><label data-dk="Hjemmeside" data-uk="Official Website">Official Website</label><input type="text" id="f-website"></div>
-                        <div><label data-dk="Skatte / VAT Nummer" data-uk="Tax / VAT Number">Tax / VAT Number</label><input type="text" id="f-vat"></div>
-                        <div class="col-span-4"><label data-dk="Fuld Adresse" data-uk="Full Address">Full Address</label><textarea id="f-address" rows="1"></textarea></div>
+                        <div class="col-span-2"><label data-dk="Firma Navn" data-uk="Company Name">Company Name</label><input type="text" id="f-company" name="company_name"></div>
+                        <div><label data-dk="Hjemmeside" data-uk="Official Website">Official Website</label><input type="text" id="f-website" name="website"></div>
+                        <div><label data-dk="Skatte / VAT Nummer" data-uk="Tax / VAT Number">Tax / VAT Number</label><input type="text" id="f-vat" name="tax_id"></div>
+                        <div class="col-span-4"><label data-dk="Fuld Adresse" data-uk="Full Address">Full Address</label><textarea id="f-address" name="address" rows="1"></textarea></div>
                     </div>
                 </section>
 
+                <!-- 3. ABONNEMENT & CASHFLOW (LOGIK) -->
                 <section class="bg-slate-900 p-10 rounded-2xl text-white shadow-2xl border-b-8 border-red-600">
-                    <h3 class="section-title border-slate-700 text-slate-500 italic uppercase font-black tracking-widest">3. Financial Logic & Cashflow Status</h3>
+                    <h3 class="section-title border-slate-700 text-slate-500 italic uppercase font-black tracking-widest italic">3. Financial Logic & Cashflow</h3>
                     <div class="grid grid-cols-3 gap-10 items-center">
                         <div>
                             <label class="text-red-500 font-black mb-2 uppercase tracking-widest italic underline">Vælg Pakke</label>
@@ -175,38 +182,39 @@
                             </select>
                         </div>
                         <div>
-                            <label class="text-yellow-500 font-black mb-2 uppercase tracking-widest italic underline">System Cashflow Status</label>
-                            <select id="cashflowStatus" onchange="calculateFinancials()" class="bg-white text-red-600 font-black h-14 text-sm border-4 border-yellow-500 italic uppercase">
-                                <option value="legacy">EKSISTERENDE / LEGACY (0,00 € NU)</option>
-                                <option value="new">NY KUNDE / FORNYELSE (TÆLLER NU)</option>
+                            <label class="text-yellow-500 font-black mb-2 uppercase tracking-widest italic underline">Cashflow Status</label>
+                            <select id="f-cashflow_status" name="cashflow_status" onchange="calculateFinancials()" class="bg-white text-red-600 font-black h-14 text-sm border-4 border-yellow-500 italic uppercase">
+                                <option value="legacy" selected>EKSISTERENDE / LEGACY (0,00 € NU)</option>
+                                <option value="new">NY KUNDE / FORNYELSE</option>
                             </select>
                         </div>
-                        <div id="profit-calc-box" class="bg-slate-800 p-8 rounded-xl border border-slate-700 text-center shadow-inner">
-                            <div class="text-5xl font-black text-emerald-500 italic font-mono">€ 0,00</div>
-                        </div>
+                        <div id="profit-calc-box" class="bg-slate-800 p-8 rounded-xl border border-slate-700 text-center font-mono text-emerald-400 text-4xl italic">€ 0,00</div>
                     </div>
                 </section>
 
+                <!-- 4. TECHNICAL SETUP (BILLEDE 3) -->
                 <section>
-                    <h3 class="section-title"><span>4. Technical Config (Plex / IPTV)</span></h3>
-                    <div class="grid grid-cols-4 gap-4 font-bold italic">
-                        <div><label>Plex ID</label><input type="text" id="f-plexid"></div>
-                        <div><label data-dk="Næste Betaling" data-uk="Next Payment">Next Payment</label><input type="text" id="f-nextpay" class="font-black text-red-600 border-red-200"></div>
-                        <div><label data-dk="Betalt Status" data-uk="Payment Status">Payment Status</label><select id="f-paid"><option>Ja</option><option>Nej</option></select></div>
-                        <div><label>MAC Adresse</label><input type="text" id="f-mac" placeholder="00:00:00:00:00:00"></div>
-                        <div><label data-dk="App / Enhed" data-uk="App / Device">App / Device</label><input type="text" id="f-app"></div>
-                        <div><label>Admin Panel</label><select id="f-admin"><option>N</option><option>Y</option></select></div>
-                        <div><label>Overseer</label><select id="f-overseer"><option>N</option><option>Y</option></select></div>
-                        <div><label>Agent</label><select id="f-agent"><option>BH</option><option>KU</option></select></div>
-                        <div><label>Type</label><select id="f-type"><option>IP-Movie</option><option>Movie</option><option>IP</option></select></div>
+                    <h3 class="section-title"><span>4. Technical Configuration</span> <span class="text-[9px] text-gray-300 italic underline tracking-widest uppercase">Image 3 Data</span></h3>
+                    <div class="grid grid-cols-4 gap-4 font-bold italic text-slate-700">
+                        <div><label>Plex ID</label><input type="text" id="f-plexid" name="plex_id"></div>
+                        <div><label class="text-red-600 underline font-black uppercase">Næste Betaling</label><input type="text" id="f-nextpay" name="next_payment"></div>
+                        <div><label>Status</label><select id="f-status" name="status"><option value="Active">Active</option><option value="Inactive">Inactive</option></select></div>
+                        <div><label>Paid Status</label><select id="f-paid" name="paid"><option value="Ja">Ja</option><option value="Nej">Nej</option></select></div>
+                        <div><label>MAC Address</label><input type="text" id="f-mac" name="mac" placeholder="00:00:00:00:00:00"></div>
+                        <div><label>App</label><input type="text" id="f-app" name="app"></div>
+                        <div><label>Admin Panel</label><select id="f-admin" name="admin_panel"><option value="N">No (N)</option><option value="Y">Yes (Y)</option></select></div>
+                        <div><label>Overseer</label><select id="f-overseer" name="overseer"><option value="N">No (N)</option><option value="Y">Yes (Y)</option></select></div>
+                        <div><label>Agent</label><select id="f-agent" name="agent"><option value="BH">BH</option><option value="KU">KU</option></select></div>
+                        <div><label>Type</label><select id="f-type" name="type"><option value="IP-Movie">IP-Movie</option><option value="Movie">Movie</option><option value="IP">IP</option></select></div>
                     </div>
                 </section>
 
-                <div class="mt-12 pt-8 border-t flex justify-end items-center italic">
-                    <button type="button" onclick="closeModal()" class="mr-12 text-gray-400 font-black uppercase text-[11px] tracking-widest hover:text-black transition" data-dk="Annuller" data-uk="Cancel">Annuller</button>
-                    <button type="button" onclick="alert('Rettelser gemmes i næste step')" class="bg-slate-900 text-white px-16 py-5 rounded-lg font-black shadow-2xl uppercase tracking-[0.2em] text-sm italic hover:bg-black transition">
-                        <span data-dk="Gem & Opret" data-uk="Save & Create">Gem & Opret</span>
-                    </button>
+                <div class="mt-12 pt-8 border-t flex justify-between items-center italic font-black uppercase">
+                    <button type="button" id="btn-delete" onclick="deleteCustomer()" class="bg-red-100 text-red-600 px-8 py-4 rounded-xl text-[11px] hidden hover:bg-red-200 transition">SLET KUNDE PERMANENT 🗑️</button>
+                    <div class="flex space-x-6">
+                        <button type="button" onclick="closeModal()" class="text-gray-400 text-[11px] px-6">Luk</button>
+                        <button type="submit" class="bg-slate-900 text-white px-16 py-5 rounded-lg text-sm shadow-2xl hover:bg-black transition">Opdater Kundekort</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -214,72 +222,75 @@
 
     <script>
         let customers = [];
-        let currentLang = 'dk';
-        let currentUser = 'admin';
+        let sortKey = 'id';
         let sortDir = 1;
+        let currentLang = 'dk';
 
-        window.onload = function() {
-            setLang('dk');
-            fetchCustomers();
-        };
+        window.onload = function() { fetchCustomers(); setLang('dk'); };
 
         async function fetchCustomers() {
             try {
                 const res = await fetch('/api/customers');
                 customers = await res.json();
                 renderTable();
-            } catch (e) { console.error("Database Error:", e); }
+                const pending = customers.filter(c => c.status === 'Inactive' || c.status === 'Pending').length;
+                document.getElementById('badge-count').innerText = pending;
+            } catch (e) { console.error(e); }
         }
 
         function renderTable() {
+            const term = document.getElementById('globalSearch').value.toLowerCase();
             const tbody = document.getElementById('client-table-body');
-            tbody.innerHTML = customers.map(c => `
+            const filtered = customers.filter(c => c.name.toLowerCase().includes(term) || (c.email && c.email.toLowerCase().includes(term)) || (c.plex_id && c.plex_id.toLowerCase().includes(term)));
+            
+            tbody.innerHTML = filtered.map(c => `
                 <tr class="clickable hover:bg-gray-50 border-b" onclick="openClientModal(true, ${c.id})">
-                    <td class="p-4 text-center text-gray-300 font-mono italic font-black">${c.id}</td>
-                    <td class="p-4 font-black text-slate-900 uppercase">${c.name}</td>
+                    <td class="p-4 text-center text-gray-300 font-mono italic">${c.id}</td>
+                    <td class="p-4 font-black text-slate-900 uppercase tracking-tighter">${c.name}</td>
                     <td class="p-4 text-gray-400 font-normal lowercase italic">${c.email || '--'}</td>
-                    <td class="p-4">${c.mobile || '--'}</td>
-                    <td class="p-4 italic">${c.category || '--'}</td>
-                    <td class="p-4"><span class="${c.status === 'Active' ? 'text-green-600' : 'text-red-500'} font-black italic">● ${c.status}</span></td>
-                    <td class="p-4 font-normal">${c.created_date || '--'}</td>
-                    <td class="p-4 italic font-black text-slate-700">${c.plex_id || '--'}</td>
-                    <td class="p-4">${c.plan || '--'}</td>
-                    <td class="p-4 underline decoration-red-400 font-black">${c.next_payment || '--'}</td>
+                    <td class="p-4 text-[10px] font-mono">${c.mobile || '--'}</td>
+                    <td class="p-4 italic text-slate-500">${c.category || '--'}</td>
+                    <td class="p-4 font-black"><span class="${c.status === 'Active' ? 'text-green-600' : 'text-red-600'} italic">● ${c.status}</span></td>
+                    <td class="p-4 font-normal text-slate-400">${c.created_date || '--'}</td>
+                    <td class="p-4 font-black text-slate-700 italic">${c.plex_id || '--'}</td>
+                    <td class="p-4 uppercase text-[9px] tracking-widest">${c.plan || '--'}</td>
+                    <td class="p-4 font-black underline decoration-red-400 text-red-600 font-mono">${c.next_payment || '--'}</td>
                     <td class="p-4">${c.paid || '--'}</td>
                     <td class="p-4 italic font-normal text-slate-400">${c.type || '--'}</td>
-                    <td class="p-4 font-black">${c.admin_panel || 'N'}</td>
-                    <td class="p-4 font-black text-green-500">${c.plex_access || 'Y'}</td>
-                    <td class="p-4 font-black text-green-500">${c.overseer || 'Y'}</td>
+                    <td class="p-4 font-black text-slate-800">${c.admin_panel || 'N'}</td>
+                    <td class="p-4 font-black text-green-500 text-sm">Y</td>
+                    <td class="p-4 font-black text-green-500 text-sm">Y</td>
                     <td class="p-4 font-black text-slate-400">${c.agent || 'BH'}</td>
-                    <td class="p-4 text-center"><span class="bg-slate-100 text-slate-400 px-2 py-0.5 rounded text-[9px] font-black uppercase">${c.cashflow_status || 'LEGACY'}</span></td>
-                    <td class="p-4 text-center text-xl text-gray-200">⚙️</td>
+                    <td class="p-4 text-center uppercase text-[9px] font-black"><span class="bg-slate-100 p-1 px-2 rounded tracking-widest">${c.cashflow_status || 'LEGACY'}</span></td>
+                    <td class="p-4 text-center text-xl text-gray-200 font-light">⚙️</td>
                 </tr>`).join('');
         }
 
         function doSort(key) {
-            sortDir *= -1;
+            sortDir = (sortKey === key) ? sortDir * -1 : 1;
+            sortKey = key;
             customers.sort((a,b) => (a[key] > b[key] ? 1 : -1) * sortDir);
             renderTable();
         }
 
         function calculateFinancials() {
-            const status = document.getElementById('cashflowStatus').value;
-            const pkgSelect = document.getElementById('packageSelect');
-            const rate = parseFloat(pkgSelect.options[pkgSelect.selectedIndex].getAttribute('data-rate'));
+            const status = document.getElementById('f-cashflow_status').value;
             const box = document.getElementById('profit-calc-box');
             if (status === 'legacy') {
-                box.innerHTML = `<label class="text-slate-500 font-black uppercase mb-1 italic tracking-widest">Cashflow (Legacy)</label><div class="text-5xl font-black text-slate-600 italic font-mono tracking-tighter">€ 0,00</div>`;
+                box.innerHTML = `<label class="text-slate-500 text-[10px] mb-1 italic uppercase font-black">Cashflow (Legacy)</label><div class="text-4xl text-slate-600 font-mono italic">€ 0,00</div>`;
             } else {
-                box.innerHTML = `<label class="text-emerald-400 font-black uppercase mb-1 italic tracking-widest">Netto Profit (€)</label><div class="text-5xl font-black text-emerald-500 italic font-mono tracking-tighter">€ ${(rate * 0.75).toFixed(2)}</div>`;
+                box.innerHTML = `<label class="text-emerald-400 text-[10px] mb-1 italic uppercase font-black tracking-widest">Active Cashflow</label><div class="text-5xl font-black text-emerald-500 font-mono italic tracking-tighter">€ 11,00</div>`;
             }
         }
 
         function openClientModal(isEdit, id) {
             document.getElementById('clientModal').style.display = "block";
+            const btnDel = document.getElementById('btn-delete');
             if(isEdit) {
+                btnDel.classList.remove('hidden');
                 const c = customers.find(x => x.id === id);
                 document.getElementById('f-id').value = c.id;
-                document.getElementById('f-name').value = c.name || '';
+                document.getElementById('f-name').value = c.name;
                 document.getElementById('f-email').value = c.email || '';
                 document.getElementById('f-mobile').value = c.mobile || '';
                 document.getElementById('f-category').value = c.category || '';
@@ -287,6 +298,7 @@
                 document.getElementById('f-plexid').value = c.plex_id || '';
                 document.getElementById('f-nextpay').value = c.next_payment || '';
                 document.getElementById('f-agent').value = c.agent || 'BH';
+                document.getElementById('f-status').value = c.status || 'Active';
                 document.getElementById('f-paid').value = c.paid || 'Ja';
                 document.getElementById('f-mac').value = c.mac || '';
                 document.getElementById('f-app').value = c.app || '';
@@ -294,12 +306,29 @@
                 document.getElementById('f-overseer').value = c.overseer || 'Y';
                 document.getElementById('f-type').value = c.type || 'IP-Movie';
                 document.getElementById('f-cashflow_status').value = c.cashflow_status || 'legacy';
-                document.getElementById('modal-title-text').innerText = "KUNDEKORT: " + c.name;
+                document.getElementById('modal-title-text').innerText = "REDIKGER KUNDEKORT: " + c.name;
             } else {
                 document.getElementById('clientForm').reset();
+                btnDel.classList.add('hidden');
                 document.getElementById('modal-title-text').innerText = "OPRET NY KLIENT";
             }
             calculateFinancials();
+        }
+
+        async function saveClient(e) {
+            e.preventDefault();
+            const formData = new FormData(document.getElementById('clientForm'));
+            const data = Object.fromEntries(formData.entries());
+            data.id = document.getElementById('f-id').value;
+            const res = await fetch('/api/customers/save', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+            if(res.ok) { closeModal(); fetchCustomers(); }
+        }
+
+        async function deleteCustomer() {
+            const id = document.getElementById('f-id').value;
+            if(!confirm('ER DU SIKKER PÅ DU VIL SLETTE KUNDEN PERMANENT?')) return;
+            const res = await fetch('/api/customers/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
+            if(res.ok) { closeModal(); fetchCustomers(); }
         }
 
         function setLang(lang) {
@@ -312,7 +341,6 @@
         }
 
         function closeModal() { document.getElementById('clientModal').style.display = "none"; }
-        function simulateUser(role) { currentUser = role; calculateFinancials(); }
     </script>
 </body>
 </html>

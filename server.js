@@ -102,7 +102,7 @@ async function runImport() {
     } catch (e) { console.error("Import fejl:", e.message); }
 }
 
-setTimeout(runImport, 5000); // Kør import 5 sek efter start for sikkerhed
+setTimeout(runImport, 1000); // Kør import 5 sek efter start for sikkerhed
 
 app.get('/api/customers', async (req, res) => {
     try {

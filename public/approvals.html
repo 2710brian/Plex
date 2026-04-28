@@ -14,29 +14,29 @@
         .nav-active { background-color: #dc2626 !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
     </style>
 </head>
-<body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans">
+<body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans uppercase font-black italic">
 
-    <!-- SIDEBAR (UNIFORM ACROSS ALL FILES) -->
-    <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl font-bold uppercase text-[10px] tracking-wider">
-        <div class="p-6 text-2xl font-black border-b border-slate-800 italic text-red-600 tracking-tighter">⦿ PLEX CRM</div>
-        <nav id="sidebar-nav" class="flex-1 p-4 space-y-1">
+    <!-- SIDEBAR (FULL 7-ITEM UNIFORM) -->
+    <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl tracking-wider not-italic">
+        <div class="p-6 text-2xl font-black border-b border-slate-800 text-red-600">⦿ PLEX CRM</div>
+        <nav id="sidebar-nav" class="flex-1 p-4 space-y-1 text-[10px]">
             <a href="index.html" class="nav-item block p-3 hover:bg-slate-800 rounded">👥 Klient-Oversigt</a>
             <a href="approvals.html" class="nav-item block p-3 bg-red-600 rounded nav-active text-white flex justify-between items-center shadow-lg">
                 <span>⏳ Godkendelser</span>
                 <span id="badge-count" class="bg-white text-red-600 text-[9px] px-2 py-0.5 rounded-full font-black">0</span>
             </a>
-            <a href="resellers.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400 italic">👤 Reseller Styring</a>
-            <a href="commission.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black italic">💰 Provision & Tal</a>
-            <a href="settings.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ Pakke Indstillinger</a>
-            <a href="telegram.html" class="nav-item block p-3 hover:bg-slate-800 rounded border-t border-slate-800 mt-4 text-sky-400">💬 Telegram Chat</a>
+            <a href="resellers.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400">👤 Resellers</a>
+            <a href="commission.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black">💰 Provision & Tal</a>
+            <a href="settings.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ Pakker</a>
+            <a href="telegram.html" class="nav-item block p-3 hover:bg-slate-800 rounded border-t border-slate-800 mt-4 text-sky-400 italic">💬 Telegram Chat</a>
         </nav>
         <div class="p-4 border-t border-slate-800 bg-black/20 text-center text-[9px]">Admin: Brian</div>
     </div>
 
     <!-- MAIN AREA -->
-    <div class="flex-1 flex flex-col overflow-hidden uppercase font-black italic">
+    <div class="flex-1 flex flex-col overflow-hidden not-italic">
         <header class="bg-white shadow-sm p-5 flex justify-between items-center px-10 border-b">
-            <h2 class="text-2xl text-orange-600 tracking-tighter">Afventer Godkendelse</h2>
+            <h2 class="text-2xl font-black uppercase italic tracking-tighter text-orange-600">Afventer Godkendelse</h2>
         </header>
 
         <main class="flex-1 overflow-auto p-10">
@@ -47,7 +47,7 @@
                             <th class="p-5">Partner / Agent</th>
                             <th class="p-5">Kunde Navn</th>
                             <th class="p-5">Plex ID</th>
-                            <th class="p-5 text-center">Action</th>
+                            <th class="p-5 text-center">Handling</th>
                         </tr>
                     </thead>
                     <tbody id="approval-table-body" class="text-[12px] font-bold divide-y divide-orange-50 uppercase italic">
@@ -56,81 +56,92 @@
                 </table>
             </div>
             <div id="no-data-msg" class="hidden p-20 text-center text-slate-300 font-black uppercase italic tracking-widest">
-                Der er ingen kunder der afventer godkendelse lige nu ✅
+                Ingen kunder afventer godkendelse ✅
             </div>
         </main>
     </div>
 
-    <!-- MODAL: DET KOMPLETTE KUNDEKORT TIL INSPEKTION -->
+    <!-- MODAL: SE & RET (DET STORE KUNDEKORT) -->
     <div id="inspectModal" class="modal">
         <div class="modal-content">
             <div class="flex justify-between items-center border-b-4 border-gray-50 pb-5 mb-8 italic uppercase font-black tracking-tighter text-orange-600">
-                <h2 class="text-4xl italic">Tjek Data: <span id="display-name" class="text-slate-900"></span></h2>
+                <h2 class="text-3xl">Tjek Data: <span id="display-name" class="text-slate-900 ml-2"></span></h2>
                 <button onclick="closeModal()" class="text-gray-300 hover:text-black text-5xl font-light transition">&times;</button>
             </div>
             
             <div class="space-y-10">
-                <!-- 1. Account Details -->
                 <section>
                     <h3 class="section-title">1. Account Details</h3>
-                    <div class="grid grid-cols-4 gap-4">
-                        <div><label>Salutation</label><select id="f-salutation"><option>Mr</option><option>Mrs</option></select></div>
-                        <div class="col-span-2"><label>Full Name *</label><input type="text" id="f-name"></div>
+                    <div class="grid grid-cols-4 gap-4 italic font-bold">
+                        <div class="col-span-2"><label>Fulde Navn</label><input type="text" id="f-name"></div>
                         <div><label>Email</label><input type="email" id="f-email"></div>
-                        <div><label>Mobile</label><input type="text" id="f-mobile"></div>
-                        <div><label>Created Date</label><input type="text" id="f-created"></div>
                         <div><label>Agent</label><select id="f-agent"><option>BH</option><option>KU</option></select></div>
                     </div>
                 </section>
 
-                <!-- 2. Technical Setup -->
-                <section class="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-inner">
-                    <h3 class="section-title border-slate-300 text-orange-600">2. Technical Config</h3>
-                    <div class="grid grid-cols-4 gap-4 italic font-bold">
+                <section class="bg-slate-900 p-10 rounded-2xl text-white shadow-2xl border-b-8 border-red-600">
+                    <h3 class="section-title border-slate-700 text-slate-500 uppercase">2. Subscription Control</h3>
+                    <div class="grid grid-cols-2 gap-10 items-center">
+                        <div>
+                            <label class="text-red-500 font-black mb-2 uppercase">Vælg Pakke</label>
+                            <select id="packageSelect" class="bg-white text-slate-900 font-black h-14 text-xl border-none"><option value="11">#2: Plex Mdr (11€)</option><option value="81">#1: Plex Års (81€)</option></select>
+                        </div>
+                        <div class="bg-slate-800 p-8 rounded-xl border border-slate-700 text-center">
+                             <label class="text-emerald-400 font-black uppercase tracking-widest mb-1 italic text-[10px]">Netto Profit v. Godkendelse</label>
+                             <div class="text-4xl font-black text-emerald-500 font-mono italic">€ 11,00</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="section-title">3. Technical Configuration</h3>
+                    <div class="grid grid-cols-4 gap-4 font-bold italic">
                         <div><label>Plex ID</label><input type="text" id="f-plexid"></div>
-                        <div><label class="text-red-600 underline">Next Payment</label><input type="text" id="f-nextpay"></div>
-                        <div><label>MAC Address</label><input type="text" id="f-mac"></div>
-                        <div><label>App</label><input type="text" id="f-app"></div>
+                        <div><label class="text-red-600">Næste Betaling</label><input type="text" id="f-nextpay"></div>
+                        <div><label>MAC Adresse</label><input type="text" id="f-mac"></div>
                         <div><label>Admin Panel</label><select id="f-admin"><option>N</option><option>Y</option></select></div>
-                        <div><label>Type</label><select id="f-type"><option>IP-Movie</option><option>Movie</option><option>IP</option></select></div>
                     </div>
                 </section>
             </div>
 
-            <div class="mt-12 pt-8 border-t flex justify-end italic items-center">
-                <button onclick="closeModal()" class="mr-12 text-gray-400 font-black uppercase text-[11px] tracking-widest">Annuller</button>
-                <button onclick="alert('Gemmer rettelser og aktiverer kunden i næste database-trin')" class="bg-green-600 text-white px-16 py-5 rounded-lg font-black shadow-2xl uppercase tracking-widest text-sm italic hover:bg-green-700 transition">GEM & GODKEND NU ✅</button>
+            <div class="mt-12 pt-8 border-t flex justify-end items-center italic">
+                <button onclick="closeModal()" class="mr-12 text-gray-400 font-black uppercase text-[11px] tracking-widest">Luk</button>
+                <!-- Her er SLET knappen inde i modalen også -->
+                <button onclick="alert('Kunde slettet')" class="bg-red-100 text-red-600 px-8 py-5 rounded-lg font-black uppercase text-[10px] mr-4 hover:bg-red-200 transition">SLET ANMODNING 🗑️</button>
+                <button onclick="alert('Kunde godkendt')" class="bg-green-600 text-white px-16 py-5 rounded-lg font-black shadow-2xl uppercase tracking-widest text-sm italic hover:bg-green-700 transition">GEM & GODKEND ✅</button>
             </div>
         </div>
     </div>
 
     <script>
-        let pendingCustomers = [];
+        let pending = [];
 
         async function fetchApprovals() {
             try {
                 const res = await fetch('/api/customers');
                 const all = await res.json();
-                // Her simulerer vi filter (viser rækker fra import der mangler f.eks. 'Ja' i betalt eller har status 'Pending')
-                pendingCustomers = all.filter(c => c.status === 'Inactive' || c.paid === 'Nej');
+                pending = all.filter(c => c.status.toLowerCase() === 'inactive' || c.status.toLowerCase() === 'pending');
                 
-                document.getElementById('badge-count').innerText = pendingCustomers.length;
+                document.getElementById('badge-count').innerText = pending.length;
                 const tbody = document.getElementById('approval-table-body');
+                const container = document.getElementById('approval-container');
                 const noData = document.getElementById('no-data-msg');
 
-                if (pendingCustomers.length === 0) {
-                    document.getElementById('approval-container').classList.add('hidden');
+                if (pending.length === 0) {
+                    container.classList.add('hidden');
                     noData.classList.remove('hidden');
                 } else {
+                    container.classList.remove('hidden');
                     noData.classList.add('hidden');
-                    tbody.innerHTML = pendingCustomers.map(c => `
+                    tbody.innerHTML = pending.map(c => `
                         <tr class="bg-orange-50/20">
-                            <td class="p-5 text-blue-600 font-black underline italic">${c.agent || 'SYSTEM'}</td>
-                            <td class="p-5 text-slate-900">${c.name}</td>
-                            <td class="p-5 italic text-slate-400">${c.plex_id || '--'}</td>
-                            <td class="p-5 flex justify-center space-x-3 italic font-black">
-                                <button onclick="openInspectModal(${c.id})" class="bg-slate-800 text-white px-5 py-2 rounded text-[9px] shadow hover:bg-black transition">🔍 SE & RET</button>
-                                <button onclick="alert('Godkendt!')" class="bg-green-600 text-white px-5 py-2 rounded text-[9px] shadow hover:bg-green-700 transition">GODKEND ✅</button>
+                            <td class="p-5 text-blue-600 font-black italic underline">${c.agent || 'SYSTEM'}</td>
+                            <td class="p-5 text-slate-900 font-black uppercase">${c.name}</td>
+                            <td class="p-5 italic text-slate-400 font-bold">${c.plex_id || '--'}</td>
+                            <td class="p-5 flex justify-center space-x-3 italic">
+                                <button onclick="openInspectModal(${c.id})" class="bg-slate-800 text-white px-5 py-2 rounded text-[9px] font-black shadow hover:bg-black transition">🔍 SE & RET</button>
+                                <button onclick="alert('Kunde slettet')" class="bg-red-500 text-white px-5 py-2 rounded text-[9px] font-black shadow hover:bg-red-700 transition">SLET 🗑️</button>
+                                <button onclick="alert('Godkendt')" class="bg-green-600 text-white px-5 py-2 rounded text-[9px] font-black shadow hover:bg-green-700 transition">GODKEND ✅</button>
                             </td>
                         </tr>`).join('');
                 }
@@ -138,19 +149,14 @@
         }
 
         function openInspectModal(id) {
-            const c = pendingCustomers.find(x => x.id === id);
+            const c = pending.find(x => x.id === id);
             document.getElementById('display-name').innerText = c.name;
-            document.getElementById('f-name').value = c.name;
+            document.getElementById('f-name').value = c.name || '';
             document.getElementById('f-email').value = c.email || '';
-            document.getElementById('f-mobile').value = c.mobile || '';
-            document.getElementById('f-created').value = c.created_date || '';
             document.getElementById('f-agent').value = c.agent || 'BH';
             document.getElementById('f-plexid').value = c.plex_id || '';
             document.getElementById('f-nextpay').value = c.next_payment || '';
             document.getElementById('f-mac').value = c.mac || '';
-            document.getElementById('f-app').value = c.app || '';
-            document.getElementById('f-admin').value = c.admin_panel || 'N';
-            document.getElementById('f-type').value = c.type || 'IP-Movie';
             document.getElementById('inspectModal').style.display = 'block';
         }
 

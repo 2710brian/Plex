@@ -6,12 +6,13 @@ const app = express();
 app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
+// DATABASE FORBINDELSE
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
 });
 
-// --- API: LOGIN TJEK ---
+// --- 1. SIKKERHED OG LOGIN API ---
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -22,12 +23,15 @@ app.post('/api/login', async (req, res) => {
         if (result.rows.length > 0) {
             res.json({ success: true, user: result.rows[0] });
         } else {
-            res.status(401).json({ success: false, message: 'Forkert login' });
+            res.status(401).json({ success: false, message: 'Adgang nægtet' });
         }
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) {
+        console.error('Login fejl:', err.message);
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// --- API: KUNDER (HENT, GEM, SLET) ---
+// --- 2. KUNDE ADMINISTRATION API ---
 app.get('/api/customers', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM customers ORDER BY id ASC');
@@ -56,7 +60,7 @@ app.post('/api/customers/delete', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- API: RESELLER / PARTNER (HENT, GEM M. MENU & PASSWORD, SLET) ---
+// --- 3. PARTNER / RESELLER API ---
 app.get('/api/resellers', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM resellers ORDER BY id ASC');
@@ -89,7 +93,7 @@ app.post('/api/resellers/delete', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- API: PAKKER (HENT, GEM, SLET) ---
+// --- 4. PAKKE SYSTEM API ---
 app.get('/api/packages', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM packages ORDER BY id ASC');
@@ -107,7 +111,7 @@ app.post('/api/packages/save', async (req, res) => {
             );
         } else {
             await pool.query(
-                'INSERT INTO packages (name, cost, sale_eur, agent_comm, reseller_comm) VALUES ($1,$2,$3,$4,$5)',
+                'INSERT INTO packages (name, cost, sale_eur, agent_comm, reseller_comm) VALUES ($1, $2, $3, $4, $5)',
                 [p.name, p.cost, p.sale_eur, p.agent_comm, p.reseller_comm]
             );
         }
@@ -122,11 +126,21 @@ app.post('/api/packages/delete', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- SERVER SETUP ---
+// --- 5. SERVER DRIFT & NAVIGATION ---
+
+// Tving alle der går til hoved-URL'en til login-siden
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// Tillad adgang til mappen public (billeder, styles osv)
 app.use(express.static('public'));
 
-// Sørg for at browseren kan finde siderne uden .html hvis nødvendigt, 
-// men vi holder fast i din nuværende struktur:
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+// Alle adresser der ikke findes sendes også til login
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
 
-app.listen(PORT, () => console.log(`🚀 CRM Server Online på port ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`🚀 CRM System kører på port ${PORT}`);
+});

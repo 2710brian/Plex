@@ -11,7 +11,7 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-// API: KUNDER
+// --- API: KUNDER (HENT, GEM, SLET) ---
 app.get('/api/customers', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM customers ORDER BY id ASC');
@@ -40,7 +40,7 @@ app.post('/api/customers/delete', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// API: RESELLER
+// --- API: RESELLER / PARTNER (HENT, GEM M. MENU ADGANG, SLET) ---
 app.get('/api/resellers', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM resellers ORDER BY id ASC');
@@ -52,15 +52,28 @@ app.post('/api/resellers/save', async (req, res) => {
     const r = req.body;
     try {
         if (r.id) {
-            await pool.query('UPDATE resellers SET name=$1, email=$2, type=$3, status=$4, access_packages=$5 WHERE id=$6', [r.name, r.email, r.type, r.status, r.access_packages, r.id]);
+            await pool.query(
+                'UPDATE resellers SET name=$1, email=$2, type=$3, status=$4, access_packages=$5, menu_access=$6 WHERE id=$7',
+                [r.name, r.email, r.type, r.status, r.access_packages, r.menu_access, r.id]
+            );
         } else {
-            await pool.query('INSERT INTO resellers (name, email, type, status, access_packages) VALUES ($1,$2,$3,$4,$5)', [r.name, r.email, r.type, r.status, r.access_packages]);
+            await pool.query(
+                'INSERT INTO resellers (name, email, type, status, access_packages, menu_access) VALUES ($1, $2, $3, $4, $5, $6)',
+                [r.name, r.email, r.type, r.status, r.access_packages, r.menu_access]
+            );
         }
         res.json({ success: true });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// API: PAKKER
+app.post('/api/resellers/delete', async (req, res) => {
+    try {
+        await pool.query('DELETE FROM resellers WHERE id = $1', [req.body.id]);
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// --- API: PAKKER (HENT, GEM, SLET) ---
 app.get('/api/packages', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM packages ORDER BY id ASC');
@@ -68,6 +81,32 @@ app.get('/api/packages', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+app.post('/api/packages/save', async (req, res) => {
+    const p = req.body;
+    try {
+        if (p.id) {
+            await pool.query(
+                'UPDATE packages SET name=$1, cost=$2, sale_eur=$3, agent_comm=$4, reseller_comm=$5 WHERE id=$6',
+                [p.name, p.cost, p.sale_eur, p.agent_comm, p.reseller_comm, p.id]
+            );
+        } else {
+            await pool.query(
+                'INSERT INTO packages (name, cost, sale_eur, agent_comm, reseller_comm) VALUES ($1, $2, $3, $4, $5)',
+                [p.name, p.cost, p.sale_eur, p.agent_comm, p.reseller_comm]
+            );
+        }
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/packages/delete', async (req, res) => {
+    try {
+        await pool.query('DELETE FROM packages WHERE id = $1', [req.body.id]);
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// --- SERVER SETUP ---
 app.use(express.static('public'));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 

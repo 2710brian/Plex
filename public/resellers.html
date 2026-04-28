@@ -36,14 +36,11 @@
         </nav>
         
         <div class="p-4 border-t border-slate-800 bg-black/20">
-            <div class="flex justify-between items-center mb-4 italic">
-                <span class="text-[9px] text-slate-500 font-black uppercase tracking-widest text-center">Language:</span>
-                <div class="flex space-x-2">
-                    <button onclick="setLang('dk')" id="btn-dk" class="text-red-500 underline font-black text-[11px]">DK</button>
-                    <button onclick="setLang('uk')" id="btn-uk" class="text-slate-500 font-black text-[11px]">UK</button>
-                </div>
+            <div class="flex justify-between items-center mb-4 italic text-[9px] text-slate-500 font-black uppercase tracking-widest text-center">Admin: Brian</div>
+            <div class="flex space-x-2 justify-center">
+                <button onclick="setLang('dk')" id="btn-dk" class="text-red-500 underline font-black text-[11px]">DK</button>
+                <button onclick="setLang('uk')" id="btn-uk" class="text-slate-500 font-black text-[11px]">UK</button>
             </div>
-            <div class="text-[9px] text-slate-400 font-bold uppercase italic text-center tracking-widest">Admin: Brian</div>
         </div>
     </div>
 
@@ -51,10 +48,9 @@
     <div class="flex-1 flex flex-col overflow-hidden">
         <header class="bg-white shadow-sm p-5 flex justify-between items-center px-10 border-b">
             <div class="flex items-center space-x-8 flex-1">
-                <h2 class="text-2xl font-black uppercase italic tracking-tighter text-blue-600 italic">
+                <h2 class="text-2xl font-black uppercase italic tracking-tighter text-blue-600 italic font-black">
                     <span data-dk="Partner Administration" data-uk="Partner Administration">Partner Administration</span>
                 </h2>
-                <!-- SØGEFELT -->
                 <div class="relative w-80 italic font-bold">
                     <input type="text" id="resellerSearch" onkeyup="render()" placeholder="SØG PARTNER..." class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-2 px-4 text-[11px] font-black uppercase outline-none focus:border-blue-500 transition-all mb-0">
                 </div>
@@ -82,7 +78,7 @@
         </main>
     </div>
 
-    <!-- MODAL: PARTNER KONFIGURATION (THE BIG ONE) -->
+    <!-- MODAL: PARTNER KONFIGURATION -->
     <div id="partnerModal" class="modal">
         <div class="modal-content shadow-2xl">
             <div class="flex justify-between items-center border-b pb-4 mb-8 font-black text-blue-600 uppercase tracking-tighter leading-none italic">
@@ -93,17 +89,33 @@
             <form id="partnerForm" onsubmit="savePartner(event)" class="space-y-8 italic font-black text-slate-700">
                 <input type="hidden" id="p-id">
                 
-                <!-- 1. Profil Info -->
+                <!-- 1. Profil Info & Password -->
                 <section>
-                    <h3 class="section-title">1. Profile Details</h3>
+                    <h3 class="section-title">1. Profile Details & Password</h3>
                     <div class="grid grid-cols-3 gap-6 font-black">
-                        <div><label data-dk="Fulde Navn" data-uk="Full Name">Fulde Navn</label><input type="text" id="p-name" placeholder="Navn" required></div>
-                        <div><label data-dk="E-mail" data-uk="Email Address">E-mail</label><input type="email" id="p-email" placeholder="mail@partner.com"></div>
+                        <div class="col-span-1"><label data-dk="Fulde Navn" data-uk="Full Name">Fulde Navn</label><input type="text" id="p-name" placeholder="Navn" required></div>
+                        <div class="col-span-1"><label data-dk="E-mail / Login" data-uk="Email / Login">E-mail / Login</label><input type="text" id="p-email" placeholder="mail@partner.com"></div>
+                        <div class="col-span-1"><label data-dk="Adgangskode" data-uk="Password">Adgangskode</label><input type="password" id="p-pass" placeholder="********" class="border-red-100 bg-red-50 text-red-600"></div>
+                        
                         <div>
                             <label data-dk="Partner Type" data-uk="Partner Type">Partner Type</label>
-                            <select id="p-type" class="border-blue-200 bg-blue-50 font-black">
+                            <select id="p-type" class="border-blue-200 bg-blue-50 font-black italic">
                                 <option value="agent">AGENT</option>
                                 <option value="reseller">RESELLER</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label data-dk="Standard Sprog" data-uk="Default Language">Sprog</label>
+                            <select id="p-lang">
+                                <option value="dk">Dansk (DK)</option>
+                                <option value="uk">English (UK)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label data-dk="Status" data-uk="Status">Status</label>
+                            <select id="p-status" class="text-green-600">
+                                <option value="Active">ACTIVE</option>
+                                <option value="Inactive">INACTIVE</option>
                             </select>
                         </div>
                     </div>
@@ -115,7 +127,7 @@
                         <h3 class="section-title border-blue-200 text-blue-600">2. <span data-dk="Menu Adgang" data-uk="Menu Access">Menu Adgang</span></h3>
                         <div class="space-y-3">
                             <label class="access-card bg-white p-3 rounded-xl shadow-sm flex items-center space-x-4">
-                                <input type="checkbox" value="index.html" class="menu-check w-5 h-5 accent-blue-600" checked>
+                                <input type="checkbox" value="index.html" class="menu-check w-5 h-5 accent-blue-600">
                                 <span class="text-[11px] uppercase tracking-widest font-black">👥 Klient-Oversigt</span>
                             </label>
                             <label class="access-card bg-white p-3 rounded-xl shadow-sm flex items-center space-x-4">
@@ -168,7 +180,7 @@
                 <div class="mt-12 pt-8 border-t flex justify-between items-center italic">
                     <button type="button" id="del-p-btn" onclick="deletePartner()" class="bg-red-100 text-red-600 px-8 py-4 rounded-xl font-black uppercase text-[10px] hidden hover:bg-red-200 transition shadow-lg shadow-red-100">Slet Partner 🗑️</button>
                     <div class="flex space-x-6 ml-auto">
-                        <button type="button" onclick="closeModal()" class="text-gray-400 font-black uppercase text-[11px] tracking-widest hover:text-black transition">Annuller</button>
+                        <button type="button" onclick="closeModal()" class="text-gray-400 font-black uppercase text-[11px] tracking-widest hover:text-black">Annuller</button>
                         <button type="submit" class="bg-blue-600 text-white px-16 py-5 rounded-xl font-black uppercase text-sm shadow-2xl hover:bg-blue-800 transition tracking-[0.1em]">Gem Konfiguration</button>
                     </div>
                 </div>
@@ -184,10 +196,11 @@
                 const res = await fetch('/api/resellers');
                 resellers = await res.json();
                 render();
-                // Opdater badge for godkendelser
+                
                 const cRes = await fetch('/api/customers');
                 const cData = await cRes.json();
-                document.getElementById('badge-approvals').innerText = cData.filter(c => c.status === 'Inactive' || c.status === 'Pending').length;
+                const pendingCount = cData.filter(c => c.status === 'Inactive' || c.status === 'Pending').length;
+                document.getElementById('badge-approvals').innerText = pendingCount;
             } catch(e) { console.error(e); }
         }
 
@@ -196,10 +209,10 @@
             const tbody = document.getElementById('partner-table-body');
             tbody.innerHTML = resellers.filter(r => r.name.toLowerCase().includes(term)).map(r => `
                 <tr class="clickable hover:bg-blue-50/50 transition border-b border-gray-50" onclick="openPartnerModal(true, ${r.id})">
-                    <td class="p-5"><div class="text-slate-900 font-black uppercase italic">${r.name}</div><div class="text-[9px] text-slate-400 lowercase italic font-normal">${r.email || ''}</div></td>
+                    <td class="p-5"><div class="text-slate-900 font-black uppercase italic">${r.name}</div><div class="text-[9px] text-slate-400 lowercase font-normal italic">${r.email || ''}</div></td>
                     <td class="p-5 text-center text-blue-600 font-black uppercase text-[10px] tracking-widest">${r.type}</td>
-                    <td class="p-5 italic text-[9px] text-slate-500 font-black uppercase tracking-tighter">${r.menu_access ? r.menu_access.replace('.html', '').replace('.html', '') : 'KUN DASHBOARD'}</td>
-                    <td class="p-5 text-center"><span class="text-green-600 font-black underline underline-offset-4 tracking-widest">ACTIVE</span></td>
+                    <td class="p-5 italic text-[10px] text-slate-500 font-black uppercase tracking-tighter">${r.menu_access ? r.menu_access.replace(/.html/g, '').toUpperCase() : '--'}</td>
+                    <td class="p-5 text-center"><span class="text-green-600 font-black underline underline-offset-4 tracking-widest uppercase">${r.status}</span></td>
                     <td class="p-5 text-center text-xl text-gray-200 font-light">⚙️</td>
                 </tr>`).join('');
         }
@@ -211,7 +224,10 @@
                 document.getElementById('p-id').value = r.id;
                 document.getElementById('p-name').value = r.name;
                 document.getElementById('p-email').value = r.email || '';
+                document.getElementById('p-pass').value = r.password || '';
                 document.getElementById('p-type').value = r.type;
+                document.getElementById('p-lang').value = r.lang || 'dk';
+                document.getElementById('p-status').value = r.status || 'Active';
                 
                 const menus = (r.menu_access || '').split(',');
                 document.querySelectorAll('.menu-check').forEach(cb => cb.checked = menus.includes(cb.value));
@@ -240,8 +256,10 @@
                 id: document.getElementById('p-id').value,
                 name: document.getElementById('p-name').value,
                 email: document.getElementById('p-email').value,
+                password: document.getElementById('p-pass').value,
                 type: document.getElementById('p-type').value,
-                status: 'Active',
+                lang: document.getElementById('p-lang').value,
+                status: document.getElementById('p-status').value,
                 menu_access: menus,
                 access_packages: pkgs
             };
@@ -252,7 +270,7 @@
 
         async function deletePartner() {
             const id = document.getElementById('p-id').value;
-            if(!confirm('Slet partner permanent?')) return;
+            if(!confirm('ER DU SIKKER PÅ DU VIL SLETTE PARTNEREN PERMANENT?')) return;
             await fetch('/api/resellers/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
             closeModal(); fetchAll();
         }

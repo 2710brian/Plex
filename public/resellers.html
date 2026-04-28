@@ -12,25 +12,25 @@
         input, select { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; font-size: 0.85rem; background-color: #f9fafb; margin-bottom: 10px; font-weight: 600; }
         .nav-active { background-color: #dc2626 !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
         .section-title { border-bottom: 2px solid #f3f4f6; margin: 20px 0 12px 0; padding-bottom: 6px; color: #111827; font-weight: 900; text-transform: uppercase; font-size: 0.85rem; display: flex; justify-content: space-between; }
-        .pkg-card { transition: all 0.2s; cursor: pointer; }
-        .pkg-card:hover { border-color: #3b82f6; background-color: #eff6ff; }
+        .pkg-card, .access-card { transition: all 0.2s; cursor: pointer; border: 2px solid #f1f5f9; }
+        .pkg-card:hover, .access-card:hover { border-color: #3b82f6; background-color: #eff6ff; }
         tr.clickable { cursor: pointer; transition: all 0.1s; }
         tr.clickable:hover { background-color: #f0f7ff !important; }
     </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans">
 
-    <!-- SIDEBAR (UNIFORM) -->
+    <!-- SIDEBAR (UNIFORM ACROSS ALL) -->
     <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl font-bold uppercase text-[10px] tracking-wider">
-        <div class="p-6 text-2xl font-black border-b border-slate-800 italic tracking-tighter text-red-600">⦿ PLEX CRM</div>
+        <div class="p-6 text-2xl font-black border-b border-slate-800 italic text-red-600 tracking-tighter">⦿ PLEX CRM</div>
         <nav id="sidebar-nav" class="flex-1 p-4 space-y-1">
             <a href="index.html" class="nav-item block p-3 hover:bg-slate-800 rounded">👥 <span data-dk="Klient-Oversigt" data-uk="Client Overview">Klient-Oversigt</span></a>
-            <a href="approvals.html" id="nav-approvals" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400">
+            <a href="approvals.html" id="nav-approvals" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400 italic">
                 <span>⏳ <span data-dk="Godkendelser" data-uk="Approvals">Godkendelser</span></span>
                 <span class="bg-orange-600 text-white text-[9px] px-2 py-0.5 rounded-full font-black" id="badge-approvals">0</span>
             </a>
-            <a href="resellers.html" class="nav-item block p-3 bg-red-600 rounded nav-active italic text-white">👤 <span data-dk="Reseller Styring" data-uk="Reseller Mgmt">Reseller Styring</span></a>
-            <a href="commission.html" id="nav-commission" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black">💰 <span data-dk="Provision & Tal" data-uk="Profit & Data">Provision & Tal</span></a>
+            <a href="resellers.html" id="nav-resellers" class="nav-item block p-3 bg-red-600 rounded nav-active text-white italic">👤 <span data-dk="Reseller Styring" data-uk="Reseller Mgmt">Reseller Styring</span></a>
+            <a href="commission.html" id="nav-commission" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black italic">💰 <span data-dk="Provision & Tal" data-uk="Profit & Data">Provision & Tal</span></a>
             <a href="settings.html" id="nav-settings" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ <span data-dk="Pakke Indstillinger" data-uk="Package Settings">Pakke Indstillinger</span></a>
             <a href="payments.html" id="nav-payments" class="nav-item block p-3 hover:bg-slate-800 rounded text-slate-500 font-black italic uppercase">💳 <span data-dk="Betalinger" data-uk="Payments">Betalinger</span></a>
         </nav>
@@ -55,11 +55,11 @@
                     <span data-dk="Partner Administration" data-uk="Partner Administration">Partner Administration</span>
                 </h2>
                 <!-- SØGEFELT -->
-                <div class="relative w-80 italic">
+                <div class="relative w-80 italic font-bold">
                     <input type="text" id="resellerSearch" onkeyup="render()" placeholder="SØG PARTNER..." class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-2 px-4 text-[11px] font-black uppercase outline-none focus:border-blue-500 transition-all mb-0">
                 </div>
             </div>
-            <button onclick="openPartnerModal(false)" class="bg-blue-600 text-white px-10 py-3 rounded shadow-2xl font-black hover:bg-blue-700 transition uppercase text-[11px] tracking-widest font-black italic shadow-lg">+ <span data-dk="Opret Partner" data-uk="Add Partner">Opret Partner</span></button>
+            <button onclick="openPartnerModal(false)" class="bg-blue-600 text-white px-10 py-3 rounded shadow-2xl hover:bg-blue-700 transition uppercase text-[11px] tracking-widest font-black italic shadow-lg">+ <span data-dk="Opret Partner" data-uk="Add Partner">Opret Partner</span></button>
         </header>
 
         <main class="flex-1 overflow-auto p-10">
@@ -69,8 +69,7 @@
                         <tr>
                             <th class="p-5" data-dk="Partner / Navn" data-uk="Partner / Name">Partner / Navn</th>
                             <th class="p-5 text-center" data-dk="Type" data-uk="Type">Type</th>
-                            <th class="p-5" data-dk="Rettigheder" data-uk="Permissions">Rettigheder</th>
-                            <th class="p-5" data-dk="Sprog" data-uk="Language">Sprog</th>
+                            <th class="p-5" data-dk="Menu Adgang" data-uk="Menu Access">Menu Adgang</th>
                             <th class="p-5" data-dk="Status" data-uk="Status">Status</th>
                             <th class="p-5 text-center" data-dk="Handling" data-uk="Action">Handling</th>
                         </tr>
@@ -83,7 +82,7 @@
         </main>
     </div>
 
-    <!-- MODAL: PARTNER KONFIGURATION -->
+    <!-- MODAL: PARTNER KONFIGURATION (THE BIG ONE) -->
     <div id="partnerModal" class="modal">
         <div class="modal-content shadow-2xl">
             <div class="flex justify-between items-center border-b pb-4 mb-8 font-black text-blue-600 uppercase tracking-tighter leading-none italic">
@@ -91,11 +90,13 @@
                 <button onclick="closeModal()" class="text-gray-300 hover:text-black text-5xl font-light transition">&times;</button>
             </div>
             
-            <form id="partnerForm" onsubmit="savePartner(event)" class="space-y-8 italic font-black">
+            <form id="partnerForm" onsubmit="savePartner(event)" class="space-y-8 italic font-black text-slate-700">
                 <input type="hidden" id="p-id">
+                
+                <!-- 1. Profil Info -->
                 <section>
                     <h3 class="section-title">1. Profile Details</h3>
-                    <div class="grid grid-cols-3 gap-6">
+                    <div class="grid grid-cols-3 gap-6 font-black">
                         <div><label data-dk="Fulde Navn" data-uk="Full Name">Fulde Navn</label><input type="text" id="p-name" placeholder="Navn" required></div>
                         <div><label data-dk="E-mail" data-uk="Email Address">E-mail</label><input type="email" id="p-email" placeholder="mail@partner.com"></div>
                         <div>
@@ -105,59 +106,70 @@
                                 <option value="reseller">RESELLER</option>
                             </select>
                         </div>
-                        <div>
-                            <label data-dk="Tildelt Sprog" data-uk="Assigned Language">Tildelt Sprog</label>
-                            <select id="p-lang">
-                                <option value="dk">Dansk (DK)</option>
-                                <option value="uk">English (UK)</option>
-                            </select>
-                        </div>
-                        <div class="col-span-1">
-                            <label data-dk="Status" data-uk="Status">Status</label>
-                            <select id="p-status" class="text-green-600 font-black">
-                                <option value="Active">ACTIVE</option>
-                                <option value="Inactive">INACTIVE</option>
-                            </select>
-                        </div>
                     </div>
                 </section>
 
-                <section class="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 shadow-inner">
-                    <h3 class="section-title border-blue-200 text-blue-600">2. <span data-dk="Pakke Rettigheder" data-uk="Package Permissions">Pakke Rettigheder</span></h3>
-                    <div class="grid grid-cols-3 gap-4" id="pkg-checkboxes">
-                        <!-- Pakke 1-6 checkboxes -->
-                        <div class="pkg-card border-2 border-white bg-white p-4 rounded-xl flex items-center space-x-4 shadow-sm">
-                            <input type="checkbox" class="w-5 h-5 accent-blue-600 pkg-check" value="1" id="pkg1">
-                            <label for="pkg1" class="mb-0 text-[11px] cursor-pointer font-black italic">#1 Plex Årlig</label>
+                <div class="grid grid-cols-2 gap-10">
+                    <!-- 2. MENU ADGANG -->
+                    <section class="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 shadow-inner">
+                        <h3 class="section-title border-blue-200 text-blue-600">2. <span data-dk="Menu Adgang" data-uk="Menu Access">Menu Adgang</span></h3>
+                        <div class="space-y-3">
+                            <label class="access-card bg-white p-3 rounded-xl shadow-sm flex items-center space-x-4">
+                                <input type="checkbox" value="index.html" class="menu-check w-5 h-5 accent-blue-600" checked>
+                                <span class="text-[11px] uppercase tracking-widest font-black">👥 Klient-Oversigt</span>
+                            </label>
+                            <label class="access-card bg-white p-3 rounded-xl shadow-sm flex items-center space-x-4">
+                                <input type="checkbox" value="approvals.html" class="menu-check w-5 h-5 accent-blue-600">
+                                <span class="text-[11px] uppercase tracking-widest font-black">⏳ Godkendelser</span>
+                            </label>
+                            <label class="access-card bg-white p-3 rounded-xl shadow-sm flex items-center space-x-4">
+                                <input type="checkbox" value="commission.html" class="menu-check w-5 h-5 accent-blue-600">
+                                <span class="text-[11px] uppercase tracking-widest font-black">💰 Provision & Tal</span>
+                            </label>
+                            <label class="access-card bg-white p-3 rounded-xl shadow-sm flex items-center space-x-4">
+                                <input type="checkbox" value="settings.html" class="menu-check w-5 h-5 accent-blue-600">
+                                <span class="text-[11px] uppercase tracking-widest font-black">⚙️ Pakke Indstillinger</span>
+                            </label>
                         </div>
-                        <div class="pkg-card border-2 border-white bg-white p-4 rounded-xl flex items-center space-x-4 shadow-sm">
-                            <input type="checkbox" class="w-5 h-5 accent-blue-600 pkg-check" value="2" id="pkg2">
-                            <label for="pkg2" class="mb-0 text-[11px] cursor-pointer font-black italic">#2 Plex Månedlig</label>
+                    </section>
+
+                    <!-- 3. PAKKE RETTIGHEDER -->
+                    <section class="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 shadow-inner">
+                        <h3 class="section-title border-blue-200 text-blue-600">3. <span data-dk="Pakke Rettigheder" data-uk="Package Permissions">Pakke Rettigheder</span></h3>
+                        <div class="grid grid-cols-1 gap-2">
+                            <label class="pkg-card bg-white p-3 rounded-xl shadow-sm flex items-center space-x-4">
+                                <input type="checkbox" value="1" class="pkg-check w-5 h-5 accent-blue-600">
+                                <span class="text-[11px] uppercase font-black italic">#1 Plex Årlig</span>
+                            </label>
+                            <label class="pkg-card bg-white p-3 rounded-xl shadow-sm flex items-center space-x-4">
+                                <input type="checkbox" value="2" class="pkg-check w-5 h-5 accent-blue-600">
+                                <span class="text-[11px] uppercase font-black italic">#2 Plex Månedlig</span>
+                            </label>
+                            <label class="pkg-card bg-white p-3 rounded-xl shadow-sm flex items-center space-x-4">
+                                <input type="checkbox" value="3" class="pkg-check w-5 h-5 accent-blue-600">
+                                <span class="text-[11px] uppercase font-black italic">#3 IPTV Månedlig</span>
+                            </label>
+                            <label class="pkg-card bg-white p-3 rounded-xl shadow-sm flex items-center space-x-4">
+                                <input type="checkbox" value="4" class="pkg-check w-5 h-5 accent-blue-600">
+                                <span class="text-[11px] uppercase font-black italic">#4 Combo Månedlig</span>
+                            </label>
+                            <label class="pkg-card bg-white p-3 rounded-xl shadow-sm flex items-center space-x-4">
+                                <input type="checkbox" value="5" class="pkg-check w-5 h-5 accent-blue-600">
+                                <span class="text-[11px] uppercase font-black italic">#5 Combo Årlig</span>
+                            </label>
+                            <label class="pkg-card bg-white p-3 rounded-xl shadow-sm flex items-center space-x-4">
+                                <input type="checkbox" value="6" class="pkg-check w-5 h-5 accent-blue-600">
+                                <span class="text-[11px] uppercase font-black italic">#6 Combo + Boks</span>
+                            </label>
                         </div>
-                        <div class="pkg-card border-2 border-white bg-white p-4 rounded-xl flex items-center space-x-4 shadow-sm">
-                            <input type="checkbox" class="w-5 h-5 accent-blue-600 pkg-check" value="3" id="pkg3">
-                            <label for="pkg3" class="mb-0 text-[11px] cursor-pointer font-black italic">#3 IPTV Månedlig</label>
-                        </div>
-                        <div class="pkg-card border-2 border-white bg-white p-4 rounded-xl flex items-center space-x-4 shadow-sm">
-                            <input type="checkbox" class="w-5 h-5 accent-blue-600 pkg-check" value="4" id="pkg4">
-                            <label for="pkg4" class="mb-0 text-[11px] cursor-pointer font-black italic">#4 Combo Månedlig</label>
-                        </div>
-                        <div class="pkg-card border-2 border-white bg-white p-4 rounded-xl flex items-center space-x-4 shadow-sm">
-                            <input type="checkbox" class="w-5 h-5 accent-blue-600 pkg-check" value="5" id="pkg5">
-                            <label for="pkg5" class="mb-0 text-[11px] cursor-pointer font-black italic">#5 Combo Årlig</label>
-                        </div>
-                        <div class="pkg-card border-2 border-white bg-white p-4 rounded-xl flex items-center space-x-4 shadow-sm">
-                            <input type="checkbox" class="w-5 h-5 accent-blue-600 pkg-check" value="6" id="pkg6">
-                            <label for="pkg6" class="mb-0 text-[11px] cursor-pointer font-black italic">#6 Combo + Boks</label>
-                        </div>
-                    </div>
-                </section>
+                    </section>
+                </div>
 
                 <div class="mt-12 pt-8 border-t flex justify-between items-center italic">
-                    <button type="button" id="del-p-btn" onclick="deletePartner()" class="bg-red-100 text-red-600 px-8 py-4 rounded-xl font-black uppercase text-[10px] hidden hover:bg-red-200 transition shadow-lg">Slet Partner 🗑️</button>
+                    <button type="button" id="del-p-btn" onclick="deletePartner()" class="bg-red-100 text-red-600 px-8 py-4 rounded-xl font-black uppercase text-[10px] hidden hover:bg-red-200 transition shadow-lg shadow-red-100">Slet Partner 🗑️</button>
                     <div class="flex space-x-6 ml-auto">
-                        <button type="button" onclick="closeModal()" class="text-gray-400 font-black uppercase text-[11px] tracking-widest hover:text-black">Annuller</button>
-                        <button type="submit" class="bg-blue-600 text-white px-16 py-5 rounded-xl font-black uppercase text-sm shadow-2xl hover:bg-blue-800 transition tracking-[0.1em]">Gem Partner</button>
+                        <button type="button" onclick="closeModal()" class="text-gray-400 font-black uppercase text-[11px] tracking-widest hover:text-black transition">Annuller</button>
+                        <button type="submit" class="bg-blue-600 text-white px-16 py-5 rounded-xl font-black uppercase text-sm shadow-2xl hover:bg-blue-800 transition tracking-[0.1em]">Gem Konfiguration</button>
                     </div>
                 </div>
             </form>
@@ -167,11 +179,15 @@
     <script>
         let resellers = [];
 
-        async function fetchResellers() {
+        async function fetchAll() {
             try {
                 const res = await fetch('/api/resellers');
                 resellers = await res.json();
                 render();
+                // Opdater badge for godkendelser
+                const cRes = await fetch('/api/customers');
+                const cData = await cRes.json();
+                document.getElementById('badge-approvals').innerText = cData.filter(c => c.status === 'Inactive' || c.status === 'Pending').length;
             } catch(e) { console.error(e); }
         }
 
@@ -180,15 +196,11 @@
             const tbody = document.getElementById('partner-table-body');
             tbody.innerHTML = resellers.filter(r => r.name.toLowerCase().includes(term)).map(r => `
                 <tr class="clickable hover:bg-blue-50/50 transition border-b border-gray-50" onclick="openPartnerModal(true, ${r.id})">
-                    <td class="p-5">
-                        <div class="text-slate-900 font-black">${r.name}</div>
-                        <div class="text-[9px] text-gray-400 font-normal lowercase tracking-widest italic">${r.email || ''}</div>
-                    </td>
-                    <td class="p-5 text-center text-blue-600 font-black uppercase tracking-widest text-[10px]">${r.type}</td>
-                    <td class="p-5"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[9px] italic font-black uppercase">${r.access_packages || 'INGEN'}</span></td>
-                    <td class="p-5 font-black">${r.lang.toUpperCase()}</td>
-                    <td class="p-5"><span class="${r.status === 'Active' ? 'text-green-600' : 'text-red-500'} font-black">${r.status.toUpperCase()}</span></td>
-                    <td class="p-5 text-center text-xl text-gray-200">⚙️</td>
+                    <td class="p-5"><div class="text-slate-900 font-black uppercase italic">${r.name}</div><div class="text-[9px] text-slate-400 lowercase italic font-normal">${r.email || ''}</div></td>
+                    <td class="p-5 text-center text-blue-600 font-black uppercase text-[10px] tracking-widest">${r.type}</td>
+                    <td class="p-5 italic text-[9px] text-slate-500 font-black uppercase tracking-tighter">${r.menu_access ? r.menu_access.replace('.html', '').replace('.html', '') : 'KUN DASHBOARD'}</td>
+                    <td class="p-5 text-center"><span class="text-green-600 font-black underline underline-offset-4 tracking-widest">ACTIVE</span></td>
+                    <td class="p-5 text-center text-xl text-gray-200 font-light">⚙️</td>
                 </tr>`).join('');
         }
 
@@ -200,19 +212,19 @@
                 document.getElementById('p-name').value = r.name;
                 document.getElementById('p-email').value = r.email || '';
                 document.getElementById('p-type').value = r.type;
-                document.getElementById('p-lang').value = r.lang;
-                document.getElementById('p-status').value = r.status;
                 
-                // Sæt checkboxes baseret på '1,2,3' streng
+                const menus = (r.menu_access || '').split(',');
+                document.querySelectorAll('.menu-check').forEach(cb => cb.checked = menus.includes(cb.value));
+                
                 const pkgs = (r.access_packages || '').split(',');
                 document.querySelectorAll('.pkg-check').forEach(cb => cb.checked = pkgs.includes(cb.value));
-                
+
                 delBtn.classList.remove('hidden');
                 document.getElementById('modal-title').innerText = "Rediger Partner: " + r.name;
             } else {
                 document.getElementById('partnerForm').reset();
                 document.getElementById('p-id').value = '';
-                document.querySelectorAll('.pkg-check').forEach(cb => cb.checked = false);
+                document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
                 delBtn.classList.add('hidden');
                 document.getElementById('modal-title').innerText = "Opret Ny Partner";
             }
@@ -221,33 +233,28 @@
 
         async function savePartner(e) {
             e.preventDefault();
+            const menus = Array.from(document.querySelectorAll('.menu-check:checked')).map(cb => cb.value).join(',');
             const pkgs = Array.from(document.querySelectorAll('.pkg-check:checked')).map(cb => cb.value).join(',');
+            
             const data = {
                 id: document.getElementById('p-id').value,
                 name: document.getElementById('p-name').value,
                 email: document.getElementById('p-email').value,
                 type: document.getElementById('p-type').value,
-                lang: document.getElementById('p-lang').value,
-                status: document.getElementById('p-status').value,
+                status: 'Active',
+                menu_access: menus,
                 access_packages: pkgs
             };
-            await fetch('/api/resellers/save', { 
-                method:'POST', 
-                headers:{'Content-Type':'application/json'}, 
-                body:JSON.stringify(data) 
-            });
-            closeModal(); fetchResellers();
+
+            await fetch('/api/resellers/save', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+            closeModal(); fetchAll();
         }
 
         async function deletePartner() {
             const id = document.getElementById('p-id').value;
             if(!confirm('Slet partner permanent?')) return;
-            await fetch('/api/resellers/delete', { 
-                method:'POST', 
-                headers:{'Content-Type':'application/json'}, 
-                body:JSON.stringify({id}) 
-            });
-            closeModal(); fetchResellers();
+            await fetch('/api/resellers/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
+            closeModal(); fetchAll();
         }
 
         function setLang(lang) {
@@ -257,7 +264,7 @@
         }
 
         function closeModal() { document.getElementById('partnerModal').style.display = 'none'; }
-        window.onload = function() { fetchResellers(); setLang('dk'); };
+        window.onload = function() { fetchAll(); setLang('dk'); };
     </script>
 </body>
 </html>

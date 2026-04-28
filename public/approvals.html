@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); }
-        .modal-content { background-color: white; margin: 0.5% auto; padding: 25px; border-radius: 12px; width: 98%; max-width: 1500px; max-height: 98vh; overflow-y: auto; border-top: 8px solid #f97316; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .modal-content { background-color: white; margin: 0.5% auto; padding: 25px; border-radius: 12px; width: 98%; max-width: 1500px; max-height: 96vh; overflow-y: auto; border-top: 8px solid #f97316; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
         label { display: block; font-size: 0.65rem; font-weight: 800; color: #4b5563; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
         input, select, textarea { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 12px; font-size: 0.85rem; background-color: #f9fafb; margin-bottom: 10px; font-weight: 600; }
         .section-title { border-bottom: 2px solid #f3f4f6; margin: 20px 0 12px 0; padding-bottom: 6px; color: #111827; font-weight: 900; text-transform: uppercase; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; }
@@ -16,7 +16,7 @@
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans uppercase font-black italic">
 
-    <!-- SIDEBAR (FULL 7-ITEM UNIFORM) -->
+    <!-- SIDEBAR (FULL UNIFORM 7-ITEM) -->
     <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl tracking-wider not-italic">
         <div class="p-6 text-2xl font-black border-b border-slate-800 text-red-600">⦿ PLEX CRM</div>
         <nav id="sidebar-nav" class="flex-1 p-4 space-y-1 text-[10px]">
@@ -25,10 +25,11 @@
                 <span>⏳ Godkendelser</span>
                 <span id="badge-count" class="bg-white text-red-600 text-[9px] px-2 py-0.5 rounded-full font-black">0</span>
             </a>
-            <a href="resellers.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400">👤 Resellers</a>
-            <a href="commission.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black">💰 Provision & Tal</a>
-            <a href="settings.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ Pakker</a>
-            <a href="telegram.html" class="nav-item block p-3 hover:bg-slate-800 rounded border-t border-slate-800 mt-4 text-sky-400 italic">💬 Telegram Chat</a>
+            <a href="resellers.html" class="nav-item block p-3 hover:bg-slate-800 rounded">👤 Resellers</a>
+            <a href="commission.html" class="nav-item block p-3 hover:bg-slate-800 rounded">💰 Provision & Tal</a>
+            <a href="settings.html" class="nav-item block p-3 hover:bg-slate-800 rounded">⚙️ Pakker</a>
+            <a href="telegram.html" class="nav-item block p-3 hover:bg-slate-800 rounded border-t border-slate-800 mt-4">💬 Telegram Chat</a>
+            <a href="payments.html" class="nav-item block p-3 hover:bg-slate-800 rounded">💳 Betalinger</a>
         </nav>
         <div class="p-4 border-t border-slate-800 bg-black/20 text-center text-[9px]">Admin: Brian</div>
     </div>
@@ -37,6 +38,7 @@
     <div class="flex-1 flex flex-col overflow-hidden not-italic">
         <header class="bg-white shadow-sm p-5 flex justify-between items-center px-10 border-b">
             <h2 class="text-2xl font-black uppercase italic tracking-tighter text-orange-600">Afventer Godkendelse</h2>
+            <p class="text-[10px] text-slate-400 font-bold">Tjek og aktiver nye anmodninger</p>
         </header>
 
         <main class="flex-1 overflow-auto p-10">
@@ -46,36 +48,37 @@
                         <tr>
                             <th class="p-5">Partner / Agent</th>
                             <th class="p-5">Kunde Navn</th>
-                            <th class="p-5">Plex ID</th>
+                            <th class="p-4">Plex ID</th>
                             <th class="p-5 text-center">Handling</th>
                         </tr>
                     </thead>
                     <tbody id="approval-table-body" class="text-[12px] font-bold divide-y divide-orange-50 uppercase italic">
-                        <!-- Indlæses fra DB -->
+                        <!-- Indlæses fra databasen via JS -->
                     </tbody>
                 </table>
             </div>
             <div id="no-data-msg" class="hidden p-20 text-center text-slate-300 font-black uppercase italic tracking-widest">
-                Ingen kunder afventer godkendelse ✅
+                Ingen kunder afventer godkendelse lige nu ✅
             </div>
         </main>
     </div>
 
     <!-- MODAL: SE & RET (DET STORE KUNDEKORT) -->
     <div id="inspectModal" class="modal">
-        <div class="modal-content">
-            <div class="flex justify-between items-center border-b-4 border-gray-50 pb-5 mb-8 italic uppercase font-black tracking-tighter text-orange-600">
-                <h2 class="text-3xl">Tjek Data: <span id="display-name" class="text-slate-900 ml-2"></span></h2>
+        <div class="modal-content shadow-2xl">
+            <div class="flex justify-between items-center border-b-4 border-gray-50 pb-5 mb-8 italic uppercase font-black tracking-tighter text-orange-600 leading-none">
+                <h2 class="text-4xl italic">Tjek Data: <span id="display-name" class="text-slate-900 ml-2"></span></h2>
                 <button onclick="closeModal()" class="text-gray-300 hover:text-black text-5xl font-light transition">&times;</button>
             </div>
             
-            <div class="space-y-10">
+            <form id="inspectForm" class="space-y-10">
+                <input type="hidden" id="f-id">
                 <section>
                     <h3 class="section-title">1. Account Details</h3>
                     <div class="grid grid-cols-4 gap-4 italic font-bold">
-                        <div class="col-span-2"><label>Fulde Navn</label><input type="text" id="f-name"></div>
-                        <div><label>Email</label><input type="email" id="f-email"></div>
-                        <div><label>Agent</label><select id="f-agent"><option>BH</option><option>KU</option></select></div>
+                        <div class="col-span-2"><label>Fulde Navn</label><input type="text" id="f-name" name="name"></div>
+                        <div><label>Email</label><input type="email" id="f-email" name="email"></div>
+                        <div><label>Agent</label><select id="f-agent" name="agent"><option>BH</option><option>KU</option></select></div>
                     </div>
                 </section>
 
@@ -83,12 +86,15 @@
                     <h3 class="section-title border-slate-700 text-slate-500 uppercase">2. Subscription Control</h3>
                     <div class="grid grid-cols-2 gap-10 items-center">
                         <div>
-                            <label class="text-red-500 font-black mb-2 uppercase">Vælg Pakke</label>
-                            <select id="packageSelect" class="bg-white text-slate-900 font-black h-14 text-xl border-none"><option value="11">#2: Plex Mdr (11€)</option><option value="81">#1: Plex Års (81€)</option></select>
+                            <label class="text-red-500 font-black mb-2 uppercase">Plan / Pakke</label>
+                            <input type="text" id="f-plan" name="plan" class="bg-white text-slate-900 font-black">
                         </div>
                         <div class="bg-slate-800 p-8 rounded-xl border border-slate-700 text-center">
-                             <label class="text-emerald-400 font-black uppercase tracking-widest mb-1 italic text-[10px]">Netto Profit v. Godkendelse</label>
-                             <div class="text-4xl font-black text-emerald-500 font-mono italic">€ 11,00</div>
+                             <label class="text-emerald-400 font-black uppercase tracking-widest mb-1 italic text-[10px]">Kunde-status</label>
+                             <select name="status" id="f-status" class="bg-transparent text-white border-none text-2xl font-black text-center italic">
+                                 <option value="Inactive">INACTIVE (Pending)</option>
+                                 <option value="Active">ACTIVE (Godkend)</option>
+                             </select>
                         </div>
                     </div>
                 </section>
@@ -96,20 +102,19 @@
                 <section>
                     <h3 class="section-title">3. Technical Configuration</h3>
                     <div class="grid grid-cols-4 gap-4 font-bold italic">
-                        <div><label>Plex ID</label><input type="text" id="f-plexid"></div>
-                        <div><label class="text-red-600">Næste Betaling</label><input type="text" id="f-nextpay"></div>
-                        <div><label>MAC Adresse</label><input type="text" id="f-mac"></div>
-                        <div><label>Admin Panel</label><select id="f-admin"><option>N</option><option>Y</option></select></div>
+                        <div><label>Plex ID</label><input type="text" id="f-plexid" name="plex_id"></div>
+                        <div><label class="text-red-600">Næste Betaling</label><input type="text" id="f-nextpay" name="next_payment"></div>
+                        <div><label>MAC Adresse</label><input type="text" id="f-mac" name="mac"></div>
+                        <div><label>Admin Panel</label><select id="f-admin" name="admin_panel"><option>N</option><option>Y</option></select></div>
                     </div>
                 </section>
-            </div>
 
-            <div class="mt-12 pt-8 border-t flex justify-end items-center italic">
-                <button onclick="closeModal()" class="mr-12 text-gray-400 font-black uppercase text-[11px] tracking-widest">Luk</button>
-                <!-- Her er SLET knappen inde i modalen også -->
-                <button onclick="alert('Kunde slettet')" class="bg-red-100 text-red-600 px-8 py-5 rounded-lg font-black uppercase text-[10px] mr-4 hover:bg-red-200 transition">SLET ANMODNING 🗑️</button>
-                <button onclick="alert('Kunde godkendt')" class="bg-green-600 text-white px-16 py-5 rounded-lg font-black shadow-2xl uppercase tracking-widest text-sm italic hover:bg-green-700 transition">GEM & GODKEND ✅</button>
-            </div>
+                <div class="mt-12 pt-8 border-t flex justify-end items-center italic">
+                    <button type="button" onclick="closeModal()" class="mr-12 text-gray-400 font-black uppercase text-[11px] tracking-widest">Luk</button>
+                    <button type="button" onclick="handleDelete()" class="bg-red-100 text-red-600 px-8 py-5 rounded-lg font-black uppercase text-[10px] mr-4 hover:bg-red-200 transition shadow-lg">AFVIS & SLET 🗑️</button>
+                    <button type="button" onclick="handleApprove()" class="bg-green-600 text-white px-16 py-5 rounded-lg font-black shadow-2xl uppercase tracking-widest text-sm italic hover:bg-green-700 transition">GEM & AKTIVER NU ✅</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -120,7 +125,7 @@
             try {
                 const res = await fetch('/api/customers');
                 const all = await res.json();
-                pending = all.filter(c => c.status.toLowerCase() === 'inactive' || c.status.toLowerCase() === 'pending');
+                pending = all.filter(c => c.status === 'Inactive' || c.status === 'Pending');
                 
                 document.getElementById('badge-count').innerText = pending.length;
                 const tbody = document.getElementById('approval-table-body');
@@ -134,14 +139,12 @@
                     container.classList.remove('hidden');
                     noData.classList.add('hidden');
                     tbody.innerHTML = pending.map(c => `
-                        <tr class="bg-orange-50/20">
+                        <tr class="bg-orange-50/20 hover:bg-orange-100/50 transition">
                             <td class="p-5 text-blue-600 font-black italic underline">${c.agent || 'SYSTEM'}</td>
-                            <td class="p-5 text-slate-900 font-black uppercase">${c.name}</td>
+                            <td class="p-5 text-slate-900 font-black">${c.name}</td>
                             <td class="p-5 italic text-slate-400 font-bold">${c.plex_id || '--'}</td>
                             <td class="p-5 flex justify-center space-x-3 italic">
-                                <button onclick="openInspectModal(${c.id})" class="bg-slate-800 text-white px-5 py-2 rounded text-[9px] font-black shadow hover:bg-black transition">🔍 SE & RET</button>
-                                <button onclick="alert('Kunde slettet')" class="bg-red-500 text-white px-5 py-2 rounded text-[9px] font-black shadow hover:bg-red-700 transition">SLET 🗑️</button>
-                                <button onclick="alert('Godkendt')" class="bg-green-600 text-white px-5 py-2 rounded text-[9px] font-black shadow hover:bg-green-700 transition">GODKEND ✅</button>
+                                <button onclick="openInspectModal(${c.id})" class="bg-slate-800 text-white px-6 py-2 rounded text-[10px] font-black shadow-xl hover:bg-black transition tracking-widest">🔍 SE & RET</button>
                             </td>
                         </tr>`).join('');
                 }
@@ -150,14 +153,39 @@
 
         function openInspectModal(id) {
             const c = pending.find(x => x.id === id);
+            document.getElementById('f-id').value = c.id;
             document.getElementById('display-name').innerText = c.name;
             document.getElementById('f-name').value = c.name || '';
             document.getElementById('f-email').value = c.email || '';
             document.getElementById('f-agent').value = c.agent || 'BH';
+            document.getElementById('f-plan').value = c.plan || '';
             document.getElementById('f-plexid').value = c.plex_id || '';
             document.getElementById('f-nextpay').value = c.next_payment || '';
             document.getElementById('f-mac').value = c.mac || '';
+            document.getElementById('f-admin').value = c.admin_panel || 'N';
             document.getElementById('inspectModal').style.display = 'block';
+        }
+
+        async function handleApprove() {
+            const id = document.getElementById('f-id').value;
+            // Vi sender en opdatering til serveren der gør status = Active
+            const res = await fetch('/api/customers/update-status', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id: id, status: 'Active' })
+            });
+            if(res.ok) { closeModal(); fetchApprovals(); }
+        }
+
+        async function handleDelete() {
+            const id = document.getElementById('f-id').value;
+            if(!confirm('Vil du slette anmodningen permanent?')) return;
+            const res = await fetch('/api/customers/delete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id: id })
+            });
+            if(res.ok) { closeModal(); fetchApprovals(); }
         }
 
         function closeModal() { document.getElementById('inspectModal').style.display = 'none'; }

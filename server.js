@@ -11,6 +11,22 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
+// --- API: LOGIN TJEK ---
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const result = await pool.query(
+            'SELECT * FROM resellers WHERE email = $1 AND password = $2 AND status = \'Active\'',
+            [email, password]
+        );
+        if (result.rows.length > 0) {
+            res.json({ success: true, user: result.rows[0] });
+        } else {
+            res.status(401).json({ success: false, message: 'Forkert login' });
+        }
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // --- API: KUNDER (HENT, GEM, SLET) ---
 app.get('/api/customers', async (req, res) => {
     try {
@@ -40,7 +56,7 @@ app.post('/api/customers/delete', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- API: RESELLER / PARTNER (HENT, GEM M. MENU ADGANG, SLET) ---
+// --- API: RESELLER / PARTNER (HENT, GEM M. MENU & PASSWORD, SLET) ---
 app.get('/api/resellers', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM resellers ORDER BY id ASC');
@@ -53,13 +69,13 @@ app.post('/api/resellers/save', async (req, res) => {
     try {
         if (r.id) {
             await pool.query(
-                'UPDATE resellers SET name=$1, email=$2, type=$3, status=$4, access_packages=$5, menu_access=$6 WHERE id=$7',
-                [r.name, r.email, r.type, r.status, r.access_packages, r.menu_access, r.id]
+                'UPDATE resellers SET name=$1, email=$2, type=$3, status=$4, access_packages=$5, menu_access=$6, password=$7 WHERE id=$8',
+                [r.name, r.email, r.type, r.status, r.access_packages, r.menu_access, r.password, r.id]
             );
         } else {
             await pool.query(
-                'INSERT INTO resellers (name, email, type, status, access_packages, menu_access) VALUES ($1, $2, $3, $4, $5, $6)',
-                [r.name, r.email, r.type, r.status, r.access_packages, r.menu_access]
+                'INSERT INTO resellers (name, email, type, status, access_packages, menu_access, password) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+                [r.name, r.email, r.type, r.status, r.access_packages, r.menu_access, r.password]
             );
         }
         res.json({ success: true });
@@ -91,7 +107,7 @@ app.post('/api/packages/save', async (req, res) => {
             );
         } else {
             await pool.query(
-                'INSERT INTO packages (name, cost, sale_eur, agent_comm, reseller_comm) VALUES ($1, $2, $3, $4, $5)',
+                'INSERT INTO packages (name, cost, sale_eur, agent_comm, reseller_comm) VALUES ($1,$2,$3,$4,$5)',
                 [p.name, p.cost, p.sale_eur, p.agent_comm, p.reseller_comm]
             );
         }
@@ -108,6 +124,9 @@ app.post('/api/packages/delete', async (req, res) => {
 
 // --- SERVER SETUP ---
 app.use(express.static('public'));
+
+// Sørg for at browseren kan finde siderne uden .html hvis nødvendigt, 
+// men vi holder fast i din nuværende struktur:
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 app.listen(PORT, () => console.log(`🚀 CRM Server Online på port ${PORT}`));

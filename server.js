@@ -8,11 +8,6 @@ const multer = require('multer');
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) { fs.mkdirSync(uploadDir, { recursive: true }); }
 
-const upload = multer({ storage: multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadDir),
-    filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
-})});
-
 const app = express();
 app.use(express.json());
 const PORT = process.env.PORT || 3000;
@@ -22,9 +17,9 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-// --- IMPORT FUNKTION: INDSÆTTER ALLE 63 KUNDER ---
-async function initialImport() {
-    const csvData = [
+// --- KOMPLET CSV DATA IMPORT ---
+async function runImport() {
+    const csv = [
         ['29821','Mr Mads Aggerholm Munch Lange','shin@shinhypnose.dk','--','Full Packet','Active','27-01-2026','sh2183','Yearly','18-01-2027','Ja','IP-Movie','N','Y','Y','KU'],
         ['29818','Mr Martin Nielsen','martin@martketingspusher.dk','--','Full Packet','Active','26-01-2026','mar15790','Yearly','05-01-2027','Ja','IP-Movie','N','Y','Y','BH'],
         ['29718','Mrs Camilla','Cadasal20@gmail.com','--','Plex','Active','22-12-2025','cada877','Yearly','21-12-2026','Ja','Movie','Y','Y','Y','BH'],
@@ -94,42 +89,21 @@ async function initialImport() {
         const check = await pool.query('SELECT count(*) FROM customers');
         if (parseInt(check.rows[0].count) === 0) {
             console.log("Database tom. Importerer 63 kunder...");
-            for (const row of csvData) {
+            for (const row of csv) {
                 await pool.query(
                     `INSERT INTO customers (customer_id, name, email, mobile, category, status, created_date, plex_id, plan, next_payment, paid, type, admin_panel, plex_access, overseer, agent) 
                      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`, row
                 );
             }
             console.log("✅ Fuld import gennemført!");
+        } else {
+            console.log(`Database har allerede ${check.rows[0].count} kunder. Springer import over.`);
         }
     } catch (e) { console.error("Import fejl:", e.message); }
 }
-initialImport();
 
-const supportToken = process.env.TELEGRAM_SUPPORT_TOKEN;
-const infoToken = process.env.TELEGRAM_INFO_TOKEN;
-let botSupport, botInfo;
+setTimeout(runImport, 5000); // Kør import 5 sek efter start for sikkerhed
 
-if (supportToken) {
-    botSupport = new TelegramBot(supportToken, { polling: true });
-    botSupport.on('message', async (msg) => {
-        const chatId = msg.chat.id;
-        const senderName = msg.from.first_name + (msg.from.last_name ? ' ' + msg.from.last_name : '');
-        let content = msg.text || '';
-        if (msg.photo || msg.voice || msg.video) {
-            try {
-                const fileId = msg.photo ? msg.photo[msg.photo.length - 1].file_id : (msg.voice ? msg.voice.file_id : msg.video.file_id);
-                const fileType = msg.photo ? 'img' : (msg.voice ? 'voice' : 'vid');
-                const filePath = await botSupport.downloadFile(fileId, uploadDir);
-                content = `MEDIA|${fileType}|${path.basename(filePath)}`;
-            } catch (e) { content = '[Fil modtaget]'; }
-        }
-        await pool.query('INSERT INTO telegram_messages (bot_type, chat_id, sender_name, message_text, direction) VALUES ($1, $2, $3, $4, $5)', ['support', chatId, senderName, content, 'in']);
-    });
-}
-if (infoToken) { botInfo = new TelegramBot(infoToken, { polling: true }); }
-
-// API: HENT KUNDER
 app.get('/api/customers', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM customers ORDER BY id ASC');
@@ -137,38 +111,7 @@ app.get('/api/customers', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// API: HENT TELEGRAM BESKEDER
-app.get('/api/messages', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM telegram_messages ORDER BY created_at ASC');
-        res.json(result.rows);
-    } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-// API: SEND TELEGRAM BESKED
-app.post('/api/send-message', async (req, res) => {
-    const { chatId, text, botType } = req.body;
-    const bot = (botType === 'info') ? botInfo : botSupport;
-    try {
-        await bot.sendMessage(chatId, text);
-        await pool.query('INSERT INTO telegram_messages (bot_type, chat_id, sender_name, message_text, direction) VALUES ($1, $2, $3, $4, $5)', [botType, chatId, 'Admin', text, 'out']);
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-// API: SEND MEDIA (FILER)
-app.post('/api/send-media', upload.single('file'), async (req, res) => {
-    const { chatId, type, botType } = req.body;
-    const bot = (botType === 'info') ? botInfo : botSupport;
-    try {
-        if (type === 'img') await bot.sendPhoto(chatId, req.file.path);
-        else if (type === 'vid') await bot.sendVideo(chatId, req.file.path);
-        else if (type === 'voice') await bot.sendVoice(chatId, req.file.path);
-        await pool.query('INSERT INTO telegram_messages (bot_type, chat_id, sender_name, message_text, direction) VALUES ($1, $2, $3, $4, $5)', [botType, chatId, 'Admin', `MEDIA|${type}|${req.file.filename}`, 'out']);
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
 app.use(express.static('public'));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-app.listen(PORT, () => console.log(`🚀 Server kører på port ${PORT}`)); 
+
+app.listen(PORT, () => console.log(`🚀 Server kører på port ${PORT}`));

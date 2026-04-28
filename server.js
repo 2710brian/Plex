@@ -17,9 +17,8 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-// --- KOMPLET CSV DATA IMPORT ---
-async function runImport() {
-    const csv = [
+async function setupAndImport() {
+    const csvData = [
         ['29821','Mr Mads Aggerholm Munch Lange','shin@shinhypnose.dk','--','Full Packet','Active','27-01-2026','sh2183','Yearly','18-01-2027','Ja','IP-Movie','N','Y','Y','KU'],
         ['29818','Mr Martin Nielsen','martin@martketingspusher.dk','--','Full Packet','Active','26-01-2026','mar15790','Yearly','05-01-2027','Ja','IP-Movie','N','Y','Y','BH'],
         ['29718','Mrs Camilla','Cadasal20@gmail.com','--','Plex','Active','22-12-2025','cada877','Yearly','21-12-2026','Ja','Movie','Y','Y','Y','BH'],
@@ -86,23 +85,44 @@ async function runImport() {
     ];
 
     try {
-        const check = await pool.query('SELECT count(*) FROM customers');
-        if (parseInt(check.rows[0].count) === 0) {
-            console.log("Database tom. Importerer 63 kunder...");
-            for (const row of csv) {
-                await pool.query(
-                    `INSERT INTO customers (customer_id, name, email, mobile, category, status, created_date, plex_id, plan, next_payment, paid, type, admin_panel, plex_access, overseer, agent) 
-                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`, row
-                );
-            }
-            console.log("✅ Fuld import gennemført!");
-        } else {
-            console.log(`Database har allerede ${check.rows[0].count} kunder. Springer import over.`);
+        // Tvinger tabellen til at blive oprettet med alle felter
+        await pool.query(`
+            DROP TABLE IF EXISTS customers CASCADE;
+            CREATE TABLE customers (
+                id SERIAL PRIMARY KEY,
+                customer_id TEXT, name TEXT, email TEXT, mobile TEXT, category TEXT,
+                status TEXT, created_date TEXT, plex_id TEXT, plan TEXT,
+                next_payment TEXT, paid TEXT, type TEXT, admin_panel TEXT,
+                plex_access TEXT, overseer TEXT, agent TEXT,
+                cashflow_status TEXT DEFAULT 'legacy', reseller_name TEXT,
+                website TEXT, tax_id TEXT, notes TEXT
+            );
+        `);
+
+        console.log("Database klargjort. Importerer 63 rækker...");
+        for (const row of csvData) {
+            await pool.query(
+                `INSERT INTO customers (customer_id, name, email, mobile, category, status, created_date, plex_id, plan, next_payment, paid, type, admin_panel, plex_access, overseer, agent) 
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`, row
+            );
         }
-    } catch (e) { console.error("Import fejl:", e.message); }
+        console.log("✅ SUCCESS: 63 kunder importeret.");
+    } catch (e) { console.error("❌ SETUP FEJL:", e.message); }
 }
 
-setTimeout(runImport, 1000); // Kør import 5 sek efter start for sikkerhed
+setupAndImport();
+
+// Resten af server-funktionerne
+const supportToken = process.env.TELEGRAM_SUPPORT_TOKEN;
+if (supportToken) {
+    const botSupport = new TelegramBot(supportToken, { polling: true });
+    botSupport.on('message', async (msg) => {
+        try {
+            await pool.query('INSERT INTO telegram_messages (bot_type, chat_id, sender_name, message_text, direction) VALUES ($1, $2, $3, $4, $5)', 
+            ['support', msg.chat.id, msg.from.first_name, msg.text || '[Medie]', 'in']);
+        } catch (e) { console.error(e.message); }
+    });
+}
 
 app.get('/api/customers', async (req, res) => {
     try {

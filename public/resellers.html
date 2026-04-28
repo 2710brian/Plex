@@ -19,9 +19,29 @@
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans">
 
+    <script>
+        // --- SIKKERHED OG RETTIGHEDS-STYRING ---
+        const user = JSON.parse(localStorage.getItem('crm_user'));
+        if(!user) { window.location.href = '/login.html'; }
+
+        function checkAccess() {
+            if (user.type === 'admin') return; 
+
+            const allowedPages = user.menu_access ? user.menu_access.split(',') : ['index.html'];
+            document.querySelectorAll('#sidebar-nav a').forEach(link => {
+                const href = link.getAttribute('href');
+                if (!allowedPages.includes(href)) { link.style.display = 'none'; }
+            });
+            // Hvis man prøver at snyde sig ind på denne side uden ret:
+            if (!allowedPages.includes('resellers.html')) { window.location.href = '/index.html'; }
+        }
+
+        function logout() { localStorage.removeItem('crm_user'); window.location.href = '/login.html'; }
+    </script>
+
     <!-- SIDEBAR -->
     <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl font-bold uppercase text-[10px] tracking-wider">
-        <div class="p-6 text-2xl font-black border-b border-slate-800 italic text-red-600 tracking-tighter">⦿ PLEX CRM</div>
+        <div class="p-6 text-2xl font-black border-b border-slate-800 italic text-red-600 tracking-tighter text-red-600">⦿ PLEX CRM</div>
         <nav id="sidebar-nav" class="flex-1 p-4 space-y-1">
             <a href="index.html" class="nav-item block p-3 hover:bg-slate-800 rounded">👥 <span data-dk="Klient-Oversigt" data-uk="Client Overview">Klient-Oversigt</span></a>
             <a href="approvals.html" id="nav-approvals" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400 italic font-black">
@@ -32,14 +52,14 @@
             <a href="commission.html" id="nav-commission" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black italic">💰 <span data-dk="Provision & Tal" data-uk="Profit & Data">Provision & Tal</span></a>
             <a href="settings.html" id="nav-settings" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ <span data-dk="Pakke Indstillinger" data-uk="Package Settings">Pakke Indstillinger</span></a>
             <a href="payments.html" id="nav-payments" class="nav-item block p-3 hover:bg-slate-800 rounded text-slate-500 font-black italic uppercase">💳 <span data-dk="Betalinger" data-uk="Payments">Betalinger</span></a>
+            
+            <button onclick="logout()" class="w-full text-left p-3 hover:bg-red-900/30 text-red-500 mt-10 border-t border-slate-800 transition-colors flex items-center italic">
+                <span class="mr-2 text-lg">🔒</span> Log ud
+            </button>
         </nav>
         
-        <div class="p-4 border-t border-slate-800 bg-black/20">
-            <div class="flex justify-between items-center mb-4 italic text-[9px] text-slate-500 font-black uppercase tracking-widest text-center">Admin: Brian</div>
-            <div class="flex space-x-2 justify-center">
-                <button onclick="setLang('dk')" id="btn-dk" class="text-red-500 underline font-black text-[11px]">DK</button>
-                <button onclick="setLang('uk')" id="btn-uk" class="text-slate-500 font-black text-[11px]">UK</button>
-            </div>
+        <div class="p-4 border-t border-slate-800 bg-black/20 text-center text-[9px] italic uppercase tracking-widest font-black text-slate-500">
+            Admin: Brian
         </div>
     </div>
 
@@ -48,7 +68,7 @@
         <header class="bg-white shadow-sm p-5 flex justify-between items-center px-10 border-b italic font-black uppercase">
             <div class="flex items-center space-x-8 flex-1">
                 <h2 class="text-2xl text-blue-600 tracking-tighter">Partner Administration</h2>
-                <input type="text" id="resellerSearch" onkeyup="render()" placeholder="SØG PARTNER..." class="w-80 bg-slate-50 border-2 border-slate-100 rounded-xl py-2 px-4 text-[11px] font-black outline-none focus:border-blue-500 transition-all mb-0">
+                <input type="text" id="resellerSearch" onkeyup="render()" placeholder="SØG PARTNER..." class="w-80 bg-slate-50 border-2 border-slate-100 rounded-xl py-2 px-4 text-[11px] font-black outline-none focus:border-blue-500 transition-all mb-0 shadow-inner">
             </div>
             <button id="add-partner-btn" onclick="openPartnerModal(false)" class="bg-blue-600 text-white px-10 py-3 rounded shadow-2xl hover:bg-blue-700 transition text-[11px] tracking-widest">+ Opret Partner</button>
         </header>
@@ -71,7 +91,7 @@
         </main>
     </div>
 
-    <!-- MODAL: PARTNER KONFIGURATION (FULL VERSION) -->
+    <!-- MODAL: PARTNER KONFIGURATION -->
     <div id="partnerModal" class="modal">
         <div class="modal-content shadow-2xl">
             <div class="flex justify-between items-center border-b pb-4 mb-8 font-black text-blue-600 uppercase tracking-tighter italic leading-none">
@@ -82,14 +102,13 @@
             <form id="partnerForm" onsubmit="savePartner(event)" class="space-y-8 italic font-black text-slate-700">
                 <input type="hidden" id="p-id">
                 
-                <!-- 1. Profil Info & Password -->
                 <section>
                     <h3 class="section-title">1. Profile Details & Password</h3>
                     <div class="grid grid-cols-3 gap-6 font-black">
                         <div><label>Fulde Navn</label><input type="text" id="p-name" required></div>
                         <div><label>E-mail / Login</label><input type="text" id="p-email"></div>
                         <div class="relative">
-                            <label>Adgangskode</label>
+                            <label>Password</label>
                             <input type="password" id="p-pass" class="border-red-100 bg-red-50 pr-10 text-red-600">
                             <button type="button" onclick="togglePass()" class="absolute right-3 top-8 text-slate-400">👁️</button>
                         </div>
@@ -102,11 +121,10 @@
                     </div>
                 </section>
 
-                <!-- RESTRIKTIONER (SKJULES HVIS IKKE ADMIN) -->
                 <div class="grid grid-cols-2 gap-10 admin-only">
                     <section class="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 shadow-inner">
                         <h3 class="section-title border-blue-200 text-blue-600 font-black italic">2. Menu Adgang</h3>
-                        <div class="space-y-3 font-bold italic">
+                        <div class="space-y-3 font-bold italic text-[11px]">
                             <label class="access-card flex items-center space-x-4"><input type="checkbox" value="index.html" class="menu-check w-5 h-5 accent-blue-600"> <span>Klient-Oversigt</span></label>
                             <label class="access-card flex items-center space-x-4"><input type="checkbox" value="approvals.html" class="menu-check w-5 h-5 accent-blue-600"> <span>Godkendelser</span></label>
                             <label class="access-card flex items-center space-x-4"><input type="checkbox" value="commission.html" class="menu-check w-5 h-5 accent-blue-600"> <span>Provision & Tal</span></label>
@@ -116,7 +134,7 @@
 
                     <section class="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 shadow-inner">
                         <h3 class="section-title border-blue-200 text-blue-600 font-black italic">3. Pakke Adgang</h3>
-                        <div class="grid grid-cols-1 gap-2">
+                        <div class="grid grid-cols-1 gap-2 text-[11px]">
                             <label class="pkg-card flex items-center space-x-3"><input type="checkbox" value="1" class="pkg-check w-5 h-5"> <span>#1 Plex Årlig</span></label>
                             <label class="pkg-card flex items-center space-x-3"><input type="checkbox" value="2" class="pkg-check w-5 h-5"> <span>#2 Plex Månedlig</span></label>
                             <label class="pkg-card flex items-center space-x-3"><input type="checkbox" value="3" class="pkg-check w-5 h-5"> <span>#3 IPTV Månedlig</span></label>
@@ -140,21 +158,26 @@
 
     <script>
         let resellers = [];
-        let userRole = 'admin'; // Dette hentes fra login senere
 
         async function fetchAll() {
-            const res = await fetch('/api/resellers');
-            resellers = await res.json();
-            render();
+            try {
+                const res = await fetch('/api/resellers');
+                resellers = await res.json();
+                render();
+                
+                const cRes = await fetch('/api/customers');
+                const cData = await cRes.json();
+                document.getElementById('badge-approvals').innerText = cData.filter(c => c.status === 'Inactive' || c.status === 'Pending').length;
+            } catch(e) { console.error(e); }
         }
 
         function render() {
             const term = document.getElementById('resellerSearch').value.toLowerCase();
             document.getElementById('partner-table-body').innerHTML = resellers.filter(r => r.name.toLowerCase().includes(term)).map(r => `
-                <tr class="clickable border-b" onclick="openPartnerModal(true, ${r.id})">
+                <tr class="clickable hover:bg-blue-50/50 transition border-b border-gray-50" onclick="openPartnerModal(true, ${r.id})">
                     <td class="p-5 font-black text-slate-800">${r.name}<div class="text-[9px] text-slate-400 italic">${r.email||''}</div></td>
                     <td class="p-5 text-center text-blue-600 font-black text-[10px] uppercase">${r.type}</td>
-                    <td class="p-5 text-[9px] italic text-slate-400 truncate max-w-[150px]">${r.menu_access||'Standard'}</td>
+                    <td class="p-5 text-[9px] italic text-slate-400 truncate max-w-[150px] font-black">${r.menu_access||'Standard'}</td>
                     <td class="p-5 text-center text-green-600 underline">${r.status}</td>
                     <td class="p-5 text-center text-gray-200 text-xl font-light">⚙️</td>
                 </tr>`).join('');
@@ -162,9 +185,8 @@
 
         function openPartnerModal(isEdit, id) {
             document.getElementById('partnerModal').style.display = 'block';
-            const isAdmin = (userRole === 'admin');
+            const isAdmin = (user.type === 'admin');
             
-            // Skjul/vis admin-ting
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? 'block' : 'none');
             document.getElementById('add-partner-btn').style.display = isAdmin ? 'block' : 'none';
 
@@ -187,6 +209,8 @@
             } else {
                 document.getElementById('partnerForm').reset();
                 document.getElementById('p-id').value = '';
+                document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                document.getElementById('del-p-btn').classList.add('hidden');
                 document.getElementById('modal-title').innerText = "Opret Ny Partner";
             }
         }
@@ -198,7 +222,7 @@
 
         async function savePartner(e) {
             e.preventDefault();
-            if(userRole !== 'admin') return alert('Kun admin kan gemme ændringer');
+            if(user.type !== 'admin') return alert('Kun admin kan gemme ændringer');
             
             const data = {
                 id: document.getElementById('p-id').value,
@@ -222,8 +246,7 @@
         }
 
         function closeModal() { document.getElementById('partnerModal').style.display = 'none'; }
-        function setLang(l) { /* Sidebar logic remain uniform */ }
-        window.onload = fetchAll;
+        window.onload = function() { checkAccess(); fetchAll(); };
     </script>
 </body>
 </html>

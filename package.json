@@ -4,7 +4,8 @@
   "description": "Plex & IPTV Management System",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "echo success"
   },
   "dependencies": {
     "express": "^4.18.2",

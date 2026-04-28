@@ -8,7 +8,10 @@ const multer = require('multer');
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) { fs.mkdirSync(uploadDir, { recursive: true }); }
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadDir),
+    filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+})});
 
 const app = express();
 app.use(express.json());
@@ -19,10 +22,10 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-// --- AUTOMATISK DATABASE SETUP (Kører ved hver opstart) ---
-async function setupDatabase() {
+// --- AUTOMATISK DATABASE SETUP (KUN TILFØJELSE, INTET SLETTE) ---
+async function setupDatabaseTables() {
     try {
-        // Opret Resellers tabel hvis den ikke findes
+        // Opret Resellers tabel
         await pool.query(`
             CREATE TABLE IF NOT EXISTS resellers (
                 id SERIAL PRIMARY KEY,
@@ -34,14 +37,57 @@ async function setupDatabase() {
                 access_packages TEXT
             );
         `);
-        console.log("✅ Database tabeller er kontrolleret og klar.");
+        // Opret Packages tabel
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS packages (
+                id SERIAL PRIMARY KEY,
+                name TEXT NOT NULL,
+                cost DECIMAL(10,2),
+                sale_eur DECIMAL(10,2),
+                agent_comm DECIMAL(10,2),
+                reseller_comm DECIMAL(10,2)
+            );
+        `);
+        console.log("✅ Database tabeller (Resellers & Packages) er klar.");
     } catch (e) {
-        console.error("❌ Fejl ved oprettelse af tabeller:", e.message);
+        console.error("❌ Database setup fejl:", e.message);
     }
 }
-setupDatabase();
+setupDatabaseTables();
 
-// --- RESELLER / PARTNER API ---
+const supportToken = process.env.TELEGRAM_SUPPORT_TOKEN;
+const infoToken = process.env.TELEGRAM_INFO_TOKEN;
+let botSupport, botInfo;
+
+if (supportToken) {
+    botSupport = new TelegramBot(supportToken, { polling: true });
+    console.log("Support Bot Online ✅");
+    botSupport.on('message', async (msg) => {
+        const chatId = msg.chat.id;
+        const senderName = msg.from.first_name + (msg.from.last_name ? ' ' + msg.from.last_name : '');
+        let content = msg.text || '';
+        if (msg.photo || msg.voice || msg.video) {
+            try {
+                const fileId = msg.photo ? msg.photo[msg.photo.length - 1].file_id : (msg.voice ? msg.voice.file_id : msg.video.file_id);
+                const fileType = msg.photo ? 'img' : (msg.voice ? 'voice' : 'vid');
+                const filePath = await botSupport.downloadFile(fileId, uploadDir);
+                content = `MEDIA|${fileType}|${path.basename(filePath)}`;
+            } catch (e) { content = '[Fil modtaget]'; }
+        }
+        await pool.query('INSERT INTO telegram_messages (bot_type, chat_id, sender_name, message_text, direction) VALUES ($1, $2, $3, $4, $5)', ['support', chatId, senderName, content, 'in']);
+    });
+}
+if (infoToken) { botInfo = new TelegramBot(infoToken, { polling: true }); }
+
+// --- API RUTER ---
+
+app.get('/api/customers', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM customers ORDER BY id ASC');
+        res.json(result.rows);
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.get('/api/resellers', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM resellers ORDER BY id ASC');
@@ -49,41 +95,34 @@ app.get('/api/resellers', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/resellers/save', async (req, res) => {
-    const { id, name, email, type, status } = req.body;
-    try {
-        if (id) {
-            await pool.query(
-                'UPDATE resellers SET name=$1, email=$2, type=$3, status=$4 WHERE id=$5',
-                [name, email, type, status, id]
-            );
-        } else {
-            await pool.query(
-                'INSERT INTO resellers (name, email, type, status) VALUES ($1, $2, $3, $4)',
-                [name, email, type, status]
-            );
-        }
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-app.post('/api/resellers/delete', async (req, res) => {
-    const { id } = req.body;
-    try {
-        await pool.query('DELETE FROM resellers WHERE id = $1', [id]);
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-// --- KUNDE & TELEGRAM API (Beholdes intakt) ---
-app.get('/api/customers', async (req, res) => {
-    const r = await pool.query('SELECT * FROM customers ORDER BY id ASC');
-    res.json(r.rows);
-});
-
 app.get('/api/messages', async (req, res) => {
-    const r = await pool.query('SELECT * FROM telegram_messages ORDER BY created_at ASC');
-    res.json(r.rows);
+    try {
+        const result = await pool.query('SELECT * FROM telegram_messages ORDER BY created_at ASC');
+        res.json(result.rows);
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/send-message', async (req, res) => {
+    const { chatId, text, botType } = req.body;
+    const bot = (botType === 'info') ? botInfo : botSupport;
+    try {
+        await bot.sendMessage(chatId, text);
+        await pool.query('INSERT INTO telegram_messages (bot_type, chat_id, sender_name, message_text, direction) VALUES ($1, $2, $3, $4, $5)', [botType, chatId, 'Admin', text, 'out']);
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/send-media', upload.single('file'), async (req, res) => {
+    const { chatId, type, botType } = req.body;
+    const bot = (botType === 'info') ? botInfo : botSupport;
+    const filePath = req.file.path;
+    try {
+        if (type === 'img') await bot.sendPhoto(chatId, filePath);
+        else if (type === 'vid') await bot.sendVideo(chatId, filePath);
+        else if (type === 'voice') await bot.sendVoice(chatId, filePath);
+        await pool.query('INSERT INTO telegram_messages (bot_type, chat_id, sender_name, message_text, direction) VALUES ($1, $2, $3, $4, $5)', [botType, chatId, 'Admin', `MEDIA|${type}|${req.file.filename}`, 'out']);
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.use(express.static('public'));

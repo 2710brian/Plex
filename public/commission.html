@@ -17,6 +17,27 @@
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans">
 
+    <script>
+        // --- SIKKERHED OG RETTIGHEDS-STYRING ---
+        const user = JSON.parse(localStorage.getItem('crm_user'));
+        if(!user) { window.location.href = '/login.html'; }
+
+        function checkAccess() {
+            if (user.type === 'admin') return; 
+            const allowedPages = user.menu_access ? user.menu_access.split(',') : ['index.html'];
+            document.querySelectorAll('#sidebar-nav a').forEach(link => {
+                const href = link.getAttribute('href');
+                if (!allowedPages.includes(href)) { link.style.display = 'none'; }
+            });
+            if (!allowedPages.includes('commission.html')) { window.location.href = '/index.html'; }
+        }
+
+        function logout() { 
+            localStorage.removeItem('crm_user'); 
+            window.location.href = '/login.html'; 
+        }
+    </script>
+
     <!-- SIDEBAR (UNIFORM 1:1) -->
     <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl font-bold uppercase text-[10px] tracking-wider">
         <div class="p-6 text-2xl font-black border-b border-slate-800 italic text-red-600 tracking-tighter">⦿ PLEX CRM</div>
@@ -27,17 +48,22 @@
                 <span class="bg-orange-600 text-white text-[9px] px-2 py-0.5 rounded-full font-black">1</span>
             </a>
             <a href="resellers.html" id="nav-resellers" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400 italic">👤 <span data-dk="Reseller Styring" data-uk="Reseller Mgmt">Reseller Styring</span></a>
-            <a href="commission.html" class="nav-item block p-3 bg-red-600 rounded nav-active text-yellow-400 font-black italic underline">💰 <span data-dk="Provision & Tal" data-uk="Profit & Data">Provision & Tal</span></a>
+            <a href="commission.html" class="nav-item block p-3 bg-red-600 rounded nav-active text-yellow-400 font-black italic underline text-white">💰 <span data-dk="Provision & Tal" data-uk="Profit & Data">Provision & Tal</span></a>
             <a href="settings.html" id="nav-settings" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ <span data-dk="Pakke Indstillinger" data-uk="Package Settings">Pakke Indstillinger</span></a>
-            <a href="telegram.html" id="nav-telegram" class="nav-item block p-3 hover:bg-slate-800 rounded border-t border-slate-800 mt-4 text-sky-400 italic">💬 <span data-dk="Telegram Chat" data-uk="Telegram Chat">Telegram Chat</span></a>
+            <a href="payments.html" id="nav-payments" class="nav-item block p-3 hover:bg-slate-800 rounded text-slate-500 font-black italic uppercase">💳 <span data-dk="Betalinger" data-uk="Payments">Betalinger</span></a>
+            
+            <!-- LOG UD KNAP -->
+            <button onclick="logout()" class="w-full text-left p-3 hover:bg-red-900/30 text-red-500 mt-10 border-t border-slate-800 transition-colors flex items-center italic font-black uppercase text-[10px]">
+                <span class="mr-2 text-lg">🔒</span> Log ud
+            </button>
         </nav>
         
         <div class="p-4 border-t border-slate-800 bg-black/20">
-            <div class="flex justify-between items-center mb-4 italic">
-                <span class="text-[9px] text-slate-500 font-black uppercase tracking-widest">Language:</span>
+            <div class="flex justify-between items-center mb-4 italic text-[9px] text-slate-500 font-black uppercase tracking-widest text-center">
+                <span>Language:</span>
                 <div class="flex space-x-2">
-                    <button onclick="setLang('dk')" id="btn-dk" class="text-red-500 underline font-black text-[11px]">DK</button>
-                    <button onclick="setLang('uk')" id="btn-uk" class="text-slate-500 font-black text-[11px]">UK</button>
+                    <button onclick="setLang('dk')" id="btn-dk" class="text-red-500 underline font-black">DK</button>
+                    <button onclick="setLang('uk')" id="btn-uk" class="text-slate-500 font-black">UK</button>
                 </div>
             </div>
             <select onchange="simulateRole(this.value)" class="bg-slate-800 border-none text-white text-[10px] font-bold p-2 w-full rounded cursor-pointer">
@@ -51,36 +77,34 @@
     <div class="flex-1 flex flex-col overflow-hidden">
         
         <!-- HEADER MED KALENDER/DATO FILTER -->
-        <header class="bg-white shadow-sm p-5 flex justify-between items-center px-10 border-b">
+        <header class="bg-white shadow-sm p-5 flex justify-between items-center px-10 border-b font-black uppercase italic">
             <div class="flex items-center space-x-8">
-                <h2 class="text-2xl font-black uppercase italic tracking-tighter text-slate-800">
-                    Økonomisk <span class="text-yellow-600">Rapport</span>
-                </h2>
+                <h2 class="text-2xl text-slate-800 tracking-tighter uppercase">Økonomisk <span class="text-yellow-600">Rapport</span></h2>
                 
                 <!-- DATO VÆLGER SEKTION -->
                 <div class="flex items-center bg-slate-50 rounded-xl px-4 py-2 border border-slate-100 space-x-4">
                     <div class="flex flex-col">
                         <span class="text-[8px] font-black uppercase text-slate-400 mb-1">Fra dato:</span>
-                        <input type="date" id="filter-from" onchange="updateDateRange()">
+                        <input type="date" id="filter-from">
                     </div>
                     <div class="text-slate-300 font-bold">→</div>
                     <div class="flex flex-col">
                         <span class="text-[8px] font-black uppercase text-slate-400 mb-1">Til dato:</span>
-                        <input type="date" id="filter-to" onchange="updateDateRange()">
+                        <input type="date" id="filter-to">
                     </div>
-                    <button onclick="applyFilter()" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-[9px] font-black uppercase hover:bg-black transition shadow-lg">Opdater</button>
+                    <button onclick="applyFilter()" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-[9px] font-black uppercase shadow-lg">Opdater</button>
                 </div>
             </div>
 
             <div class="flex items-center space-x-4">
-                <div id="admin-total-netto" class="bg-slate-900 text-yellow-500 px-6 py-2 rounded-lg font-mono text-sm border-b-4 border-emerald-500 shadow-xl font-black italic">
+                <div id="admin-total-netto" class="bg-slate-900 text-yellow-500 px-6 py-2 rounded-lg font-mono text-sm border-b-4 border-emerald-500 shadow-xl font-black">
                     NETTO OVERSKUD: € 842,00
                 </div>
                 <button onclick="openConfigModal()" class="bg-slate-100 text-slate-400 p-2 rounded-full hover:bg-slate-200 transition">⚙️</button>
             </div>
         </header>
 
-        <main class="flex-1 overflow-auto p-8 space-y-8">
+        <main class="flex-1 overflow-auto p-8 space-y-8 font-black uppercase italic">
             
             <!-- SECTION 1: PROGNOSE & WORKFLOW (Diagram) -->
             <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
@@ -101,23 +125,18 @@
 
             <!-- SECTION 2: PLEX SERVER POOL STATUS -->
             <div class="grid grid-cols-3 gap-8">
-                <div class="col-span-2 bg-white p-8 rounded-2xl shadow-xl border-t-8 border-red-600">
-                    <div class="flex justify-between items-start mb-6 italic font-black uppercase">
+                <div class="col-span-2 bg-white p-8 rounded-2xl shadow-xl border-t-8 border-red-600 font-black uppercase italic">
+                    <div class="flex justify-between items-start mb-6">
                         <div>
-                            <h3 class="text-xs tracking-widest text-slate-400">Plex Server Pool</h3>
-                            <p class="text-[10px] text-slate-300 italic">Månedlig udgift: <span id="target-euro">€ 287,00</span></p>
+                            <h3 class="text-xs text-slate-400 font-black">Plex Server Pool</h3>
+                            <p class="text-[10px] text-slate-300 italic font-bold">Serverudgift: € 287,00</p>
                         </div>
-                        <div class="text-right">
-                            <span class="text-4xl text-slate-800 font-mono tracking-tighter">€ 145,50</span>
-                            <p class="text-[9px] text-red-500 tracking-widest mt-1 italic">Indsamlet i valgte periode</p>
-                        </div>
+                        <span class="text-4xl text-slate-800 font-mono tracking-tighter italic font-black">€ 145,50</span>
                     </div>
-                    
-                    <div class="w-full bg-slate-100 h-8 rounded-full overflow-hidden shadow-inner flex border-4 border-slate-50">
-                        <div class="progress-fill bg-gradient-to-r from-blue-600 to-blue-400 h-full w-[50%]" title="Nye Penge"></div>
+                    <div class="w-full bg-slate-100 h-6 rounded-full overflow-hidden shadow-inner flex border-4 border-slate-50">
+                        <div class="progress-fill bg-blue-600 h-full w-[50%]" title="Nye Penge"></div>
                         <div class="progress-fill bg-slate-300 h-full w-[30%] border-l-2 border-white" title="Legacy (0€)"></div>
                     </div>
-                    
                     <div class="flex justify-between mt-4 text-[9px] font-black uppercase italic tracking-widest">
                         <div class="flex space-x-4">
                             <span class="text-blue-600">● Aktive Betalinger</span>
@@ -127,27 +146,27 @@
                     </div>
                 </div>
 
-                <div class="bg-slate-900 p-8 rounded-2xl shadow-2xl border-b-8 border-yellow-500 text-center flex flex-col justify-center italic">
-                    <h3 class="text-yellow-500 font-black uppercase text-xs tracking-widest mb-2 italic">Dit Netto Overskud (Plex)</h3>
-                    <div class="text-5xl font-black text-white tracking-tighter font-mono" id="plex-net-profit">€ 145,50</div>
+                <div class="bg-slate-900 p-8 rounded-2xl shadow-2xl border-b-8 border-yellow-500 text-center flex flex-col justify-center italic font-black">
+                    <h3 class="text-yellow-500 text-xs tracking-widest mb-2 italic">Dit Netto Overskud (Plex)</h3>
+                    <div class="text-5xl text-white tracking-tighter font-mono italic font-black" id="plex-net-profit">€ 145,50</div>
                 </div>
             </div>
 
             <!-- SECTION 3: DETALJERET PARTNER AFREGNING (PLEX) -->
             <div class="bg-white rounded-xl shadow-2xl border overflow-hidden">
-                <div class="p-6 bg-slate-50 border-b flex justify-between items-center font-black uppercase text-[10px] tracking-widest text-slate-500 italic">
+                <div class="p-6 bg-slate-50 border-b flex justify-between items-center font-black uppercase text-[10px] tracking-widest italic text-slate-500">
                     <span>Gennemsigtig Fordelings-nøgle (Antal x Type)</span>
                     <button class="bg-emerald-600 text-white px-6 py-2 rounded shadow-xl hover:bg-emerald-700 transition uppercase tracking-widest text-[9px]">Udbetal Periode</button>
                 </div>
-                <table class="w-full text-left">
-                    <thead class="bg-white text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] border-b">
+                <table class="w-full text-left font-black italic uppercase">
+                    <thead class="bg-white text-slate-400 text-[9px] border-b">
                         <tr>
                             <th class="p-5">Partner / Agent</th>
                             <th class="p-5 text-center">Mdr. Kunder (11€)</th>
                             <th class="p-5 text-center">Års-Kunder (6,75€)</th>
                             <th class="p-5 text-center">Legacy (0€)</th>
                             <th class="p-5 text-center">Vægtning (%)</th>
-                            <th class="p-5 text-emerald-600 font-black italic underline">Provision (€)</th>
+                            <th class="p-5 text-emerald-600 underline font-black">Provision (€)</th>
                         </tr>
                     </thead>
                     <tbody class="text-[12px] font-bold divide-y divide-gray-50 uppercase italic tracking-tight" id="payout-table-body">
@@ -177,29 +196,27 @@
                     <h3 class="text-xs tracking-[0.3em] text-blue-600 underline underline-offset-8 italic">IPTV Netto-Overskud (Valgt Periode)</h3>
                     <span class="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[9px] tracking-widest shadow-lg">Direkte Afregning</span>
                 </div>
-                <div class="grid grid-cols-2 gap-8">
+                <div class="grid grid-cols-2 gap-8 italic font-black">
                     <div class="bg-white p-6 rounded-xl border-2 border-blue-100 shadow-lg flex justify-between items-center" id="iptv-kurt">
-                        <span class="text-slate-400">Kurt (KU):</span>
-                        <span class="text-2xl text-blue-700 font-mono tracking-tighter italic">€ 145,00</span>
+                        <span class="text-slate-400">Kurt (KU):</span><span class="text-2xl text-blue-700 font-mono tracking-tighter italic">€ 145,00</span>
                     </div>
                     <div class="bg-white p-6 rounded-xl border-2 border-blue-100 shadow-lg flex justify-between items-center" id="iptv-reseller">
-                        <span class="text-slate-400">MarketingPusher:</span>
-                        <span class="text-2xl text-blue-700 font-mono tracking-tighter italic">€ 88,25</span>
+                        <span class="text-slate-400">MarketingPusher:</span><span class="text-2xl text-blue-700 font-mono tracking-tighter italic">€ 88,25</span>
                     </div>
                 </div>
             </div>
 
             <!-- SECTION 5: RESERVE VAULT (PREPAID PENGE) -->
-            <div class="bg-slate-800 p-10 rounded-2xl shadow-2xl text-white">
+            <div class="bg-slate-800 p-10 rounded-2xl shadow-2xl text-white italic font-black uppercase">
                 <div class="flex items-center space-x-8 italic uppercase">
-                    <div class="text-5xl bg-slate-700 p-4 rounded-2xl">🔐</div>
+                    <div class="text-5xl bg-slate-700 p-4 rounded-2xl font-black">🔐</div>
                     <div>
-                        <h3 class="font-black text-sm tracking-widest mb-2">Plex Reserve-Vault</h3>
+                        <h3 class="font-black text-sm tracking-widest mb-2 italic">Plex Reserve-Vault</h3>
                         <p class="text-[10px] text-slate-400 font-bold tracking-widest leading-loose">
                             Restbeløb fra årskunder parkeret i buffer-pulje til fremtidig drift.
                         </p>
                     </div>
-                    <div class="ml-auto text-6xl font-black italic tracking-tighter font-mono text-yellow-500">€ 1.485,00</div>
+                    <div class="ml-auto text-6xl font-black italic tracking-tighter font-mono text-yellow-500 italic font-black uppercase">€ 1.485,00</div>
                 </div>
             </div>
 
@@ -207,34 +224,23 @@
     </div>
 
     <!-- CONFIG MODAL -->
-    <div id="configModal" class="modal">
-        <div class="modal-content shadow-2xl">
-            <h2 class="text-2xl font-black border-b-4 pb-4 mb-8 italic uppercase text-yellow-600 tracking-tighter">Global Config</h2>
-            <div class="space-y-6">
-                <div><label>Serverudgift pr. måned (€)</label><input type="number" id="cfg-euro" value="287.00" step="0.01"></div>
-                <div><label>Kurs (DKK pr. 1€)</label><input type="number" id="cfg-kurs" value="7.45" step="0.01"></div>
-            </div>
-            <div class="mt-10 flex justify-end">
-                <button onclick="closeModal()" class="mr-8 text-gray-400 font-black text-[11px] uppercase tracking-widest">Annuller</button>
-                <button onclick="saveConfig()" class="bg-yellow-500 text-white px-12 py-3 rounded-lg font-black text-xs uppercase shadow-2xl hover:bg-yellow-600 transition tracking-widest">Gem</button>
-            </div>
-        </div>
-    </div>
+    <div id="configModal" class="modal"><div class="modal-content shadow-2xl font-black italic uppercase"><h2 class="text-2xl border-b-4 pb-4 mb-8 text-yellow-600 tracking-tighter font-black uppercase tracking-widest">Global Config</h2><div class="space-y-6 italic font-black uppercase"><div><label>Serverudgift pr. måned (€)</label><input type="number" id="cfg-euro" value="287.00" step="0.01"></div><div><label>Kurs (DKK pr. 1€)</label><input type="number" id="cfg-kurs" value="7.45" step="0.01"></div></div><div class="mt-10 flex justify-end font-black italic uppercase"><button onclick="closeModal()" class="mr-8 text-gray-400 font-black text-[11px] uppercase tracking-widest italic font-black">Annuller</button><button onclick="saveConfig()" class="bg-yellow-500 text-white px-12 py-3 rounded-lg font-black text-xs uppercase shadow-2xl italic font-black uppercase tracking-widest">Gem</button></div></div></div>
 
     <script>
         let myChart;
 
         window.onload = function() {
-            // Sæt standard datoer (Dags dato og 1 mdr frem)
+            checkAccess();
+            // Sæt standard datoer (Dags dato og 1 mdr tilbage)
             const today = new Date();
             const lastMonth = new Date();
             lastMonth.setMonth(today.getMonth() - 1);
             
             document.getElementById('filter-from').valueAsDate = lastMonth;
-            document.getElementById('filter-to').valueAsDate = today;
+            document.getElementById('filter-to').valueAsDate = new Date();
             
             initChart();
-            simulateRole('admin');
+            simulateRole(user.type);
         };
 
         function initChart() {
@@ -277,7 +283,6 @@
             const from = document.getElementById('filter-from').value;
             const to = document.getElementById('filter-to').value;
             alert('Henter data for perioden: ' + from + ' til ' + to);
-            // Her kobler vi databasen på senere
         }
 
         function simulateRole(role) {
@@ -298,6 +303,8 @@
             document.querySelectorAll('[data-dk]').forEach(el => {
                 el.innerText = (lang === 'dk') ? el.getAttribute('data-dk') : el.getAttribute('data-uk');
             });
+            document.getElementById('btn-dk').className = (lang === 'dk' ? 'text-red-500 underline font-black text-[11px]' : 'text-slate-500 font-black text-[11px]');
+            document.getElementById('btn-uk').className = (lang === 'uk' ? 'text-red-500 underline font-black text-[11px]' : 'text-slate-500 font-black text-[11px]');
         }
     </script>
 </body>

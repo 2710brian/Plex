@@ -12,7 +12,7 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-// --- 1. SIKKERHED OG LOGIN API ---
+// --- 1. LOGIN API (Prioriteret) ---
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -23,20 +23,23 @@ app.post('/api/login', async (req, res) => {
         if (result.rows.length > 0) {
             res.json({ success: true, user: result.rows[0] });
         } else {
-            res.status(401).json({ success: false, message: 'Adgang nægtet' });
+            res.status(401).json({ success: false, message: 'Forkert login' });
         }
     } catch (err) {
-        console.error('Login fejl:', err.message);
         res.status(500).json({ error: err.message });
     }
 });
 
-// --- 2. KUNDE ADMINISTRATION API ---
+// --- 2. KUNDE / KLIENT API ---
 app.get('/api/customers', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM customers ORDER BY id ASC');
+        const result = await pool.query('SELECT * FROM customers ORDER BY name ASC');
+        console.log(`[API] Sender ${result.rows.length} kunder til dashboardet`);
         res.json(result.rows);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) {
+        console.error('[DB FEJL]', err.message);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.post('/api/customers/save', async (req, res) => {
@@ -60,7 +63,7 @@ app.post('/api/customers/delete', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- 3. PARTNER / RESELLER API ---
+// --- 3. RESELLER / PARTNER API ---
 app.get('/api/resellers', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM resellers ORDER BY id ASC');
@@ -72,23 +75,10 @@ app.post('/api/resellers/save', async (req, res) => {
     const r = req.body;
     try {
         if (r.id) {
-            await pool.query(
-                'UPDATE resellers SET name=$1, email=$2, type=$3, status=$4, access_packages=$5, menu_access=$6, password=$7 WHERE id=$8',
-                [r.name, r.email, r.type, r.status, r.access_packages, r.menu_access, r.password, r.id]
-            );
+            await pool.query('UPDATE resellers SET name=$1, email=$2, type=$3, status=$4, access_packages=$5, menu_access=$6, password=$7 WHERE id=$8', [r.name, r.email, r.type, r.status, r.access_packages, r.menu_access, r.password, r.id]);
         } else {
-            await pool.query(
-                'INSERT INTO resellers (name, email, type, status, access_packages, menu_access, password) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-                [r.name, r.email, r.type, r.status, r.access_packages, r.menu_access, r.password]
-            );
+            await pool.query('INSERT INTO resellers (name, email, type, status, access_packages, menu_access, password) VALUES ($1,$2,$3,$4,$5,$6,$7)', [r.name, r.email, r.type, r.status, r.access_packages, r.menu_access, r.password]);
         }
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-app.post('/api/resellers/delete', async (req, res) => {
-    try {
-        await pool.query('DELETE FROM resellers WHERE id = $1', [req.body.id]);
         res.json({ success: true });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -105,42 +95,40 @@ app.post('/api/packages/save', async (req, res) => {
     const p = req.body;
     try {
         if (p.id) {
-            await pool.query(
-                'UPDATE packages SET name=$1, cost=$2, sale_eur=$3, agent_comm=$4, reseller_comm=$5 WHERE id=$6',
-                [p.name, p.cost, p.sale_eur, p.agent_comm, p.reseller_comm, p.id]
-            );
+            await pool.query('UPDATE packages SET name=$1, cost=$2, sale_eur=$3, agent_comm=$4, reseller_comm=$5 WHERE id=$6', [p.name, p.cost, p.sale_eur, p.agent_comm, p.reseller_comm, p.id]);
         } else {
-            await pool.query(
-                'INSERT INTO packages (name, cost, sale_eur, agent_comm, reseller_comm) VALUES ($1, $2, $3, $4, $5)',
-                [p.name, p.cost, p.sale_eur, p.agent_comm, p.reseller_comm]
-            );
+            await pool.query('INSERT INTO packages (name, cost, sale_eur, agent_comm, reseller_comm) VALUES ($1,$2,$3,$4,$5)', [p.name, p.cost, p.sale_eur, p.agent_comm, p.reseller_comm]);
         }
         res.json({ success: true });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/packages/delete', async (req, res) => {
+// --- 5. BETALINGS API ---
+app.get('/api/payments', async (req, res) => {
     try {
-        await pool.query('DELETE FROM packages WHERE id = $1', [req.body.id]);
+        const result = await pool.query('SELECT * FROM payments ORDER BY payment_date DESC');
+        res.json(result.rows);
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/payments/save', async (req, res) => {
+    const { customer_name, amount_eur, method, agent_name } = req.body;
+    try {
+        await pool.query('INSERT INTO payments (customer_name, amount_eur, method, agent_name) VALUES ($1, $2, $3, $4)', [customer_name, amount_eur, method, agent_name]);
         res.json({ success: true });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- 5. SERVER DRIFT & NAVIGATION ---
+// --- 6. NAVIGATION & STATISKE FILER ---
+// Tving alle der går til / til login siden
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 
-// Tving alle der går til hoved-URL'en til login-siden
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-// Tillad adgang til mappen public (billeder, styles osv)
+// Derefter tjekkes om filen findes i public mappen
 app.use(express.static('public'));
 
-// Alle adresser der ikke findes sendes også til login
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
+// Sidst: Hvis intet matcher, send til login (Sikkerhed)
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 
 app.listen(PORT, () => {
-    console.log(`🚀 CRM System kører på port ${PORT}`);
+    console.log(`🚀 CRM Master Server kører på port ${PORT}`);
 });

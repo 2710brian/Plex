@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); }
-        .modal-content { background-color: white; margin: 25px auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; border-top: 8px solid #eab308; }
+        .modal-content { background-color: white; margin: 5% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; border-top: 8px solid #eab308; }
         .nav-active { background-color: #dc2626 !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
         .chart-container { position: relative; height: 350px; width: 100%; }
         .progress-fill { transition: width 1.5s ease-in-out; }
@@ -42,15 +42,15 @@
     <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl font-bold uppercase text-[10px] tracking-wider">
         <div class="p-6 text-2xl font-black border-b border-slate-800 italic text-red-600 tracking-tighter">⦿ PLEX CRM</div>
         <nav id="sidebar-nav" class="flex-1 p-4 space-y-1">
-            <a href="index.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-white">👥 <span data-dk="Klient-Oversigt" data-uk="Client Overview">Klient-Oversigt</span></a>
-            <a href="approvals.html" id="nav-approvals" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400 italic">
+            <a href="index.html" class="nav-item block p-3 hover:bg-slate-800 rounded">👥 <span data-dk="Klient-Oversigt" data-uk="Client Overview">Klient-Oversigt</span></a>
+            <a href="approvals.html" id="nav-approvals" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400">
                 <span>⏳ <span data-dk="Godkendelser" data-uk="Approvals">Godkendelser</span></span>
-                <span class="bg-orange-600 text-white text-[9px] px-2 py-0.5 rounded-full font-black" id="badge-approvals">0</span>
+                <span class="bg-orange-600 text-white text-[9px] px-2 py-0.5 rounded-full font-black">1</span>
             </a>
-            <a href="resellers.html" id="nav-resellers" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400 italic font-black">👤 <span data-dk="Reseller Styring" data-uk="Reseller Mgmt">Reseller Styring</span></a>
+            <a href="resellers.html" id="nav-resellers" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400 italic">👤 <span data-dk="Reseller Styring" data-uk="Reseller Mgmt">Reseller Styring</span></a>
             <a href="commission.html" class="nav-item block p-3 bg-red-600 rounded nav-active text-yellow-400 font-black italic underline text-white shadow-lg">💰 <span data-dk="Provision & Tal" data-uk="Profit & Data">Provision & Tal</span></a>
             <a href="settings.html" id="nav-settings" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ <span data-dk="Pakke Indstillinger" data-uk="Package Settings">Pakke Indstillinger</span></a>
-            <a href="payments.html" id="nav-payments" class="nav-item block p-3 hover:bg-slate-800 rounded text-slate-500 font-black italic uppercase mt-4 border-t border-slate-800 pt-4">💳 <span data-dk="Betalinger" data-uk="Payments">Betalinger</span></a>
+            <a href="payments.html" id="nav-payments" class="nav-item block p-3 hover:bg-slate-800 rounded text-slate-500 font-black italic uppercase">💳 <span data-dk="Betalinger" data-uk="Payments">Betalinger</span></a>
             
             <button onclick="logout()" class="w-full text-left p-3 hover:bg-red-900/30 text-red-500 mt-10 border-t border-slate-800 transition-colors flex items-center italic font-black uppercase text-[10px]">
                 <span class="mr-2 text-lg">🔒</span> Log ud
@@ -71,12 +71,12 @@
                 
                 <div class="flex items-center bg-slate-50 rounded-xl px-4 py-2 border border-slate-100 space-x-4">
                     <div class="flex flex-col">
-                        <span class="text-[8px] font-black uppercase text-slate-400 mb-1">Fra:</span>
+                        <span class="text-[8px] font-black uppercase text-slate-400 mb-1">Fra dato:</span>
                         <input type="date" id="filter-from">
                     </div>
                     <div class="text-slate-300 font-bold">→</div>
                     <div class="flex flex-col">
-                        <span class="text-[8px] font-black uppercase text-slate-400 mb-1">Til:</span>
+                        <span class="text-[8px] font-black uppercase text-slate-400 mb-1">Til dato:</span>
                         <input type="date" id="filter-to">
                     </div>
                     <button onclick="runFinance()" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-[9px] font-black uppercase shadow-lg hover:bg-black transition">Opdater</button>
@@ -93,27 +93,24 @@
 
         <main class="flex-1 overflow-auto p-8 space-y-8 font-black uppercase italic">
             
-            <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
-                <h3 class="text-sm tracking-widest text-slate-400 mb-8 italic uppercase">Plex Workflow Prognose (12 mdr)</h3>
+            <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 font-black uppercase italic">
+                <h3 class="text-sm tracking-widest text-slate-400 mb-8 italic uppercase">Omsætnings-flow & Prognose (Plex)</h3>
                 <div class="chart-container"><canvas id="workflowChart"></canvas></div>
             </div>
 
             <div class="grid grid-cols-3 gap-8">
-                <div class="col-span-2 bg-white p-8 rounded-2xl shadow-xl border-t-8 border-red-600">
-                    <div class="flex justify-between items-start mb-6 italic font-black uppercase">
+                <div class="col-span-2 bg-white p-8 rounded-2xl shadow-xl border-t-8 border-red-600 font-black uppercase italic">
+                    <div class="flex justify-between items-start mb-6">
                         <div>
                             <h3 class="text-xs text-slate-400">Plex Server Pool</h3>
-                            <p class="text-[10px] text-slate-300">Udgifts-mål: <span id="target-euro-display">€ 287,00</span></p>
+                            <p class="text-[10px] text-slate-300 italic font-bold">Serverudgift: <span id="target-euro-display">€ 287,00</span></p>
                         </div>
-                        <div class="text-right">
-                            <span id="collected-eur-display" class="text-4xl text-slate-800 font-mono tracking-tighter">€ 0,00</span>
-                            <p class="text-[9px] text-blue-500 mt-1 italic tracking-widest">Aktivt Cashflow i perioden</p>
-                        </div>
+                        <span id="collected-eur-display" class="text-4xl text-slate-800 font-mono tracking-tighter italic font-black">€ 0,00</span>
                     </div>
                     
-                    <div class="w-full bg-slate-100 h-8 rounded-full overflow-hidden shadow-inner flex border-4 border-slate-50">
+                    <div class="w-full bg-slate-100 h-6 rounded-full overflow-hidden shadow-inner flex border-4 border-slate-50">
                         <div id="progress-blue" class="progress-fill bg-blue-600 h-full" style="width: 0%"></div>
-                        <div id="progress-grey" class="progress-fill bg-slate-300 h-full border-l-2 border-white" style="width: 0%"></div>
+                        <div id="progress-grey" class="progress-fill bg-slate-300 h-full" style="width: 0%"></div>
                     </div>
                     
                     <div class="flex justify-between mt-4 text-[9px] font-black uppercase italic tracking-widest">
@@ -121,25 +118,25 @@
                             <span class="text-blue-600">● Nye Penge / Mdr</span>
                             <span class="text-slate-400">● Legacy Kunder (0€ i dag)</span>
                         </div>
-                        <span id="coverage-text" class="text-slate-800 underline decoration-red-500">0% DÆKKET</span>
+                        <span id="coverage-text" class="text-slate-800 italic underline decoration-red-500">0% DÆKKET</span>
                     </div>
                 </div>
 
                 <div class="bg-slate-900 p-8 rounded-2xl shadow-2xl border-b-8 border-yellow-500 text-center flex flex-col justify-center italic">
-                    <h3 class="text-yellow-500 font-black uppercase text-xs tracking-widest mb-2 italic">Netto Overskud (Plex)</h3>
-                    <div class="text-5xl text-white tracking-tighter font-mono italic" id="plex-net-profit">€ 0,00</div>
+                    <h3 class="text-yellow-500 font-black uppercase text-xs tracking-widest mb-2 italic">Dit Netto Overskud</h3>
+                    <div class="text-5xl text-white tracking-tighter font-mono italic font-black" id="plex-net-profit">€ 0,00</div>
                 </div>
             </div>
 
             <div class="bg-white rounded-xl shadow-2xl border overflow-hidden">
-                <div class="p-6 bg-slate-50 border-b font-black text-[10px] tracking-widest italic text-slate-500 uppercase">Partner Fordelings-analyse (Gennemsigtig beregning)</div>
+                <div class="p-6 bg-slate-50 border-b font-black text-[10px] tracking-widest italic text-slate-500 uppercase">Vægtet Partner Fordeling (Plex)</div>
                 <table class="w-full text-left font-black italic uppercase">
                     <thead class="bg-white text-slate-400 text-[9px] border-b uppercase">
                         <tr>
                             <th class="p-5">Partner</th>
                             <th class="p-5 text-center">Nye Kunder</th>
                             <th class="p-5 text-center">Legacy</th>
-                            <th class="p-5 text-center">Total Enheder</th>
+                            <th class="p-5 text-center">Total Kunder</th>
                             <th class="p-5 text-emerald-600 underline text-right">Provision (€)</th>
                         </tr>
                     </thead>
@@ -150,7 +147,7 @@
             </div>
 
             <div class="bg-blue-50 border border-blue-100 rounded-xl p-8 shadow-inner italic font-black uppercase">
-                <h3 class="text-xs text-blue-600 underline underline-offset-8 mb-8 font-black uppercase italic">IPTV Netto-Overskud (Separat Track)</h3>
+                <h3 class="text-xs text-blue-600 underline underline-offset-8 mb-8 font-black uppercase italic tracking-widest">IPTV Netto-Overskud (Stand-alone)</h3>
                 <div id="iptv-payout-container" class="grid grid-cols-2 gap-8 italic font-black uppercase">
                     <!-- JS fylder her -->
                 </div>
@@ -158,7 +155,7 @@
 
             <div class="bg-slate-800 p-10 rounded-2xl shadow-2xl text-white italic font-black uppercase">
                 <div class="flex items-center space-x-8 italic uppercase">
-                    <div class="text-5xl bg-slate-700 p-4 rounded-2xl font-black">🔐</div>
+                    <div class="text-5xl bg-slate-700 p-4 rounded-2xl font-black italic">🔐</div>
                     <div>
                         <h3 class="font-black text-sm tracking-widest mb-2 italic uppercase">Plex Reserve-Vault</h3>
                         <p class="text-[10px] text-slate-400 font-bold tracking-widest leading-loose italic uppercase">Restbeløb fra årskunder parkeret i buffer-pulje til fremtidig drift.</p>
@@ -169,14 +166,16 @@
         </main>
     </div>
 
-    <div id="configModal" class="modal"><div class="modal-content shadow-2xl font-black italic uppercase"><h2 class="text-2xl border-b-4 pb-4 mb-8 text-yellow-600 font-black italic">System Config</h2><div class="space-y-6 italic font-black uppercase"><div><label>Serverudgift pr. måned (€)</label><input type="number" id="cfg-euro" value="287.00" step="0.01"></div></div><div class="mt-10 flex justify-end font-black uppercase italic"><button onclick="closeModal()" class="mr-8 text-gray-400 font-black text-[11px] uppercase tracking-widest italic font-black">Annuller</button><button onclick="saveConfig()" class="bg-yellow-500 text-white px-12 py-3 rounded-lg font-black text-xs uppercase shadow-2xl italic font-black uppercase tracking-widest">Gem</button></div></div></div>
+    <!-- CONFIG MODAL -->
+    <div id="configModal" class="modal"><div class="modal-content shadow-2xl font-black italic uppercase"><h2 class="text-2xl border-b-4 pb-4 mb-8 text-yellow-600 font-black italic uppercase">System Config</h2><div class="space-y-6 italic font-black uppercase"><div><label>Serverudgift pr. måned (€)</label><input type="number" id="cfg-euro" value="287.00" step="0.01"></div></div><div class="mt-10 flex justify-end font-black uppercase italic"><button onclick="closeModal()" class="mr-8 text-gray-400 font-black text-[11px] uppercase tracking-widest italic font-black">Annuller</button><button onclick="saveConfig()" class="bg-yellow-500 text-white px-12 py-3 rounded-lg font-black text-xs uppercase shadow-2xl italic font-black uppercase tracking-widest">Gem</button></div></div></div>
 
     <script>
         let myChart;
         let serverCost = 287.00;
 
+        // Hjælper til at læse datoer i formatet DD-MM-YYYY
         function parseDanishDate(str) {
-            if(!str || str === '--') return null;
+            if(!str || str === '--' || str === '') return null;
             const parts = str.split('-');
             if(parts.length !== 3) return null;
             return new Date(parts[2], parts[1]-1, parts[0]);
@@ -188,6 +187,7 @@
             const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
             document.getElementById('filter-from').valueAsDate = firstOfMonth;
             document.getElementById('filter-to').valueAsDate = today;
+            initChart([]); // Start tomt diagram
             runFinance();
         };
 
@@ -195,6 +195,7 @@
             try {
                 const cRes = await fetch('/api/customers');
                 const customers = await cRes.json();
+                
                 const pRes = await fetch('/api/payments');
                 const payments = await pRes.json();
 
@@ -206,23 +207,23 @@
                 let legacyPlexUnits = 0;
                 let agentData = {}; 
 
-                // 1. Bearbejd de faktiske betalinger fra 'payments' tabellen
+                // 1. Bearbejd de faktiske betalinger fra 'payments' tabellen (det du lige har indtastet)
                 payments.forEach(p => {
                     const d = new Date(p.payment_date);
                     if(d >= fromDate && d <= toDate) {
-                        plexCollected += parseFloat(p.amount_eur);
-                        const agent = p.agent_name || 'Brian';
+                        plexCollected += parseFloat(p.amount_eur || 0);
+                        const agent = p.agent_name || 'Admin';
                         if (!agentData[agent]) agentData[agent] = { plexNew: 0, plexLegacy: 0, totalPlexVal: 0, iptvProfit: 0 };
-                        agentData[agent].totalPlexVal += parseFloat(p.amount_eur);
+                        agentData[agent].totalPlexVal += parseFloat(p.amount_eur || 0);
                     }
                 });
 
-                // 2. Bearbejd kundelisten for status-tælling
+                // 2. Bearbejd kundelisten for status-tælling og IPTV profit
                 customers.forEach(c => {
-                    const agent = c.agent || 'Brian';
+                    const agent = c.agent || 'Admin';
                     if (!agentData[agent]) agentData[agent] = { plexNew: 0, plexLegacy: 0, totalPlexVal: 0, iptvProfit: 0 };
                     
-                    if (c.category.toLowerCase().includes('iptv')) {
+                    if (c.category && c.category.toLowerCase().includes('iptv')) {
                         agentData[agent].iptvProfit += 10.00; // Fast provision pr. IPTV
                     } else {
                         totalPlexUnits++;
@@ -240,29 +241,40 @@
                 document.getElementById('plex-net-profit').innerText = "€ " + plexProfit.toFixed(2);
                 document.getElementById('admin-total-netto-label').innerText = "NETTO OVERSKUD: € " + plexProfit.toFixed(2);
 
-                const bluePerc = totalPlexUnits > 0 ? ((totalPlexUnits - legacyPlexUnits) / totalPlexUnits * 100) : 0;
-                const greyPerc = totalPlexUnits > 0 ? (legacyPlexUnits / totalPlexUnits * 100) : 0;
+                // Bar beregning
+                const totalUnits = totalPlexUnits || 1;
+                const bluePerc = ((totalPlexUnits - legacyPlexUnits) / totalUnits) * 100;
+                const greyPerc = (legacyPlexUnits / totalUnits) * 100;
+                
                 document.getElementById('progress-blue').style.width = bluePerc + "%";
                 document.getElementById('progress-grey').style.width = greyPerc + "%";
-                document.getElementById('coverage-text').innerText = ((plexCollected / serverCost) * 100).toFixed(0) + "% DÆKKET";
+                document.getElementById('coverage-text').innerText = ((plexCollected / serverCost) * 100).toFixed(0) + "% AF UDGIFT DÆKKET";
 
                 // 4. Fyld Partner Tabellen
                 const tbody = document.getElementById('payout-table-body');
                 tbody.innerHTML = '';
                 for (let agent in agentData) {
-                    const share = (agentData[agent].totalPlexVal / plexCollected) || 0;
-                    const payout = (plexProfit * share).toFixed(2);
-                    tbody.innerHTML += `<tr><td class="p-5 font-black uppercase italic">${agent}</td><td class="p-5 text-center text-blue-600 font-bold">${agentData[agent].plexNew}</td><td class="p-5 text-center text-slate-300 font-bold">${agentData[agent].plexLegacy}</td><td class="p-5 text-center font-bold">${agentData[agent].plexNew + agentData[agent].plexLegacy}</td><td class="p-5 text-emerald-600 font-black text-right underline font-mono text-lg">€ ${payout}</td></tr>`;
+                    const shareOfPayments = (agentData[agent].totalPlexVal / plexCollected) || 0;
+                    const payout = (plexProfit * shareOfPayments).toFixed(2);
+                    tbody.innerHTML += `<tr>
+                        <td class="p-5 font-black uppercase italic">${agent}</td>
+                        <td class="p-5 text-center text-blue-600 font-bold">${agentData[agent].plexNew}</td>
+                        <td class="p-5 text-center text-slate-300 font-bold">${agentData[agent].plexLegacy}</td>
+                        <td class="p-5 text-center font-bold">${agentData[agent].plexNew + agentData[agent].plexLegacy}</td>
+                        <td class="p-5 text-emerald-600 font-black text-right underline font-mono text-lg">€ ${payout}</td>
+                    </tr>`;
                 }
 
                 // 5. Fyld IPTV Sektionen
                 const iptvBox = document.getElementById('iptv-payout-container');
                 iptvBox.innerHTML = '';
                 for (let agent in agentData) {
-                    iptvBox.innerHTML += `<div class="bg-white p-6 rounded-xl border-2 border-blue-100 shadow-lg flex justify-between items-center"><span class="text-slate-400 font-black">${agent}:</span><span class="text-2xl text-blue-700 font-mono tracking-tighter italic">€ ${agentData[agent].iptvProfit.toFixed(2)}</span></div>`;
+                    if(agentData[agent].iptvProfit > 0) {
+                        iptvBox.innerHTML += `<div class="bg-white p-6 rounded-xl border-2 border-blue-100 shadow-lg flex justify-between items-center"><span class="text-slate-400 font-black">${agent}:</span><span class="text-2xl text-blue-700 font-mono tracking-tighter italic">€ ${agentData[agent].iptvProfit.toFixed(2)}</span></div>`;
+                    }
                 }
 
-                // 6. Tegn Diagram
+                // 6. Tegn Diagram baseret på Legacy Workflow
                 updateChart(customers);
 
             } catch(e) { console.error("Fejl i regnskab:", e); }
@@ -271,15 +283,17 @@
         function updateChart(customers) {
             const ctx = document.getElementById('workflowChart').getContext('2d');
             if(myChart) myChart.destroy();
+            
             let dataPoints = Array(12).fill(0);
             const now = new Date();
 
             customers.forEach(c => {
-                if (c.category.toLowerCase().includes('iptv')) return;
+                if (!c.category || c.category.toLowerCase().includes('iptv')) return;
                 const nextPay = parseDanishDate(c.next_payment);
                 if (!nextPay) return;
+
                 const rate = (c.plan && c.plan.toLowerCase().includes('year')) ? 6.75 : 11.00;
-                
+
                 if (c.cashflow_status === 'new') {
                     for(let i=0; i<12; i++) dataPoints[i] += rate;
                 } else {
@@ -293,17 +307,18 @@
             myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Nu', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10', 'M11', 'M12'],
-                    datasets: [{ label: 'Indtjening (€)', data: dataPoints, borderColor: '#3b82f6', tension: 0.4, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.05)' },
-                               { label: 'Server (€)', data: Array(12).fill(serverCost), borderColor: '#ef4444', borderDash: [5, 5], fill: false }]
+                    labels: ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10', 'M11', 'M12'],
+                    datasets: [{ label: 'Plex Workflow (€)', data: dataPoints, borderColor: '#3b82f6', tension: 0.4, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.05)', borderWidth: 5 },
+                               { label: 'Mål (€)', data: Array(12).fill(serverCost), borderColor: '#ef4444', borderDash: [10, 5], fill: false, pointRadius: 0 }]
                 },
-                options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
         }
 
         function closeModal() { document.getElementById('configModal').style.display = 'none'; }
         function openConfigModal() { document.getElementById('configModal').style.display = 'block'; }
         function saveConfig() { serverCost = document.getElementById('cfg-euro').value; runFinance(); closeModal(); }
+        function setLang(l) { document.querySelectorAll('[data-dk]').forEach(el => el.innerText = (l === 'dk') ? el.getAttribute('data-dk') : el.getAttribute('data-uk')); }
     </script>
 </body>
-</html> 
+</html>

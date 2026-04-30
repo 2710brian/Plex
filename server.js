@@ -65,6 +65,25 @@ app.get('/api/resellers', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+app.post('/api/resellers/save', async (req, res) => {
+    const r = req.body;
+    try {
+        if (r.id) {
+            await pool.query('UPDATE resellers SET name=$1, email=$2, type=$3, status=$4, access_packages=$5, menu_access=$6, password=$7 WHERE id=$8', [r.name, r.email, r.type, r.status, r.access_packages, r.menu_access, r.password, r.id]);
+        } else {
+            await pool.query('INSERT INTO resellers (name, email, type, status, access_packages, menu_access, password) VALUES ($1,$2,$3,$4,$5,$6,$7)', [r.name, r.email, r.type, r.status, r.access_packages, r.menu_access, r.password]);
+        }
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/resellers/delete', async (req, res) => {
+    try {
+        await pool.query('DELETE FROM resellers WHERE id = $1', [req.body.id]);
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // --- 4. PAKKE SYSTEM API ---
 app.get('/api/packages', async (req, res) => {
     try {
@@ -103,6 +122,14 @@ app.get('/api/payments', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM payments ORDER BY payment_date DESC');
         res.json(result.rows);
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/payments/save', async (req, res) => {
+    const { customer_name, amount_eur, method, agent_name } = req.body;
+    try {
+        await pool.query('INSERT INTO payments (customer_name, amount_eur, method, agent_name) VALUES ($1, $2, $3, $4)', [customer_name, amount_eur, method, agent_name]);
+        res.json({ success: true });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

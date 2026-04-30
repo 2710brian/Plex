@@ -13,7 +13,6 @@
         .nav-active { background-color: #dc2626 !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
         .section-title { border-bottom: 2px solid #f3f4f6; margin: 20px 0 12px 0; padding-bottom: 6px; color: #111827; font-weight: 900; text-transform: uppercase; font-size: 0.85rem; }
         
-        /* STICKY HEADER LOGIK */
         .table-wrapper { height: calc(100vh - 180px); overflow: auto; border: 1px solid #e5e7eb; border-radius: 12px; background: white; }
         thead th { position: sticky; top: 0; z-index: 20; background-color: #f0fdf4 !important; box-shadow: 0 1px 0 #10b981; }
         
@@ -24,7 +23,6 @@
 <body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans uppercase font-black italic">
 
     <script>
-        // --- SIKKERHED OG RETTIGHEDS-STYRING ---
         const user = JSON.parse(localStorage.getItem('crm_user'));
         if(!user) { window.location.href = '/login.html'; }
 
@@ -40,7 +38,6 @@
         function logout() { localStorage.removeItem('crm_user'); window.location.href = '/login.html'; }
     </script>
 
-    <!-- SIDEBAR (Renset for Telegram) -->
     <div class="w-64 bg-slate-900 text-white flex flex-col shrink-0 shadow-2xl tracking-wider not-italic">
         <div class="p-6 text-2xl font-black border-b border-slate-800 text-red-600 tracking-tighter italic">⦿ PLEX CRM</div>
         <nav id="sidebar-nav" class="flex-1 p-4 space-y-1 text-[10px] font-bold uppercase tracking-widest">
@@ -62,7 +59,6 @@
         <div class="p-4 border-t border-slate-800 bg-black/20 text-center text-[9px] italic font-black uppercase tracking-widest text-slate-500">Admin: Brian</div>
     </div>
 
-    <!-- MAIN AREA -->
     <div class="flex-1 flex flex-col overflow-hidden not-italic font-black uppercase italic">
         <header class="bg-white shadow-sm p-5 flex justify-between items-center px-10 border-b">
             <div class="flex items-center space-x-8 flex-1">
@@ -94,7 +90,6 @@
         </main>
     </div>
 
-    <!-- MODAL: REDIGER / TILFØJ PAKKE -->
     <div id="pkgModal" class="modal">
         <div class="modal-content shadow-2xl">
             <div class="flex justify-between items-center border-b pb-4 mb-8 font-black text-emerald-600 uppercase tracking-tighter italic leading-none">
@@ -139,16 +134,17 @@
         }
 
         async function updateBadge() {
-            const res = await fetch('/api/customers');
-            const data = await res.json();
-            document.getElementById('badge-approvals').innerText = data.filter(c => c.status === 'Inactive' || c.status === 'Pending').length;
+            try {
+                const res = await fetch('/api/customers');
+                const data = await res.json();
+                document.getElementById('badge-approvals').innerText = data.filter(c => c.status === 'Inactive' || c.status === 'Pending').length;
+            } catch(e) {}
         }
 
         function render() {
             const term = document.getElementById('pkgSearch').value.toLowerCase();
             const tbody = document.getElementById('settings-table-body');
             tbody.innerHTML = '';
-            
             packages.filter(p => p.name.toLowerCase().includes(term)).forEach(p => {
                 const profit = (parseFloat(p.sale_eur) - parseFloat(p.cost) - parseFloat(p.agent_comm) - parseFloat(p.reseller_comm)).toFixed(2);
                 tbody.innerHTML += `
@@ -158,7 +154,7 @@
                         <td class="p-5 text-blue-700 font-black font-mono font-black">€ ${parseFloat(p.sale_eur).toFixed(2)}</td>
                         <td class="p-5 text-orange-500 italic font-bold text-[10px] font-mono">€ ${parseFloat(p.agent_comm).toFixed(2)}</td>
                         <td class="p-5 text-blue-400 italic font-bold text-[10px] font-mono">€ ${parseFloat(p.reseller_comm).toFixed(2)}</td>
-                        <td class="p-5 text-emerald-600 font-black underline italic font-mono text-sm font-black">€ ${profit}</td>
+                        <td class="p-5 text-emerald-600 underline font-black italic font-mono text-sm font-black">€ ${profit}</td>
                         <td class="p-5 text-center text-gray-200 text-xl font-light">⚙️</td>
                     </tr>`;
             });
@@ -196,8 +192,10 @@
                 agent_comm: document.getElementById('edit-agent').value,
                 reseller_comm: document.getElementById('edit-reseller').value
             };
-            await fetch('/api/packages/save', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
-            closeModal(); fetchPkgs();
+            try {
+                const res = await fetch('/api/packages/save', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+                if(res.ok) { closeModal(); fetchPkgs(); }
+            } catch(err) { console.error(err); }
         }
 
         async function deletePkg() {
@@ -206,7 +204,6 @@
             closeModal(); fetchPkgs();
         }
 
-        function setLang(lang) { /* Same as index */ }
         function closeModal() { document.getElementById('pkgModal').style.display = 'none'; }
     </script>
 </body>

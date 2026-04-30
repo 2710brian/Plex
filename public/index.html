@@ -472,21 +472,21 @@
             return '';
         }
 
-        async function fetchCustomers() {
+       async function fetchCustomers() {
+            console.log("Forsøger at hente klienter...");
             try {
                 const res = await fetch('/api/customers');
-                let allData = await res.json();
+                if (!res.ok) throw new Error('Server svarede ikke (Status: ' + res.status + ')');
                 
-                // Opdateret sikkerhedstjek så admin altid ser alle kunder
-                if (!isAdmin) {
-                    customers = allData.filter(c => c.agent === user.name || c.agent === user.email);
-                } else {
-                    customers = allData;
-                }
-
+                let allData = await res.json();
+                console.log("Data modtaget:", allData);
+                
+                customers = allData;
                 renderTable();
-                document.getElementById('badge-count').innerText = customers.filter(c => c.status === 'Inactive' || c.status === 'Pending').length;
-            } catch (e) { console.error("Database connection failed", e); }
+            } catch (e) {
+                console.error("DER ER FEJL I FORBINDELSEN:", e);
+                document.getElementById('client-table-body').innerHTML = "<tr><td colspan='14'>FEJL: Kunne ikke hente data. Tjek din server-forbindelse.</td></tr>";
+            }
         }
 
         function renderTable() {

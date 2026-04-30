@@ -143,9 +143,9 @@
         // Tjek om bruger er admin UANSET om det staves med stort eller småt 'A'
         const isAdmin = user && user.type && user.type.toLowerCase() === 'admin';
 
-        // Denne funktion tjekker de rettigheder
+    // Denne funktion tjekker de rettigheder
         function checkAccess() {
-            if (isAdmin) return; // Admin har altid adgang til alt
+            return; // Vi springer alt tjek over og viser alt
 
             const allowedPages = user.menu_access ? user.menu_access.split(',') : ['index.html'];
             const navLinks = document.querySelectorAll('#sidebar-nav a');

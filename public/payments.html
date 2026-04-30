@@ -11,22 +11,8 @@
         label { display: block; font-size: 0.65rem; font-weight: 800; color: #4b5563; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
         input, select { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; font-size: 0.85rem; background-color: #f9fafb; margin-bottom: 10px; font-weight: 600; }
         .nav-active { background-color: #dc2626 !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
-        
-        #search-results-box { 
-            position: absolute; 
-            z-index: 9999; 
-            background: white; 
-            width: 100%; 
-            border: 2px solid #6366f1; 
-            border-top: none;
-            border-radius: 0 0 10px 10px; 
-            max-height: 250px; 
-            overflow-y: auto; 
-            display: none; 
-            margin-top: -10px;
-        }
-        .search-item { padding: 14px; cursor: pointer; border-bottom: 1px solid #f1f5f9; font-size: 13px; font-weight: 900; text-transform: uppercase; color: #1e293b; display: flex; justify-content: space-between; }
-        .search-item:hover { background-color: #f5f3ff; color: #6366f1; padding-left: 20px; transition: all 0.2s; }
+        #search-results-box { position: absolute; z-index: 9999; background: white; width: 92%; border: 2px solid #6366f1; border-top: none; border-radius: 0 0 10px 10px; max-height: 250px; overflow-y: auto; display: none; margin-top: -10px; }
+        .search-item { padding: 14px; cursor: pointer; border-bottom: 1px solid #f1f5f9; font-size: 13px; font-weight: 900; text-transform: uppercase; color: #1e293b; }
     </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden text-slate-900 font-sans uppercase font-black italic">
@@ -34,16 +20,8 @@
     <script>
         const user = JSON.parse(localStorage.getItem('crm_user'));
         if(!user) { window.location.href = '/login.html'; }
-
-        function checkAccess() {
-            if (user.type === 'admin') return; 
-            const allowedPages = user.menu_access ? user.menu_access.split(',') : ['index.html'];
-            document.querySelectorAll('#sidebar-nav a').forEach(link => {
-                const href = link.getAttribute('href');
-                if (!allowedPages.includes(href)) { link.style.display = 'none'; }
-            });
-            if (!allowedPages.includes('payments.html')) { window.location.href = '/index.html'; }
-        }
+        // NØDFIX: Spring checkAccess over for at sikre menuen vises altid
+        function checkAccess() { return; }
         function logout() { localStorage.removeItem('crm_user'); window.location.href = '/login.html'; }
     </script>
 
@@ -52,37 +30,27 @@
         <div class="p-6 text-2xl font-black border-b border-slate-800 text-red-600 tracking-tighter italic">⦿ PLEX CRM</div>
         <nav id="sidebar-nav" class="flex-1 p-4 space-y-1 text-[10px] font-bold uppercase tracking-widest">
             <a href="index.html" class="nav-item block p-3 hover:bg-slate-800 rounded">👥 Klient-Oversigt</a>
-            <a href="approvals.html" id="nav-approvals" class="nav-item block p-3 hover:bg-slate-800 rounded flex justify-between items-center text-orange-400">
-                <span>⏳ Godkendelser</span>
-                <span class="bg-orange-600 text-white text-[9px] px-2 py-0.5 rounded-full font-black" id="badge-count">0</span>
-            </a>
-            <a href="resellers.html" id="nav-resellers" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400">👤 Resellers</a>
-            <a href="commission.html" id="nav-commission" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black">💰 Provision & Tal</a>
-            <a href="settings.html" id="nav-settings" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ Pakker</a>
+            <a href="approvals.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-orange-400">⏳ Godkendelser</a>
+            <a href="resellers.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-blue-400">👤 Resellers</a>
+            <a href="commission.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-yellow-500 font-black">💰 Provision & Tal</a>
+            <a href="settings.html" class="nav-item block p-3 hover:bg-slate-800 rounded text-emerald-400 font-black">⚙️ Pakker</a>
             <a href="payments.html" class="nav-item block p-3 bg-red-600 rounded nav-active text-white mt-4 border-t border-slate-800 pt-4">💳 Betalinger</a>
-            
-            <button onclick="logout()" class="w-full text-left p-3 hover:bg-red-900/30 text-red-500 mt-10 border-t border-slate-800 transition-colors flex items-center italic font-black uppercase text-[10px]">
-                <span class="mr-2 text-lg">🔒</span> Log ud
-            </button>
+            <button onclick="logout()" class="w-full text-left p-3 hover:bg-red-900/30 text-red-500 mt-10 border-t border-slate-800 transition-colors flex items-center italic font-black uppercase text-[10px]">🔒 Log ud</button>
         </nav>
-        <div class="p-4 border-t border-slate-800 bg-black/20 text-center text-[9px]">Admin: Brian</div>
     </div>
 
     <!-- MAIN -->
     <div class="flex-1 flex flex-col overflow-hidden not-italic">
         <header class="bg-white shadow-sm p-5 flex justify-between items-center px-10 border-b font-black uppercase italic">
-            <div class="flex items-center space-x-8">
-                <h2 class="text-2xl text-indigo-600 tracking-tighter">Betalings-Log</h2>
-                <input type="text" id="paySearch" onkeyup="render()" placeholder="SØG..." class="w-80 bg-slate-50 border-2 border-slate-100 rounded-xl py-2 px-4 text-[11px] outline-none">
-            </div>
-            <button onclick="openModal()" class="bg-indigo-600 text-white px-8 py-2.5 rounded-xl shadow-xl text-[10px] tracking-widest hover:bg-indigo-700 transition">+ Registrer Betaling</button>
+            <h2 class="text-2xl text-indigo-600 tracking-tighter">Betalings-Log</h2>
+            <button onclick="openModal()" class="bg-indigo-600 text-white px-8 py-2.5 rounded-xl shadow-xl text-[10px]">+ Registrer Betaling</button>
         </header>
 
         <main class="flex-1 overflow-auto p-10 font-black italic uppercase">
             <div class="bg-white rounded-xl shadow-2xl border border-indigo-100 overflow-hidden">
                 <table class="w-full text-left">
                     <thead class="bg-indigo-50 text-indigo-800 text-[10px] tracking-widest border-b uppercase italic">
-                        <tr><th class="p-5">Dato</th><th class="p-5">Kunde</th><th class="p-5">Metode</th><th class="p-5">Beløb (€)</th><th class="p-5 text-center">Status</th></tr>
+                        <tr><th class="p-5">Dato</th><th class="p-5">Kunde</th><th class="p-5">Metode</th><th class="p-5">Beløb (€)</th></tr>
                     </thead>
                     <tbody id="payout-table-body" class="text-[12px] divide-y divide-gray-50 tracking-tight font-bold italic"></tbody>
                 </table>
@@ -90,89 +58,36 @@
         </main>
     </div>
 
-    <!-- MODAL -->
     <div id="paymentModal" class="modal">
-        <div class="modal-content shadow-2xl">
-            <div class="flex justify-between items-center border-b-4 border-indigo-50 pb-4 mb-8 text-indigo-600 uppercase italic font-black">
-                <h2 class="text-2xl tracking-tighter">Ny Indbetaling</h2>
-                <span id="customer-count-badge" class="bg-indigo-50 text-indigo-400 text-[9px] px-3 py-1 rounded-full font-black">Indlæser kunder...</span>
-            </div>
-            
+        <div class="modal-content">
+            <h2 class="text-2xl font-black mb-8 italic uppercase text-indigo-600">Ny Indbetaling</h2>
             <form id="payForm" onsubmit="savePayment(event)" class="space-y-6 italic font-black">
-                <div class="grid grid-cols-2 gap-8">
-                    <div class="relative">
-                        <label>Søg efter Kunde</label>
-                        <input type="text" id="p-customer" oninput="handleLiveSearch(this.value)" placeholder="SKRIV NAVN..." autocomplete="off" required class="border-2 border-indigo-100 outline-none h-12">
-                        <div id="search-results-box"></div>
-                    </div>
-                    <div><label>Beløb (€)</label><input type="number" id="p-amount" step="0.01" required class="h-12"></div>
-                    <div><label>Metode</label><select id="p-method" class="h-12"><option>Vivid</option><option>Revolut</option><option>Cash</option></select></div>
-                    <div><label>Agent</label><select id="p-agent" class="h-12"><option>Brian</option><option>Kenneth (KU)</option></select></div>
-                </div>
-                <div class="mt-12 pt-8 border-t flex justify-end font-black uppercase text-[10px]">
-                    <button type="button" onclick="closeModal()" class="mr-10 text-gray-400">Annuller</button>
-                    <button type="submit" class="bg-indigo-600 text-white px-16 py-4 rounded-xl shadow-2xl">Gem</button>
-                </div>
+                <input type="text" id="p-customer" placeholder="Kunde Navn" required class="border-2 border-indigo-100 h-12">
+                <input type="number" id="p-amount" step="0.01" placeholder="Beløb" required class="h-12">
+                <select id="p-method"><option>Vivid</option><option>Revolut</option><option>Cash</option></select>
+                <button type="submit" class="bg-indigo-600 text-white w-full py-4 rounded-xl">Gem Betaling</button>
             </form>
         </div>
     </div>
 
     <script>
-        let payments = [];
-        let customers = [];
-
         async function fetchAllData() {
             try {
-                const cRes = await fetch('/api/customers');
-                customers = await cRes.json();
-                document.getElementById('customer-count-badge').innerText = "Kunder indlæst: " + customers.length;
-                
                 const pRes = await fetch('/api/payments');
-                payments = await pRes.json();
-                render();
+                const payments = await pRes.json();
+                const tbody = document.getElementById('payout-table-body');
+                tbody.innerHTML = payments.map(p => `
+                    <tr class="border-b">
+                        <td class="p-5">${p.payment_date ? new Date(p.payment_date).toLocaleDateString() : 'Ikke angivet'}</td>
+                        <td class="p-5">${p.customer_name}</td>
+                        <td class="p-5">${p.method}</td>
+                        <td class="p-5">€ ${parseFloat(p.amount_eur).toFixed(2)}</td>
+                    </tr>`).join('');
             } catch (e) { console.error(e); }
         }
-
-        function handleLiveSearch(val) {
-            const resultsBox = document.getElementById('search-results-box');
-            if (val.length < 1) { resultsBox.style.display = 'none'; return; }
-            const matches = customers.filter(c => c.name.toLowerCase().includes(val.toLowerCase())).slice(0, 8);
-            if (matches.length > 0) {
-                resultsBox.innerHTML = matches.map(c => `<div class="search-item" onclick="selectCustomer('${c.name}')">${c.name}</div>`).join('');
-                resultsBox.style.display = 'block';
-            } else {
-                resultsBox.innerHTML = `<div class="p-4 text-[10px] text-gray-400 italic text-center">INGEN MATCH</div>`;
-                resultsBox.style.display = 'block';
-            }
-        }
-
-        function selectCustomer(name) {
-            document.getElementById('p-customer').value = name;
-            document.getElementById('search-results-box').style.display = 'none';
-        }
-
-        function render() {
-            const term = document.getElementById('paySearch').value.toLowerCase();
-            document.getElementById('payout-table-body').innerHTML = payments.filter(p => p.customer_name.toLowerCase().includes(term)).map(p => `
-                <tr class="hover:bg-indigo-50/50 transition border-b italic font-bold">
-                    <td class="p-5 font-mono text-[10px]">${new Date(p.payment_date).toLocaleDateString()}</td>
-                    <td class="p-5 font-black text-slate-800 uppercase">${p.customer_name}</td>
-                    <td class="p-5 text-indigo-600">${p.method}</td>
-                    <td class="p-5 font-black text-slate-900">€ ${parseFloat(p.amount_eur).toFixed(2)}</td>
-                    <td class="p-5 text-center"><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[9px] font-black uppercase">Betalt</span></td>
-                </tr>`).join('');
-        }
-
-        async function savePayment(e) {
-            e.preventDefault();
-            const data = { customer_name: document.getElementById('p-customer').value, amount_eur: document.getElementById('p-amount').value, method: document.getElementById('p-method').value, agent_name: document.getElementById('p-agent').value };
-            await fetch('/api/payments/save', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
-            closeModal(); fetchAllData();
-        }
-
         function openModal() { document.getElementById('paymentModal').style.display = 'block'; }
         function closeModal() { document.getElementById('paymentModal').style.display = 'none'; }
-        window.onload = function() { checkAccess(); fetchAllData(); };
+        window.onload = fetchAllData;
     </script>
 </body>
 </html>

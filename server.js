@@ -16,24 +16,15 @@ const pool = new Pool({
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        const result = await pool.query(
-            'SELECT * FROM resellers WHERE email = $1 AND password = $2 AND status = \'Active\'',
-            [email, password]
-        );
-        if (result.rows.length > 0) {
-            res.json({ success: true, user: result.rows[0] });
-        } else {
-            res.status(401).json({ success: false });
-        }
+        const result = await pool.query('SELECT * FROM resellers WHERE email = $1 AND password = $2 AND status = \'Active\'', [email, password]);
+        if (result.rows.length > 0) res.json({ success: true, user: result.rows[0] });
+        else res.status(401).json({ success: false });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // --- 2. KUNDE / KLIENT API ---
 app.get('/api/customers', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM customers ORDER BY name ASC');
-        res.json(result.rows);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    try { const result = await pool.query('SELECT * FROM customers ORDER BY name ASC'); res.json(result.rows); } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.post('/api/customers/save', async (req, res) => {
@@ -51,18 +42,12 @@ app.post('/api/customers/save', async (req, res) => {
 });
 
 app.post('/api/customers/delete', async (req, res) => {
-    try {
-        await pool.query('DELETE FROM customers WHERE id = $1', [req.body.id]);
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    try { await pool.query('DELETE FROM customers WHERE id = $1', [req.body.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // --- 3. RESELLER / PARTNER API ---
 app.get('/api/resellers', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM resellers ORDER BY id ASC');
-        res.json(result.rows);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    try { const result = await pool.query('SELECT * FROM resellers ORDER BY id ASC'); res.json(result.rows); } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.post('/api/resellers/save', async (req, res) => {
@@ -78,59 +63,38 @@ app.post('/api/resellers/save', async (req, res) => {
 });
 
 app.post('/api/resellers/delete', async (req, res) => {
-    try {
-        await pool.query('DELETE FROM resellers WHERE id = $1', [req.body.id]);
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    try { await pool.query('DELETE FROM resellers WHERE id = $1', [req.body.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // --- 4. PAKKE SYSTEM API ---
 app.get('/api/packages', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM packages ORDER BY id ASC');
-        res.json(result.rows);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    try { const result = await pool.query('SELECT * FROM packages ORDER BY id ASC'); res.json(result.rows); } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.post('/api/packages/save', async (req, res) => {
     const p = req.body;
     try {
         if (p.id) {
-            await pool.query(
-                'UPDATE packages SET name=$1, cost=$2, sale_eur=$3, agent_comm=$4, reseller_comm=$5 WHERE id=$6',
-                [p.name, p.cost, p.sale_eur, p.agent_comm, p.reseller_comm, p.id]
-            );
+            await pool.query('UPDATE packages SET name=$1, cost=$2, sale_eur=$3, agent_comm=$4, reseller_comm=$5 WHERE id=$6', [p.name, p.cost, p.sale_eur, p.agent_comm, p.reseller_comm, p.id]);
         } else {
-            await pool.query(
-                'INSERT INTO packages (name, cost, sale_eur, agent_comm, reseller_comm) VALUES ($1, $2, $3, $4, $5)',
-                [p.name, p.cost, p.sale_eur, p.agent_comm, p.reseller_comm]
-            );
+            await pool.query('INSERT INTO packages (name, cost, sale_eur, agent_comm, reseller_comm) VALUES ($1, $2, $3, $4, $5)', [p.name, p.cost, p.sale_eur, p.agent_comm, p.reseller_comm]);
         }
         res.json({ success: true });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.post('/api/packages/delete', async (req, res) => {
-    try {
-        await pool.query('DELETE FROM packages WHERE id = $1', [req.body.id]);
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    try { await pool.query('DELETE FROM packages WHERE id = $1', [req.body.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // --- 5. BETALINGS API ---
 app.get('/api/payments', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM payments ORDER BY payment_date DESC');
-        res.json(result.rows);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    try { const result = await pool.query('SELECT * FROM payments ORDER BY payment_date DESC'); res.json(result.rows); } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.post('/api/payments/save', async (req, res) => {
     const { customer_name, amount_eur, method, agent_name } = req.body;
-    try {
-        await pool.query('INSERT INTO payments (customer_name, amount_eur, method, agent_name) VALUES ($1, $2, $3, $4)', [customer_name, amount_eur, method, agent_name]);
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    try { await pool.query('INSERT INTO payments (customer_name, amount_eur, method, agent_name) VALUES ($1, $2, $3, $4)', [customer_name, amount_eur, method, agent_name]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // --- 6. NAVIGATION OG START-SIDE ---

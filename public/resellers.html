@@ -212,10 +212,14 @@
             p.type = p.type === 'password' ? 'text' : 'password';
         }
 
-        async function savePartner(e) {
+  async function savePartner(e) {
             e.preventDefault();
+            
+            // Hent data fra felterne
+            const idVal = document.getElementById('p-id').value;
+            
             const data = {
-                id: document.getElementById('p-id').value,
+                id: idVal ? idVal : null,
                 name: document.getElementById('p-name').value,
                 email: document.getElementById('p-email').value,
                 password: document.getElementById('p-pass').value,
@@ -224,19 +228,61 @@
                 menu_access: Array.from(document.querySelectorAll('.menu-check:checked')).map(cb => cb.value).join(','),
                 access_packages: Array.from(document.querySelectorAll('.pkg-check:checked')).map(cb => cb.value).join(',')
             };
-            await fetch('/api/resellers/save', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
-            closeModal(); fetchAll();
+
+            try {
+                const res = await fetch('/api/resellers/save', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify(data) 
+                });
+                
+                if (res.ok) {
+                    closeModal(); 
+                    fetchAll(); 
+                } else {
+                    alert('Kunne ikke gemme partner. Tjek alle felter.');
+                }
+            } catch (err) {
+                console.error("Gemme-fejl:", err);
+            }
         }
 
         async function deletePartner() {
             const id = document.getElementById('p-id').value;
-            if(!confirm('Slet partner?')) return;
-            await fetch('/api/resellers/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
-            closeModal(); fetchAll();
+            
+            if (!id) {
+                alert("Der er ikke valgt en partner at slette.");
+                return;
+            }
+
+            if (!confirm('ER DU SIKKER? Dette sletter partneren permanent fra databasen.')) return;
+            
+            try {
+                const res = await fetch('/api/resellers/delete', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ id: id }) 
+                });
+                
+                if (res.ok) {
+                    closeModal(); 
+                    fetchAll();
+                } else {
+                    alert('Kunne ikke slette partneren.');
+                }
+            } catch (err) {
+                console.error("Slette-fejl:", err);
+            }
         }
 
-        function closeModal() { document.getElementById('partnerModal').style.display = 'none'; }
-        window.onload = function() { checkAccess(); fetchAll(); };
+        function closeModal() { 
+            document.getElementById('partnerModal').style.display = 'none'; 
+        }
+
+        window.onload = function() { 
+            checkAccess(); 
+            fetchAll(); 
+        };
     </script>
 </body>
 </html>

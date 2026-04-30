@@ -73,17 +73,16 @@
     <script>
         async function fetchAllData() {
             try {
+                // Hent Kunder til søgeboksen
+                const cRes = await fetch('/api/customers');
+                customers = await cRes.json();
+                document.getElementById('customer-count-badge').innerText = "Kunder indlæst: " + customers.length;
+                
+                // Hent Betalinger
                 const pRes = await fetch('/api/payments');
-                const payments = await pRes.json();
-                const tbody = document.getElementById('payout-table-body');
-                tbody.innerHTML = payments.map(p => `
-                    <tr class="border-b">
-                        <td class="p-5">${p.payment_date ? new Date(p.payment_date).toLocaleDateString() : 'Ikke angivet'}</td>
-                        <td class="p-5">${p.customer_name}</td>
-                        <td class="p-5">${p.method}</td>
-                        <td class="p-5">€ ${parseFloat(p.amount_eur).toFixed(2)}</td>
-                    </tr>`).join('');
-            } catch (e) { console.error(e); }
+                payments = await pRes.json();
+                render();
+            } catch (e) { console.error("Fejl ved hentning af data", e); }
         }
         function openModal() { document.getElementById('paymentModal').style.display = 'block'; }
         function closeModal() { document.getElementById('paymentModal').style.display = 'none'; }

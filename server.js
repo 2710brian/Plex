@@ -16,7 +16,10 @@ const pool = new Pool({
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        const result = await pool.query('SELECT * FROM resellers WHERE email = $1 AND password = $2 AND status = \'Active\'', [email, password]);
+        const result = await pool.query(
+            'SELECT * FROM resellers WHERE email = $1 AND password = $2 AND status = \'Active\'',
+            [email, password]
+        );
         if (result.rows.length > 0) res.json({ success: true, user: result.rows[0] });
         else res.status(401).json({ success: false });
     } catch (err) { res.status(500).json({ error: err.message }); }
@@ -95,6 +98,11 @@ app.get('/api/payments', async (req, res) => {
 app.post('/api/payments/save', async (req, res) => {
     const { customer_name, amount_eur, method, agent_name } = req.body;
     try { await pool.query('INSERT INTO payments (customer_name, amount_eur, method, agent_name) VALUES ($1, $2, $3, $4)', [customer_name, amount_eur, method, agent_name]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// NY TILFØJELSE: Sletning af betalinger
+app.post('/api/payments/delete', async (req, res) => {
+    try { await pool.query('DELETE FROM payments WHERE id = $1', [req.body.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // --- 6. NAVIGATION OG START-SIDE ---

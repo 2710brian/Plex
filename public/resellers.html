@@ -113,7 +113,7 @@
                     </div>
                 </section>
 
-                <div class="grid grid-cols-2 gap-10 admin-only">
+                <div class="grid grid-cols-2 gap-10" id="admin-sections">
                     <section class="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 shadow-inner">
                         <h3 class="section-title border-blue-200 text-blue-600 font-black italic">2. Menu Adgang</h3>
                         <div class="space-y-3 font-bold italic text-[11px]">
@@ -204,8 +204,13 @@
         function openPartnerModal(isEdit, id) {
             document.getElementById('partnerModal').style.display = 'block';
             const isAdmin = (user.type === 'admin');
-            document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? 'block' : 'none');
-            document.getElementById('add-partner-btn').style.display = isAdmin ? 'block' : 'none';
+            // Gennemtvungne rettigheder for admin
+            const isActuallyAdmin = (user.type && user.type.toLowerCase() === 'admin');
+            
+            // Vis/skjul sektioner baseret på admin status
+            document.getElementById('admin-sections').style.display = isActuallyAdmin ? 'grid' : 'none';
+            document.getElementById('add-partner-btn').style.display = isActuallyAdmin ? 'block' : 'none';
+            
             if(isEdit) {
                 const r = resellers.find(x => x.id === id);
                 document.getElementById('p-id').value = r.id;
@@ -214,11 +219,14 @@
                 document.getElementById('p-pass').value = r.password||'';
                 document.getElementById('p-type').value = r.type;
                 document.getElementById('p-status').value = r.status;
+                
                 const menus = (r.menu_access || '').split(',');
                 document.querySelectorAll('.menu-check').forEach(cb => cb.checked = menus.includes(cb.value));
+                
                 const pkgs = (r.access_packages || '').split(',');
                 document.querySelectorAll('.pkg-check').forEach(cb => cb.checked = pkgs.includes(cb.value));
-                document.getElementById('del-p-btn').style.display = isAdmin ? 'block' : 'none';
+                
+                document.getElementById('del-p-btn').style.display = isActuallyAdmin ? 'block' : 'none';
                 document.getElementById('modal-title').innerText = "Partner: " + r.name;
             } else {
                 document.getElementById('partnerForm').reset();

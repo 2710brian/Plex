@@ -6,7 +6,7 @@
     <title>Plex CRM - Partner Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); overflow-y: auto; }
         .modal-content { background-color: white; margin: 1% auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 900px; border-top: 8px solid #3b82f6; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
         label { display: block; font-size: 0.65rem; font-weight: 800; color: #4b5563; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
         input, select { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; font-size: 0.85rem; background-color: #f9fafb; margin-bottom: 10px; font-weight: 600; }
@@ -133,7 +133,7 @@
                 </div>
 
                 <div class="mt-12 pt-8 border-t flex justify-between items-center italic">
-                    <button type="button" id="del-p-btn" onclick="deletePartner()" class="bg-red-100 text-red-600 px-8 py-4 rounded-xl font-black uppercase text-[10px] hidden admin-only">Slet Partner 🗑️</button>
+                    <button type="button" id="del-p-btn" onclick="deletePartner()" class="bg-red-600 text-white px-8 py-4 rounded-xl font-black uppercase text-[10px] hover:bg-red-700 transition shadow-lg" style="display: none;">Slet Partner 🗑️</button>
                     <div class="flex space-x-6 ml-auto font-black uppercase">
                         <button type="button" onclick="closeModal()" class="text-gray-400 text-[11px]">Luk</button>
                         <button type="submit" id="save-btn" class="bg-blue-600 text-white px-16 py-5 rounded-xl text-sm shadow-2xl">Gem Ændringer</button>
@@ -199,13 +199,13 @@
                 document.querySelectorAll('.menu-check').forEach(cb => cb.checked = menus.includes(cb.value));
                 const pkgs = (r.access_packages || '').split(',');
                 document.querySelectorAll('.pkg-check').forEach(cb => cb.checked = pkgs.includes(cb.value));
-                document.getElementById('del-p-btn').classList.remove('hidden');
+                document.getElementById('del-p-btn').style.display = isAdmin ? 'block' : 'none';
                 document.getElementById('modal-title').innerText = "Partner: " + r.name;
             } else {
                 document.getElementById('partnerForm').reset();
                 document.getElementById('p-id').value = '';
                 document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-                document.getElementById('del-p-btn').classList.add('hidden');
+                document.getElementById('del-p-btn').style.display = 'none';
                 document.getElementById('modal-title').innerText = "Opret Ny Partner";
             }
             renderPackages();

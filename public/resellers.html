@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); overflow-y: auto; }
-        .modal-content { background-color: white; margin: 1% auto; padding: 30px; border-radius: 12px; width: 90%; max-width: 900px; border-top: 8px solid #3b82f6; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .modal-content { background-color: white; margin: 1% auto; padding: 30px; border-radius: 12px; width: 95%; max-width: 1000px; border-top: 8px solid #3b82f6; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); max-height: 90vh; overflow-y: auto; }
         label { display: block; font-size: 0.65rem; font-weight: 800; color: #4b5563; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
         input, select { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; font-size: 0.85rem; background-color: #f9fafb; margin-bottom: 10px; font-weight: 600; }
         .nav-active { background-color: #dc2626 !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
@@ -113,7 +113,7 @@
                     </div>
                 </section>
 
-                <div class="grid grid-cols-2 gap-10" id="admin-sections">
+                <div class="grid grid-cols-2 gap-10 border-t pt-8 mt-8">
                     <section class="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 shadow-inner">
                         <h3 class="section-title border-blue-200 text-blue-600 font-black italic">2. Menu Adgang</h3>
                         <div class="space-y-3 font-bold italic text-[11px]">
@@ -132,8 +132,8 @@
                     </section>
                 </div>
 
-                <div class="mt-12 pt-8 border-t flex justify-between items-center italic">
-                    <button type="button" id="del-p-btn" onclick="deletePartner()" class="bg-red-600 text-white px-8 py-4 rounded-xl font-black uppercase text-[10px] hover:bg-red-700 transition shadow-lg" style="display: none;">Slet Partner 🗑️</button>
+                <div class="mt-12 pt-8 border-t flex justify-between items-center italic bg-white sticky bottom-0 pb-4">
+                    <button type="button" id="del-p-btn" onclick="deletePartner()" class="bg-red-600 text-white px-8 py-4 rounded-xl font-black uppercase text-[10px] hover:bg-red-700 transition shadow-lg">Slet Partner 🗑️</button>
                     <div class="flex space-x-6 ml-auto font-black uppercase">
                         <button type="button" onclick="closeModal()" class="text-gray-400 text-[11px]">Luk</button>
                         <button type="submit" id="save-btn" class="bg-blue-600 text-white px-16 py-5 rounded-xl text-sm shadow-2xl">Gem Ændringer</button>
@@ -204,13 +204,6 @@
         function openPartnerModal(isEdit, id) {
             document.getElementById('partnerModal').style.display = 'block';
             const isAdmin = (user.type === 'admin');
-            // Gennemtvungne rettigheder for admin
-            const isActuallyAdmin = (user.type && user.type.toLowerCase() === 'admin');
-            
-            // Vis/skjul sektioner baseret på admin status
-            document.getElementById('admin-sections').style.display = isActuallyAdmin ? 'grid' : 'none';
-            document.getElementById('add-partner-btn').style.display = isActuallyAdmin ? 'block' : 'none';
-            
             if(isEdit) {
                 const r = resellers.find(x => x.id === id);
                 document.getElementById('p-id').value = r.id;
@@ -226,7 +219,7 @@
                 const pkgs = (r.access_packages || '').split(',');
                 document.querySelectorAll('.pkg-check').forEach(cb => cb.checked = pkgs.includes(cb.value));
                 
-                document.getElementById('del-p-btn').style.display = isActuallyAdmin ? 'block' : 'none';
+                document.getElementById('del-p-btn').style.display = 'block';
                 document.getElementById('modal-title').innerText = "Partner: " + r.name;
             } else {
                 document.getElementById('partnerForm').reset();

@@ -207,10 +207,11 @@
             p.type = p.type === 'password' ? 'text' : 'password';
         }
 
-    async function savePartner(e) {
+        async function savePartner(e) {
             e.preventDefault();
+            const idVal = document.getElementById('p-id').value;
             const data = {
-                id: document.getElementById('p-id').value || null,
+                id: idVal ? idVal : null,
                 name: document.getElementById('p-name').value,
                 email: document.getElementById('p-email').value,
                 password: document.getElementById('p-pass').value,
@@ -219,35 +220,17 @@
                 menu_access: Array.from(document.querySelectorAll('.menu-check:checked')).map(cb => cb.value).join(','),
                 access_packages: Array.from(document.querySelectorAll('.pkg-check:checked')).map(cb => cb.value).join(',')
             };
-            const res = await fetch('/api/resellers/save', { 
-                method:'POST', 
-                headers:{'Content-Type':'application/json'}, 
-                body:JSON.stringify(data) 
-            });
+            const res = await fetch('/api/resellers/save', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
             if(res.ok) { closeModal(); fetchAll(); }
             else { alert("Fejl ved gemning!"); }
         }
 
         async function deletePartner() {
             const id = document.getElementById('p-id').value;
-            if(!id) { alert("Ingen partner valgt"); return; }
             if(!confirm('Slet partner permanent?')) return;
-            const res = await fetch('/api/resellers/delete', { 
-                method:'POST', 
-                headers:{'Content-Type':'application/json'}, 
-                body:JSON.stringify({id}) 
-            });
+            const res = await fetch('/api/resellers/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
             if(res.ok) { closeModal(); fetchAll(); }
             else { alert("Fejl ved sletning!"); }
-        }
-
-        async function deletePartner() {
-            const id = document.getElementById('p-id').value;
-            if(!confirm('Slet partner permanent?')) return;
-            try {
-                const res = await fetch('/api/resellers/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
-                if(res.ok) { closeModal(); fetchAll(); }
-            } catch(err) { console.error(err); }
         }
 
         function closeModal() { document.getElementById('partnerModal').style.display = 'none'; }

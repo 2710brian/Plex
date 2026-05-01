@@ -151,13 +151,22 @@
             try {
                 const res = await fetch('/api/resellers');
                 resellers = await res.json();
+                
                 const pkgRes = await fetch('/api/packages');
-                packages = await pkgRes.json();
+                if (pkgRes.ok) {
+                    packages = await pkgRes.json();
+                    console.log("Pakker hentet:", packages);
+                    renderPackages(); // Tegn pakkerne med det samme
+                }
+                
                 render();
+                
                 const cRes = await fetch('/api/customers');
-                const cData = await cRes.json();
-                document.getElementById('badge-approvals').innerText = cData.filter(c => c.status === 'Inactive' || c.status === 'Pending').length;
-            } catch(e) { console.error(e); }
+                if (cRes.ok) {
+                    const cData = await cRes.json();
+                    document.getElementById('badge-approvals').innerText = cData.filter(c => c.status === 'Inactive' || c.status === 'Pending').length;
+                }
+            } catch(e) { console.error("Fejl i fetchAll:", e); }
         }
 
         function render() {
@@ -174,10 +183,20 @@
 
         function renderPackages() {
             const container = document.getElementById('pkg-container');
+            if (!container) return;
+            
+            if (packages.length === 0) {
+                container.innerHTML = '<p class="text-red-500 italic p-4">Ingen pakker fundet. Opret dem under Pakke Indstillinger.</p>';
+                return;
+            }
+
             container.innerHTML = packages.map(p => `
-                <label class="pkg-card flex items-center space-x-3">
-                    <input type="checkbox" value="${p.id}" class="pkg-check w-5 h-5">
-                    <span>#${p.id} ${p.name}</span>
+                <label class="pkg-card flex items-center space-x-3 hover:bg-blue-50 cursor-pointer transition p-2 rounded-lg border border-transparent hover:border-blue-200">
+                    <input type="checkbox" value="${p.id}" class="pkg-check w-5 h-5 accent-blue-600">
+                    <div class="flex flex-col">
+                        <span class="font-black text-slate-800">#${p.id} ${p.name}</span>
+                        <span class="text-[9px] text-slate-400">Salg: €${p.sale_eur} | Reseller: €${p.reseller_comm}</span>
+                    </div>
                 </label>
             `).join('');
         }
@@ -255,7 +274,10 @@
         }
 
         function closeModal() { document.getElementById('partnerModal').style.display = 'none'; }
-        window.onload = function() { checkAccess(); fetchAll(); renderPackages(); };
+        window.onload = async function() { 
+            checkAccess(); 
+            await fetchAll(); 
+        };
     </script>
 </body>
 </html>

@@ -500,9 +500,9 @@
             const currentVal = select.value;
             let html = '<option value="">Vælg Pakke...</option>';
             packages.forEach(p => {
-                html += `<option value="${p.name}">${p.name}</option>`;
+                html += `<option value="${p.name}" data-price="${p.sale_eur}">[€${p.sale_eur}] ${p.name}</option>`;
             });
-            select.outerHTML = `<select id="packageSelect" name="plan" class="bg-white text-slate-900 h-14 text-xl border-none font-black uppercase italic">${html}</select>`;
+            select.outerHTML = `<select id="packageSelect" name="plan" onchange="calculateFinancials()" class="bg-white text-slate-900 h-14 text-xl border-none font-black uppercase italic">${html}</select>`;
             if(currentVal) document.getElementById('packageSelect').value = currentVal;
         }
 
@@ -553,8 +553,23 @@
 
         function calculateFinancials() {
             const status = document.getElementById('f-cashflow_status').value;
+            const select = document.getElementById('packageSelect');
             const box = document.getElementById('profit-calc-box');
-            box.innerHTML = (status === 'legacy') ? '€ 0,00' : '€ 11,00';
+            
+            if (status === 'legacy') {
+                box.innerHTML = '€ 0,00';
+                box.className = "bg-slate-800 p-8 rounded-xl border border-slate-700 text-center font-mono text-slate-500 text-4xl italic tracking-tighter";
+            } else {
+                const selectedOption = select.options[select.selectedIndex];
+                const price = selectedOption ? selectedOption.getAttribute('data-price') : 0;
+                if (price) {
+                    box.innerHTML = '€ ' + parseFloat(price).toFixed(2);
+                    box.className = "bg-slate-800 p-8 rounded-xl border border-slate-700 text-center font-mono text-emerald-400 text-4xl italic tracking-tighter";
+                } else {
+                    box.innerHTML = '€ --,--';
+                    box.className = "bg-slate-800 p-8 rounded-xl border border-slate-700 text-center font-mono text-red-400 text-4xl italic tracking-tighter";
+                }
+            }
         }
 
         function openClientModal(isEdit, id) {

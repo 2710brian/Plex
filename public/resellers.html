@@ -126,13 +126,8 @@
 
                     <section class="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 shadow-inner">
                         <h3 class="section-title border-blue-200 text-blue-600 font-black italic">3. Pakke Adgang</h3>
-                        <div class="grid grid-cols-1 gap-2 text-[11px]">
-                            <label class="pkg-card flex items-center space-x-3"><input type="checkbox" value="1" class="pkg-check w-5 h-5"> <span>#1 Plex Årlig</span></label>
-                            <label class="pkg-card flex items-center space-x-3"><input type="checkbox" value="2" class="pkg-check w-5 h-5"> <span>#2 Plex Månedlig</span></label>
-                            <label class="pkg-card flex items-center space-x-3"><input type="checkbox" value="3" class="pkg-check w-5 h-5"> <span>#3 IPTV Månedlig</span></label>
-                            <label class="pkg-card flex items-center space-x-3"><input type="checkbox" value="4" class="pkg-check w-5 h-5"> <span>#4 Combo Månedlig</span></label>
-                            <label class="pkg-card flex items-center space-x-3"><input type="checkbox" value="5" class="pkg-check w-5 h-5"> <span>#5 Combo Årlig</span></label>
-                            <label class="pkg-card flex items-center space-x-3"><input type="checkbox" value="6" class="pkg-check w-5 h-5"> <span>#6 Combo + Boks</span></label>
+                        <div id="pkg-container" class="grid grid-cols-1 gap-2 text-[11px]">
+                            <!-- Pakkerne indlæses dynamisk her -->
                         </div>
                     </section>
                 </div>
@@ -150,11 +145,14 @@
 
     <script>
         let resellers = [];
+        let packages = [];
 
         async function fetchAll() {
             try {
                 const res = await fetch('/api/resellers');
                 resellers = await res.json();
+                const pkgRes = await fetch('/api/packages');
+                packages = await pkgRes.json();
                 render();
                 const cRes = await fetch('/api/customers');
                 const cData = await cRes.json();
@@ -174,6 +172,16 @@
                 </tr>`).join('');
         }
 
+        function renderPackages() {
+            const container = document.getElementById('pkg-container');
+            container.innerHTML = packages.map(p => `
+                <label class="pkg-card flex items-center space-x-3">
+                    <input type="checkbox" value="${p.id}" class="pkg-check w-5 h-5">
+                    <span>#${p.id} ${p.name}</span>
+                </label>
+            `).join('');
+        }
+
         function openPartnerModal(isEdit, id) {
             document.getElementById('partnerModal').style.display = 'block';
             const isAdmin = (user.type === 'admin');
@@ -191,7 +199,7 @@
                 document.querySelectorAll('.menu-check').forEach(cb => cb.checked = menus.includes(cb.value));
                 const pkgs = (r.access_packages || '').split(',');
                 document.querySelectorAll('.pkg-check').forEach(cb => cb.checked = pkgs.includes(cb.value));
-                document.getElementById('del-p-btn').classList.toggle('hidden', !isAdmin);
+                document.getElementById('del-p-btn').classList.remove('hidden');
                 document.getElementById('modal-title').innerText = "Partner: " + r.name;
             } else {
                 document.getElementById('partnerForm').reset();
@@ -200,6 +208,7 @@
                 document.getElementById('del-p-btn').classList.add('hidden');
                 document.getElementById('modal-title').innerText = "Opret Ny Partner";
             }
+            renderPackages();
         }
 
         function togglePass() {
@@ -227,14 +236,26 @@
 
         async function deletePartner() {
             const id = document.getElementById('p-id').value;
-            if(!confirm('Slet partner permanent?')) return;
-            const res = await fetch('/api/resellers/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
-            if(res.ok) { closeModal(); fetchAll(); }
-            else { alert("Fejl ved sletning!"); }
+            const name = document.getElementById('p-name').value;
+            if(!confirm(`Slet partner "${name}" permanent? Dette kan ikke fortrydes.`)) return;
+            try {
+                const res = await fetch('/api/resellers/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: parseInt(id)}) });
+                if(res.ok) { 
+                    alert('Partner slettet succesfuldt!');
+                    closeModal(); 
+                    fetchAll(); 
+                }
+                else { 
+                    const error = await res.json();
+                    alert("Fejl ved sletning: " + (error.error || 'Ukendt fejl')); 
+                }
+            } catch(e) {
+                alert("Fejl ved sletning: " + e.message);
+            }
         }
 
         function closeModal() { document.getElementById('partnerModal').style.display = 'none'; }
-        window.onload = function() { checkAccess(); fetchAll(); };
+        window.onload = function() { checkAccess(); fetchAll(); renderPackages(); };
     </script>
 </body>
 </html>

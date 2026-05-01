@@ -156,7 +156,6 @@
                 const res = await fetch('/api/resellers');
                 resellers = await res.json();
                 render();
-                
                 const cRes = await fetch('/api/customers');
                 const cData = await cRes.json();
                 document.getElementById('badge-approvals').innerText = cData.filter(c => c.status === 'Inactive' || c.status === 'Pending').length;
@@ -178,10 +177,8 @@
         function openPartnerModal(isEdit, id) {
             document.getElementById('partnerModal').style.display = 'block';
             const isAdmin = (user.type === 'admin');
-            
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? 'block' : 'none');
             document.getElementById('add-partner-btn').style.display = isAdmin ? 'block' : 'none';
-
             if(isEdit) {
                 const r = resellers.find(x => x.id === id);
                 document.getElementById('p-id').value = r.id;
@@ -190,12 +187,10 @@
                 document.getElementById('p-pass').value = r.password||'';
                 document.getElementById('p-type').value = r.type;
                 document.getElementById('p-status').value = r.status;
-                
                 const menus = (r.menu_access || '').split(',');
                 document.querySelectorAll('.menu-check').forEach(cb => cb.checked = menus.includes(cb.value));
                 const pkgs = (r.access_packages || '').split(',');
                 document.querySelectorAll('.pkg-check').forEach(cb => cb.checked = pkgs.includes(cb.value));
-                
                 document.getElementById('del-p-btn').classList.toggle('hidden', !isAdmin);
                 document.getElementById('modal-title').innerText = "Partner: " + r.name;
             } else {
@@ -212,14 +207,10 @@
             p.type = p.type === 'password' ? 'text' : 'password';
         }
 
-  async function savePartner(e) {
+    async function savePartner(e) {
             e.preventDefault();
-            
-            // Hent data fra felterne
-            const idVal = document.getElementById('p-id').value;
-            
             const data = {
-                id: idVal ? idVal : null,
+                id: document.getElementById('p-id').value || null,
                 name: document.getElementById('p-name').value,
                 email: document.getElementById('p-email').value,
                 password: document.getElementById('p-pass').value,
@@ -228,61 +219,39 @@
                 menu_access: Array.from(document.querySelectorAll('.menu-check:checked')).map(cb => cb.value).join(','),
                 access_packages: Array.from(document.querySelectorAll('.pkg-check:checked')).map(cb => cb.value).join(',')
             };
-
-            try {
-                const res = await fetch('/api/resellers/save', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify(data) 
-                });
-                
-                if (res.ok) {
-                    closeModal(); 
-                    fetchAll(); 
-                } else {
-                    alert('Kunne ikke gemme partner. Tjek alle felter.');
-                }
-            } catch (err) {
-                console.error("Gemme-fejl:", err);
-            }
+            const res = await fetch('/api/resellers/save', { 
+                method:'POST', 
+                headers:{'Content-Type':'application/json'}, 
+                body:JSON.stringify(data) 
+            });
+            if(res.ok) { closeModal(); fetchAll(); }
+            else { alert("Fejl ved gemning!"); }
         }
 
         async function deletePartner() {
             const id = document.getElementById('p-id').value;
-            
-            if (!id) {
-                alert("Der er ikke valgt en partner at slette.");
-                return;
-            }
+            if(!id) { alert("Ingen partner valgt"); return; }
+            if(!confirm('Slet partner permanent?')) return;
+            const res = await fetch('/api/resellers/delete', { 
+                method:'POST', 
+                headers:{'Content-Type':'application/json'}, 
+                body:JSON.stringify({id}) 
+            });
+            if(res.ok) { closeModal(); fetchAll(); }
+            else { alert("Fejl ved sletning!"); }
+        }
 
-            if (!confirm('ER DU SIKKER? Dette sletter partneren permanent fra databasen.')) return;
-            
+        async function deletePartner() {
+            const id = document.getElementById('p-id').value;
+            if(!confirm('Slet partner permanent?')) return;
             try {
-                const res = await fetch('/api/resellers/delete', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ id: id }) 
-                });
-                
-                if (res.ok) {
-                    closeModal(); 
-                    fetchAll();
-                } else {
-                    alert('Kunne ikke slette partneren.');
-                }
-            } catch (err) {
-                console.error("Slette-fejl:", err);
-            }
+                const res = await fetch('/api/resellers/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
+                if(res.ok) { closeModal(); fetchAll(); }
+            } catch(err) { console.error(err); }
         }
 
-        function closeModal() { 
-            document.getElementById('partnerModal').style.display = 'none'; 
-        }
-
-        window.onload = function() { 
-            checkAccess(); 
-            fetchAll(); 
-        };
+        function closeModal() { document.getElementById('partnerModal').style.display = 'none'; }
+        window.onload = function() { checkAccess(); fetchAll(); };
     </script>
 </body>
 </html>

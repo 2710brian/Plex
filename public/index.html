@@ -357,7 +357,9 @@
                     <div class="grid grid-cols-3 gap-10 items-center font-bold">
                         <div>
                             <label class="text-red-500 uppercase tracking-widest">Plan / Pakke</label>
-                            <input type="text" id="packageSelect" name="plan" class="bg-white text-slate-900 h-14 text-xl border-none">
+                            <select id="packageSelect" name="plan" class="bg-white text-slate-900 h-14 text-xl border-none font-black uppercase italic">
+                                <option value="">Indlæser pakker...</option>
+                            </select>
                         </div>
                         <div>
                             <label class="text-yellow-500 uppercase italic underline underline-offset-4 decoration-yellow-400">Cashflow Status</label>
@@ -437,7 +439,7 @@
                 </section>
 
                 <div class="mt-12 pt-8 border-t flex justify-between items-center italic font-black uppercase">
-                    <button type="button" id="btn-delete" onclick="deleteCustomer()" class="bg-red-100 text-red-600 px-8 py-4 rounded-xl text-[11px] hidden hover:bg-red-200 transition shadow-lg">SLET KUNDE PERMANENT 🗑️</button>
+                    <button type="button" id="btn-delete" onclick="deleteCustomer()" class="bg-red-600 text-white px-8 py-4 rounded-xl text-[11px] hover:bg-red-700 transition shadow-lg" style="display: none;">SLET KUNDE PERMANENT 🗑️</button>
                     <div class="flex space-x-6 ml-auto">
                         <button type="button" onclick="closeModal()" class="text-gray-400 text-[11px] px-8">Luk</button>
                         <button type="submit" class="bg-slate-900 text-white px-20 py-5 rounded-lg text-sm shadow-2xl hover:bg-black transition">Opdater Kundekort</button>
@@ -449,6 +451,7 @@
 
     <script>
         let customers =[];
+        let packages = [];
         let sortKey = 'id';
         let sortDir = 1;
         let currentLang = 'dk';
@@ -477,16 +480,30 @@
             try {
                 const res = await fetch('/api/customers');
                 if (!res.ok) throw new Error('Server svarede ikke (Status: ' + res.status + ')');
+                customers = await res.json();
+
+                const pkgRes = await fetch('/api/packages');
+                if (pkgRes.ok) {
+                    packages = await pkgRes.json();
+                    renderPackageDropdown();
+                }
                 
-                let allData = await res.json();
-                console.log("Data modtaget:", allData);
-                
-                customers = allData;
                 renderTable();
             } catch (e) {
                 console.error("DER ER FEJL I FORBINDELSEN:", e);
                 document.getElementById('client-table-body').innerHTML = "<tr><td colspan='14'>FEJL: Kunne ikke hente data. Tjek din server-forbindelse.</td></tr>";
             }
+        }
+
+        function renderPackageDropdown() {
+            const select = document.getElementById('packageSelect');
+            const currentVal = select.value;
+            let html = '<option value="">Vælg Pakke...</option>';
+            packages.forEach(p => {
+                html += `<option value="${p.name}">${p.name}</option>`;
+            });
+            select.outerHTML = `<select id="packageSelect" name="plan" class="bg-white text-slate-900 h-14 text-xl border-none font-black uppercase italic">${html}</select>`;
+            if(currentVal) document.getElementById('packageSelect').value = currentVal;
         }
 
         function renderTable() {
@@ -544,7 +561,7 @@
             document.getElementById('clientModal').style.display = "block";
             const btnDel = document.getElementById('btn-delete');
             if(isEdit) {
-                if(isAdmin) btnDel.classList.remove('hidden');
+                btnDel.style.display = 'block';
                 const c = customers.find(x => x.id === id);
                 
                 document.getElementById('f-id').value = c.id;
@@ -594,9 +611,16 @@
 
         async function deleteCustomer() {
             const id = document.getElementById('f-id').value;
-            if(!confirm('ER DU SIKKER?')) return;
-            const res = await fetch('/api/customers/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
-            if(res.ok) { closeModal(); fetchCustomers(); }
+            const name = document.getElementById('f-name').value;
+            if(!confirm(`ER DU SIKKER PÅ AT DU VIL SLETTE "${name}"?`)) return;
+            const res = await fetch('/api/customers/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: parseInt(id)}) });
+            if(res.ok) { 
+                alert('Klient slettet!');
+                closeModal(); 
+                fetchCustomers(); 
+            } else {
+                alert('Fejl ved sletning!');
+            }
         }
 
         function setLang(lang) {

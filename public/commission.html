@@ -291,16 +291,16 @@
                     if (!agentData[agent]) agentData[agent] = { plexNew: 0, plexLegacy: 0, totalPlexVal: 0, iptvProfit: 0 };
                     
                     if (c.category && c.category.toLowerCase().includes('iptv')) {
-                        agentData[agent].iptvProfit += 10.00; // Provision pr IPTV
+                        agentData[agent].iptvProfit += 10.00;
                     } else {
                         totalPlexUnits++;
                         if (c.cashflow_status === 'new') {
                             agentData[agent].plexNew++;
-                            // Hvis det er en årskunde, læg 11/12 i vault
-                            if(c.plan && c.plan.toLowerCase().includes('year')) { vaultSum += (81 * (11/12)); }
+                            if(c.plan && c.plan.toLowerCase().includes('year')) { vaultSum += 81; }
                         } else {
                             agentData[agent].plexLegacy++;
                             legacyPlexUnits++;
+                            if(c.plan && c.plan.toLowerCase().includes('year')) { vaultSum += 81; }
                         }
                     }
                 });
@@ -356,7 +356,8 @@
         function updateChart(customers) {
             const ctx = document.getElementById('workflowChart').getContext('2d');
             if(myChart) myChart.destroy();
-            let dataPoints = Array(12).fill(0);
+            let dataPointsNew = Array(12).fill(0);
+            let dataPointsLegacy = Array(12).fill(0);
             const now = new Date();
 
             customers.forEach(c => {
@@ -366,11 +367,11 @@
                 const rate = (c.plan && c.plan.toLowerCase().includes('year')) ? 6.75 : 11.00;
                 
                 if (c.cashflow_status === 'new') {
-                    for(let i=0; i<12; i++) dataPoints[i] += rate;
+                    for(let i=0; i<12; i++) dataPointsNew[i] += rate;
                 } else {
                     const diff = (nextPay.getFullYear() - now.getFullYear()) * 12 + (nextPay.getMonth() - now.getMonth());
                     if (diff >= 0 && diff < 12) {
-                        for(let i=diff; i<12; i++) dataPoints[i] += rate;
+                        for(let i=diff; i<12; i++) dataPointsLegacy[i] += rate;
                     }
                 }
             });
@@ -379,10 +380,13 @@
                 type: 'line',
                 data: {
                     labels: ['Nu', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10', 'M11', 'M12'],
-                    datasets: [{ label: 'Workflow (€)', data: dataPoints, borderColor: '#3b82f6', tension: 0.4, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.05)', borderWidth: 5 },
-                               { label: 'Server (€)', data: Array(12).fill(serverCost), borderColor: '#ef4444', borderDash: [10, 5], fill: false, pointRadius: 0 }]
+                    datasets: [
+                        { label: 'Nye Kunder (€)', data: dataPointsNew, borderColor: '#3b82f6', tension: 0.4, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.05)', borderWidth: 5 },
+                        { label: 'Legacy Kunder (€)', data: dataPointsLegacy, borderColor: '#eab308', tension: 0.4, fill: true, backgroundColor: 'rgba(234, 179, 8, 0.1)', borderWidth: 4 },
+                        { label: 'Server Udgift (€)', data: Array(12).fill(serverCost), borderColor: '#ef4444', borderDash: [10, 5], fill: false, pointRadius: 0 }
+                    ]
                 },
-                options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+                options: { maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top' } }, scales: { y: { beginAtZero: true } } }
             });
         }
 

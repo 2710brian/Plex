@@ -518,10 +518,12 @@
             
             tbody.innerHTML = filtered.map(c => {
                 const payStyle = getPaymentStyle(c.next_payment);
+                const isLegacy = c.cashflow_status === 'legacy';
+                const rowClass = isLegacy ? 'bg-yellow-50' : 'hover:bg-gray-50';
                 return `
-                <tr class="clickable hover:bg-gray-50 border-b border-gray-50" onclick="openClientModal(true, ${c.id})">
+                <tr class="clickable ${rowClass} border-b border-gray-50" onclick="openClientModal(true, ${c.id})">
                     <td class="p-4 text-center text-gray-300 font-mono italic font-black">${c.id}</td>
-                    <td class="p-4 font-black text-slate-900 uppercase tracking-tighter">${c.name}</td>
+                    <td class="p-4 font-black text-slate-900 uppercase tracking-tighter ${isLegacy ? 'text-yellow-700' : ''}">${c.name}</td>
                     <td class="p-4 text-gray-400 font-normal lowercase italic text-[10px]">${c.email || '--'}</td>
                     <td class="p-4 font-mono text-[10px]">${c.mobile || '--'}</td>
                     <td class="p-4 italic text-slate-500">${c.category || '--'}</td>

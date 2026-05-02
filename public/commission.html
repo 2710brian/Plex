@@ -299,8 +299,11 @@
                     const agent = c.agent || 'Brian';
                     if (!agentData[agent]) agentData[agent] = { plexNew: 0, plexLegacy: 0, totalPlexVal: 0, iptvProfit: 0 };
                     
-                    if (c.category && c.category.toLowerCase().includes('iptv')) {
-                        agentData[agent].iptvProfit += 10.00;
+                    const isIPTV = (c.plan && c.plan.toLowerCase().includes('iptv')) || (c.category && c.category.toLowerCase().includes('iptv'));
+                    if (isIPTV) {
+                        const pkg = packages.find(p => p.name === c.plan);
+                        const comm = pkg ? parseFloat(pkg.reseller_comm || 0) : 10.00;
+                        agentData[agent].iptvProfit += comm;
                     } else {
                         totalPlexUnits++;
                         if (c.cashflow_status === 'new') {
@@ -381,10 +384,11 @@
                 // Find den præcise pris fra pakken
                 const pkg = packages.find(p => p.name === c.plan);
                 const rate = pkg ? parseFloat(pkg.sale_eur) : 0;
+                const isIPTV = (c.plan && c.plan.toLowerCase().includes('iptv')) || (c.category && c.category.toLowerCase().includes('iptv'));
                 
                 const diff = (nextPay.getFullYear() - now.getFullYear()) * 12 + (nextPay.getMonth() - now.getMonth());
 
-                if (c.category && c.category.toLowerCase().includes('iptv')) {
+                if (isIPTV) {
                     if (diff >= 0 && diff < 12) {
                         iptvDataPoints[diff] += rate;
                     }

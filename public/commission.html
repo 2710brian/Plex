@@ -223,7 +223,10 @@
 
             <!-- SECTION 4: IPTV -->
             <div class="bg-blue-50 border border-blue-100 rounded-xl p-8 shadow-inner italic font-black uppercase">
-                <h3 class="text-xs text-blue-600 underline underline-offset-8 mb-8 font-black uppercase italic">IPTV Netto-Overskud</h3>
+                <h3 class="text-xs text-blue-600 underline underline-offset-8 mb-8 font-black uppercase italic">IPTV Netto-Overskud & Prognose</h3>
+                <div class="chart-container mb-8 bg-white p-4 rounded-xl shadow-sm" style="height: 200px;">
+                    <canvas id="iptvChart"></canvas>
+                </div>
                 <div id="iptv-payout-container" class="grid grid-cols-2 gap-8 italic font-black uppercase">
                     <!-- JS fylder her -->
                 </div>
@@ -248,7 +251,9 @@
 
     <script>
         let myChart;
+        let iptvChart;
         let serverCost = 287.00;
+        let packages = [];
 
         // Dato-parser til dine DD-MM-YYYY data
         function parseDanishDate(str) {
@@ -270,6 +275,10 @@
 
         async function runFinance() {
             try {
+                // Hent pakker først for at have priserne
+                const pkgRes = await fetch('/api/packages');
+                if(pkgRes.ok) packages = await pkgRes.json();
+
                 // Hent kunder og betalinger
                 const cRes = await fetch('/api/customers');
                 const customers = await cRes.json();
@@ -355,23 +364,37 @@
 
         function updateChart(customers) {
             const ctx = document.getElementById('workflowChart').getContext('2d');
+            const iptvCtx = document.getElementById('iptvChart').getContext('2d');
+            
             if(myChart) myChart.destroy();
+            if(iptvChart) iptvChart.destroy();
+            
             let dataPointsNew = Array(12).fill(0);
             let dataPointsLegacy = Array(12).fill(0);
+            let iptvDataPoints = Array(12).fill(0);
             const now = new Date();
 
             customers.forEach(c => {
-                if (!c.category || c.category.toLowerCase().includes('iptv')) return;
                 const nextPay = parseDanishDate(c.next_payment);
                 if (!nextPay) return;
-                const rate = (c.plan && c.plan.toLowerCase().includes('year')) ? 6.75 : 11.00;
                 
-                if (c.cashflow_status === 'new') {
-                    for(let i=0; i<12; i++) dataPointsNew[i] += rate;
-                } else {
-                    const diff = (nextPay.getFullYear() - now.getFullYear()) * 12 + (nextPay.getMonth() - now.getMonth());
+                // Find den præcise pris fra pakken
+                const pkg = packages.find(p => p.name === c.plan);
+                const rate = pkg ? parseFloat(pkg.sale_eur) : 0;
+                
+                const diff = (nextPay.getFullYear() - now.getFullYear()) * 12 + (nextPay.getMonth() - now.getMonth());
+
+                if (c.category && c.category.toLowerCase().includes('iptv')) {
                     if (diff >= 0 && diff < 12) {
-                        for(let i=diff; i<12; i++) dataPointsLegacy[i] += rate;
+                        iptvDataPoints[diff] += rate;
+                    }
+                } else {
+                    if (c.cashflow_status === 'new') {
+                        for(let i=0; i<12; i++) dataPointsNew[i] += rate;
+                    } else {
+                        if (diff >= 0 && diff < 12) {
+                            for(let i=diff; i<12; i++) dataPointsLegacy[i] += rate;
+                        }
                     }
                 }
             });
@@ -387,6 +410,24 @@
                     ]
                 },
                 options: { maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top' } }, scales: { y: { beginAtZero: true } } }
+            });
+
+            iptvChart = new Chart(iptvCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Nu', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10', 'M11', 'M12'],
+                    datasets: [{
+                        label: 'IPTV Indtægt (€)',
+                        data: iptvDataPoints,
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 5
+                    }]
+                },
+                options: { 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
             });
         }
 

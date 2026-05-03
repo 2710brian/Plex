@@ -302,8 +302,18 @@
                             </select>
                         </div>
                         <div>
-                            <label data-dk="Kategori" data-uk="Category">Category</label>
-                            <input type="text" id="f-category" name="category">
+                            <label data-dk="Produkter" data-uk="Products">Products</label>
+                            <div class="flex space-x-4 p-3 bg-slate-50 border-2 border-slate-100 rounded-xl">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" id="has-plex" onchange="updateCategoryField()" class="w-4 h-4 text-blue-600 rounded">
+                                    <span class="text-[10px] font-bold italic uppercase">Plex</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" id="has-iptv" onchange="updateCategoryField()" class="w-4 h-4 text-blue-600 rounded">
+                                    <span class="text-[10px] font-bold italic uppercase">IPTV</span>
+                                </label>
+                            </div>
+                            <input type="hidden" id="f-category" name="category">
                         </div>
                         <div>
                             <label data-dk="Under-kat" data-uk="Sub-Cat">Sub-Category</label>
@@ -546,6 +556,16 @@
             customers.sort((a,b) => {
                 let valA = a[key] || '';
                 let valB = b[key] || '';
+                
+                if (key === 'next_payment' || key === 'created_date') {
+                    const parseDate = (s) => {
+                        if (!s || s === '--') return new Date(0);
+                        const parts = s.split('-');
+                        return new Date(parts[2], parts[1]-1, parts[0]);
+                    };
+                    return (parseDate(valA) - parseDate(valB)) * sortDir;
+                }
+
                 if(typeof valA === 'string') valA = valA.toLowerCase();
                 if(typeof valB === 'string') valB = valB.toLowerCase();
                 return (valA > valB ? 1 : -1) * sortDir;
@@ -588,9 +608,12 @@
                 document.getElementById('f-country').value = c.country || 'Spain';
                 document.getElementById('f-mobile').value = c.mobile || '';
                 document.getElementById('f-gender').value = c.gender || 'Male';
-                document.getElementById('f-lang').value = c.language || 'Danish';
-                document.getElementById('f-category').value = c.category || '';
-                document.getElementById('f-subcat').value = c.sub_category || '';
+	                document.getElementById('f-lang').value = c.language || 'Danish';
+	                document.getElementById('f-category').value = c.category || '';
+                    const cat = (c.category || '').toUpperCase();
+                    document.getElementById('has-plex').checked = cat.includes('PLEX');
+                    document.getElementById('has-iptv').checked = cat.includes('IPTV');
+	                document.getElementById('f-subcat').value = c.sub_category || '';
                 document.getElementById('f-login').value = c.login_allowed || 'No';
                 document.getElementById('f-notify').value = c.email_notifications || 'Yes';
                 document.getElementById('f-created').value = c.created_date || '';
@@ -647,6 +670,16 @@
         }
 
         function closeModal() { document.getElementById('clientModal').style.display = "none"; }
+
+        function updateCategoryField() {
+            const plex = document.getElementById('has-plex').checked;
+            const iptv = document.getElementById('has-iptv').checked;
+            let val = "";
+            if(plex && iptv) val = "PLEX + IPTV";
+            else if(plex) val = "PLEX";
+            else if(iptv) val = "IPTV";
+            document.getElementById('f-category').value = val;
+        }
     </script>
 </body>
 </html>

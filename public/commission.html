@@ -443,14 +443,18 @@
                     }
                 } else {
                     const isYear = (c.plan && c.plan.toLowerCase().includes('year'));
-                    if (c.cashflow_status === 'new') {
-                        if (!isYear) {
-                            // Kun månedlige betalinger i den blå linje
-                            for(let i=0; i<12; i++) dataPointsNew[i] += rate;
-                        }
+                    if (isYear) {
+                        // For årskunder: Læg 1/12 (6.75€) i den blå linje hver måned
+                        const monthlyShare = 6.75; 
+                        for(let i=0; i<12; i++) dataPointsNew[i] += monthlyShare;
                     } else {
-                        if (diff >= 0 && diff < 12) {
-                            for(let i=diff; i<12; i++) dataPointsLegacy[i] += rate;
+                        // For månedskunder: Læg hele beløbet i den blå linje
+                        if (c.cashflow_status === 'new') {
+                            for(let i=0; i<12; i++) dataPointsNew[i] += rate;
+                        } else {
+                            if (diff >= 0 && diff < 12) {
+                                for(let i=diff; i<12; i++) dataPointsLegacy[i] += rate;
+                            }
                         }
                     }
                 }

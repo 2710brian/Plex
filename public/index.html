@@ -643,19 +643,42 @@
         async function saveClient(e) {
             e.preventDefault();
             const form = document.getElementById('clientForm');
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
+            
+            // Vi henter alle felter manuelt for at være 100% sikre
+            const data = {
+                id: document.getElementById('f-id').value,
+                salutation: document.getElementById('f-salutation').value,
+                name: document.getElementById('f-name').value,
+                email: document.getElementById('f-email').value,
+                country: document.getElementById('f-country').value,
+                mobile: document.getElementById('f-mobile').value,
+                gender: document.getElementById('f-gender').value,
+                language: document.getElementById('f-lang').value,
+                category: document.getElementById('f-category').value,
+                sub_category: document.getElementById('f-subcat').value,
+                login_allowed: document.getElementById('f-login').value,
+                email_notifications: document.getElementById('f-notify').value,
+                created_date: document.getElementById('f-created').value,
+                company_name: document.getElementById('f-company').value,
+                website: document.getElementById('f-website').value,
+                tax_id: document.getElementById('f-vat').value,
+                address: document.getElementById('f-address').value,
+                plan: document.getElementById('packageSelect').value,
+                cashflow_status: document.getElementById('f-cashflow_status').value,
+                plex_id: document.getElementById('f-plexid').value,
+                next_payment: document.getElementById('f-nextpay').value,
+                status: document.getElementById('f-status').value,
+                paid: document.getElementById('f-paid').value,
+                mac: document.getElementById('f-mac').value,
+                app: document.getElementById('f-app').value,
+                admin_panel: document.getElementById('f-admin').value,
+                overseer: document.getElementById('f-overseer').value,
+                agent: document.getElementById('f-agent').value,
+                type: document.getElementById('f-type').value
+            };
             
             // Rens navn for titler
-            let name = data.name || "";
-            name = name.replace(/^(Mr|Mrs|Miss)\.?\s+/i, "");
-            data.name = name;
-            
-            // Sikr ID og andre felter
-            data.id = document.getElementById('f-id').value;
-            data.country = document.getElementById('f-country').value;
-            data.gender = document.getElementById('f-gender').value;
-            data.category = document.getElementById('f-category').value;
+            data.name = data.name.replace(/^(Mr|Mrs|Miss)\.?\s+/i, "");
             
             const res = await fetch('/api/customers/save', { 
                 method:'POST', 

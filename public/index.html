@@ -642,11 +642,33 @@
 
         async function saveClient(e) {
             e.preventDefault();
-            const formData = new FormData(document.getElementById('clientForm'));
+            const form = document.getElementById('clientForm');
+            const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
+            
+            // Rens navn for titler
+            let name = data.name || "";
+            name = name.replace(/^(Mr|Mrs|Miss)\.?\s+/i, "");
+            data.name = name;
+            
+            // Sikr ID og andre felter
             data.id = document.getElementById('f-id').value;
-            const res = await fetch('/api/customers/save', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
-            if(res.ok) { closeModal(); fetchCustomers(); }
+            data.country = document.getElementById('f-country').value;
+            data.gender = document.getElementById('f-gender').value;
+            data.category = document.getElementById('f-category').value;
+            
+            const res = await fetch('/api/customers/save', { 
+                method:'POST', 
+                headers:{'Content-Type':'application/json'}, 
+                body:JSON.stringify(data) 
+            });
+            
+            if(res.ok) { 
+                closeModal(); 
+                fetchCustomers(); 
+            } else {
+                alert("Fejl ved gemning af klient.");
+            }
         }
 
         async function deleteCustomer() {

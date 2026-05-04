@@ -237,15 +237,15 @@
                     <h3 class="text-[10px] text-blue-600 mb-4 underline">Plex Kalkulator (Hvad nu hvis?)</h3>
                     <div class="space-y-3">
                         <div class="flex justify-between items-center">
-                            <span class="text-[9px]">Mdr. Kunder:</span>
+                            <span class="text-[9px]">Mdr. Kunder (11€):</span>
                             <input type="number" id="calc-plex-mdr" oninput="doPlexCalc()" class="w-16 p-1 text-xs border rounded bg-slate-50" value="0">
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-[9px]">Års Kunder:</span>
+                            <span class="text-[9px]">Års Kunder (6.75€):</span>
                             <input type="number" id="calc-plex-yr" oninput="doPlexCalc()" class="w-16 p-1 text-xs border rounded bg-slate-50" value="0">
                         </div>
                         <div class="pt-2 border-t flex justify-between font-mono text-blue-600">
-                            <span class="text-[10px]">Est. Netto:</span>
+                            <span class="text-[10px]">Netto (-287€):</span>
                             <span id="calc-plex-res" class="text-sm">€ 0,00</span>
                         </div>
                     </div>
@@ -256,12 +256,20 @@
             <div class="bg-blue-50 border border-blue-100 rounded-xl p-8 shadow-inner italic font-black uppercase">
                 <div class="flex justify-between items-center mb-8">
                     <h3 class="text-xs text-blue-600 underline underline-offset-8 font-black uppercase italic">IPTV Netto-Overskud & Prognose</h3>
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-blue-100 w-64">
-                        <h3 class="text-[9px] text-blue-400 mb-2">IPTV Kalkulator</h3>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-blue-100 w-80">
+                        <h3 class="text-[9px] text-blue-400 mb-2">IPTV Kalkulator (Profit -10€ pr. stk)</h3>
                         <div class="space-y-2">
                             <div class="flex justify-between items-center">
-                                <span class="text-[8px]">Antal Kunder:</span>
-                                <input type="number" id="calc-iptv-qty" oninput="doIptvCalc()" class="w-16 p-1 text-[10px] border rounded" value="0">
+                                <span class="text-[8px]">Mdr. (26€):</span>
+                                <input type="number" id="calc-iptv-mdr" oninput="doIptvCalc()" class="w-12 p-1 text-[10px] border rounded" value="0">
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[8px]">År (200€):</span>
+                                <input type="number" id="calc-iptv-yr" oninput="doIptvCalc()" class="w-12 p-1 text-[10px] border rounded" value="0">
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[8px]">År m/Box (150€):</span>
+                                <input type="number" id="calc-iptv-box" oninput="doIptvCalc()" class="w-12 p-1 text-[10px] border rounded" value="0">
                             </div>
                             <div class="pt-1 border-t flex justify-between font-mono text-blue-700">
                                 <span class="text-[9px]">Est. Profit:</span>
@@ -500,15 +508,22 @@
         function doPlexCalc() {
             const mdr = parseInt(document.getElementById('calc-plex-mdr').value) || 0;
             const yr = parseInt(document.getElementById('calc-plex-yr').value) || 0;
-            const revenue = (mdr * 11) + (yr * 6.75); // Estimeret mdr. indtægt
+            const revenue = (mdr * 11) + (yr * 6.75);
             const profit = revenue - serverCost;
             document.getElementById('calc-plex-res').innerText = "€ " + profit.toFixed(2);
             document.getElementById('calc-plex-res').className = profit >= 0 ? "text-sm text-emerald-500" : "text-sm text-red-500";
         }
 
         function doIptvCalc() {
-            const qty = parseInt(document.getElementById('calc-iptv-qty').value) || 0;
-            const profit = qty * 10; // Estimeret 10€ pr kunde i snit
+            const mdr = parseInt(document.getElementById('calc-iptv-mdr').value) || 0;
+            const yr = parseInt(document.getElementById('calc-iptv-yr').value) || 0;
+            const box = parseInt(document.getElementById('calc-iptv-box').value) || 0;
+            
+            const revMdr = mdr * (26 - 10);
+            const revYr = yr * (200 - 10);
+            const revBox = box * (150 - 10);
+            
+            const profit = revMdr + revYr + revBox;
             document.getElementById('calc-iptv-res').innerText = "€ " + profit.toFixed(2);
         }
     </script>

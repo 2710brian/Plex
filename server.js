@@ -12,6 +12,47 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
+// DATABASE INITIALISERING - Sikrer at alle kolonner findes
+async function initializeDatabase() {
+    try {
+        // Tjek og tilføj manglende kolonner til customers tabel
+        const columnsToAdd = [
+            { name: 'salutation', type: 'VARCHAR(10)' },
+            { name: 'country', type: 'VARCHAR(100)' },
+            { name: 'gender', type: 'VARCHAR(20)' },
+            { name: 'language', type: 'VARCHAR(50)' },
+            { name: 'sub_category', type: 'VARCHAR(255)' },
+            { name: 'login_allowed', type: 'VARCHAR(10)' },
+            { name: 'email_notifications', type: 'VARCHAR(10)' },
+            { name: 'created_date', type: 'VARCHAR(50)' },
+            { name: 'company_name', type: 'VARCHAR(255)' },
+            { name: 'website', type: 'VARCHAR(255)' },
+            { name: 'tax_id', type: 'VARCHAR(100)' },
+            { name: 'address', type: 'TEXT' },
+            { name: 'mac', type: 'VARCHAR(255)' },
+            { name: 'app', type: 'VARCHAR(255)' }
+        ];
+
+        for (const col of columnsToAdd) {
+            try {
+                await pool.query(`ALTER TABLE customers ADD COLUMN ${col.name} ${col.type}`);
+                console.log(`✓ Kolonne tilføjet: ${col.name}`);
+            } catch (err) {
+                if (err.message.includes('already exists')) {
+                    // Kolonne findes allerede, det er OK
+                } else {
+                    console.log(`⚠ Kunne ikke tilføje ${col.name}: ${err.message}`);
+                }
+            }
+        }
+    } catch (err) {
+        console.error('Database initialisering fejl:', err.message);
+    }
+}
+
+// Kør database initialisering når serveren starter
+initializeDatabase();
+
 // --- 1. LOGIN API ---
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
@@ -34,14 +75,42 @@ app.post('/api/customers/save', async (req, res) => {
     const c = req.body;
     try {
         if (c.id) {
-            await pool.query(`UPDATE customers SET name=$1, email=$2, mobile=$3, category=$4, status=$5, plex_id=$6, plan=$7, next_payment=$8, paid=$9, type=$10, admin_panel=$11, plex_access=$12, overseer=$13, agent=$14, cashflow_status=$15, salutation=$16, country=$17, gender=$18, language=$19, sub_category=$20, login_allowed=$21, email_notifications=$22, created_date=$23, company_name=$24, website=$25, tax_id=$26, address=$27, mac=$28, app=$29 WHERE id=$30`,
-                [c.name, c.email, c.mobile, c.category, c.status, c.plex_id, c.plan, c.next_payment, c.paid, c.type, c.admin_panel, c.plex_access, c.overseer, c.agent, c.cashflow_status, c.salutation, c.country, c.gender, c.language, c.sub_category, c.login_allowed, c.email_notifications, c.created_date, c.company_name, c.website, c.tax_id, c.address, c.mac, c.app, c.id]);
+            // Opdater kun de felter der er defineret
+            const updateFields = [];
+            const values = [];
+            let paramIndex = 1;
+            
+            const fieldMap = {
+                name: c.name, email: c.email, mobile: c.mobile, category: c.category,
+                status: c.status, plex_id: c.plex_id, plan: c.plan, next_payment: c.next_payment,
+                paid: c.paid, type: c.type, admin_panel: c.admin_panel, plex_access: c.plex_access,
+                overseer: c.overseer, agent: c.agent, cashflow_status: c.cashflow_status,
+                salutation: c.salutation, country: c.country, gender: c.gender, language: c.language,
+                sub_category: c.sub_category, login_allowed: c.login_allowed,
+                email_notifications: c.email_notifications, created_date: c.created_date,
+                company_name: c.company_name, website: c.website, tax_id: c.tax_id,
+                address: c.address, mac: c.mac, app: c.app
+            };
+            
+            for (const [field, value] of Object.entries(fieldMap)) {
+                if (value !== undefined && value !== null) {
+                    updateFields.push(`${field}=$${paramIndex++}`);
+                    values.push(value);
+                }
+            }
+            
+            values.push(c.id);
+            const query = `UPDATE customers SET ${updateFields.join(', ')} WHERE id=$${paramIndex}`;
+            await pool.query(query, values);
         } else {
             await pool.query(`INSERT INTO customers (name, email, mobile, category, status, plex_id, plan, next_payment, paid, type, admin_panel, plex_access, overseer, agent, cashflow_status, salutation, country, gender, language, sub_category, login_allowed, email_notifications, created_date, company_name, website, tax_id, address, mac, app) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29)`,
                 [c.name, c.email, c.mobile, c.category, c.status, c.plex_id, c.plan, c.next_payment, c.paid, c.type, c.admin_panel, c.plex_access, c.overseer, c.agent, c.cashflow_status, c.salutation, c.country, c.gender, c.language, c.sub_category, c.login_allowed, c.email_notifications, c.created_date, c.company_name, c.website, c.tax_id, c.address, c.mac, c.app]);
         }
         res.json({ success: true });
-    } catch (e) { res.status(500).json({ error: e.message }); }
+    } catch (e) { 
+        console.error('Fejl ved gemning af kunde:', e.message);
+        res.status(500).json({ error: e.message }); 
+    }
 });
 
 app.post('/api/customers/delete', async (req, res) => {

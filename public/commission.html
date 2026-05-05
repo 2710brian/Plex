@@ -94,7 +94,7 @@
                     <div class="flex justify-between items-start mb-6 italic font-black uppercase">
                         <div>
                             <h3 class="text-xs text-slate-400">Plex Server Pool</h3>
-                            <p class="text-[10px] text-slate-300">Serverudgift: <span id="target-euro-display">€ 287,00</span></p>
+                            <p class="text-[10px] text-slate-300">Serverudgift: <span id="target-euro-display">€ 287,00</span> | Mangler: <span id="missing-amount-display" class="text-red-600 font-black">€ 287,00</span></p>
                         </div>
                         <span id="collected-eur-display" class="text-4xl text-slate-800 font-mono tracking-tighter italic font-black">€ 0,00</span>
                     </div>
@@ -263,7 +263,9 @@
                 });
 
                 const plexProfit = Math.max(0, plexCollected - serverCost);
+                const missingAmount = Math.max(0, serverCost - plexCollected);
                 document.getElementById('collected-eur-display').innerText = "€ " + plexCollected.toFixed(2);
+                if(document.getElementById('missing-amount-display')) document.getElementById('missing-amount-display').innerText = "€ " + missingAmount.toFixed(2);
                 document.getElementById('plex-net-profit').innerText = "€ " + plexProfit.toFixed(2);
                 document.getElementById('reserve-vault-total').innerText = "€ " + vaultSum.toFixed(2);
                 document.getElementById('admin-total-netto-label').innerText = "NETTO OVERSKUD: € " + plexProfit.toFixed(2);

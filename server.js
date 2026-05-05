@@ -34,11 +34,11 @@ app.post('/api/customers/save', async (req, res) => {
     const c = req.body;
     try {
         if (c.id) {
-            await pool.query(`UPDATE customers SET name=$1, email=$2, mobile=$3, category=$4, status=$5, plex_id=$6, plan=$7, next_payment=$8, paid=$9, type=$10, admin_panel=$11, plex_access=$12, overseer=$13, agent=$14, cashflow_status=$15 WHERE id=$16`,
-                [c.name, c.email, c.mobile, c.category, c.status, c.plex_id, c.plan, c.next_payment, c.paid, c.type, c.admin_panel, c.plex_access, c.overseer, c.agent, c.cashflow_status, c.id]);
+            await pool.query(`UPDATE customers SET name=$1, email=$2, mobile=$3, category=$4, status=$5, plex_id=$6, plan=$7, next_payment=$8, paid=$9, type=$10, admin_panel=$11, plex_access=$12, overseer=$13, agent=$14, cashflow_status=$15, salutation=$16, country=$17, gender=$18, language=$19, sub_category=$20, login_allowed=$21, email_notifications=$22, created_date=$23, company_name=$24, website=$25, tax_id=$26, address=$27, mac=$28, app=$29 WHERE id=$30`,
+                [c.name, c.email, c.mobile, c.category, c.status, c.plex_id, c.plan, c.next_payment, c.paid, c.type, c.admin_panel, c.plex_access, c.overseer, c.agent, c.cashflow_status, c.salutation, c.country, c.gender, c.language, c.sub_category, c.login_allowed, c.email_notifications, c.created_date, c.company_name, c.website, c.tax_id, c.address, c.mac, c.app, c.id]);
         } else {
-            await pool.query(`INSERT INTO customers (name, email, mobile, category, status, plex_id, plan, next_payment, paid, type, admin_panel, plex_access, overseer, agent, cashflow_status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
-                [c.name, c.email, c.mobile, c.category, c.status, c.plex_id, c.plan, c.next_payment, c.paid, c.type, c.admin_panel, c.plex_access, c.overseer, c.agent, c.cashflow_status]);
+            await pool.query(`INSERT INTO customers (name, email, mobile, category, status, plex_id, plan, next_payment, paid, type, admin_panel, plex_access, overseer, agent, cashflow_status, salutation, country, gender, language, sub_category, login_allowed, email_notifications, created_date, company_name, website, tax_id, address, mac, app) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29)`,
+                [c.name, c.email, c.mobile, c.category, c.status, c.plex_id, c.plan, c.next_payment, c.paid, c.type, c.admin_panel, c.plex_access, c.overseer, c.agent, c.cashflow_status, c.salutation, c.country, c.gender, c.language, c.sub_category, c.login_allowed, c.email_notifications, c.created_date, c.company_name, c.website, c.tax_id, c.address, c.mac, c.app]);
         }
         res.json({ success: true });
     } catch (e) { res.status(500).json({ error: e.message }); }
